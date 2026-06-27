@@ -1920,6 +1920,12 @@
     }
 
     function renderPreview() {
+      if (cvData && cvData.contact && cvData.contact.name) {
+        document.title = `CV ${cvData.contact.name}`;
+      } else {
+        document.title = "CV Maker";
+      }
+
       const printContainer = document.getElementById('print-preview-container');
       const screenContainer = document.getElementById('screen-preview-container');
       
