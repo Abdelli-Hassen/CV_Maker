@@ -1,0 +1,2487 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hassen Abdelli — CV Dashboard & Builder</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,600&display=swap" rel="stylesheet">
+
+  <style>
+    /* ----------------------------------------------------
+       1. CORE SYSTEM & DARK NEUMORPHIC BUILDER THEME
+       ---------------------------------------------------- */
+    :root {
+      --bg-builder: #0b0f19;
+      --bg-sidebar: #111827;
+      --bg-card: #1f2937;
+      --bg-input: #030712;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --accent: #fbbf24;
+      --accent-dark: #d97706;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      
+      /* CV Layout Variable Defaults */
+      --design-bg: #0b0f19;
+      --design-gold: #f59e0b;
+      --design-gold-dark: #d97706;
+      --prof-navy: #1e3a8a;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-builder);
+      color: var(--text-main);
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    #app-container {
+      display: grid;
+      grid-template-columns: 480px 1fr;
+      height: 100vh;
+    }
+
+    /* ----------------------------------------------------
+       2. EDITOR SIDEBAR (Tabbed Admin Dashboard)
+       ---------------------------------------------------- */
+    .editor-sidebar {
+      background-color: var(--bg-sidebar);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Top branding */
+    .sidebar-brand {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand-title h1 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.01em;
+    }
+
+    .brand-title p {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    /* Tab switcher navigation */
+    .tabs-nav {
+      display: flex;
+      background: rgba(0, 0, 0, 0.2);
+      border-bottom: 1px solid var(--border-color);
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      flex: 1;
+      min-width: 75px;
+      background: transparent;
+      border: none;
+      padding: 0.8rem 0.5rem;
+      color: var(--text-muted);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      transition: all 0.2s ease;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+    }
+
+    .tab-btn svg {
+      width: 1.1rem;
+      height: 1.1rem;
+      opacity: 0.6;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .tab-btn.active svg {
+      opacity: 1;
+      color: var(--accent);
+    }
+
+    /* Tab Content panels container */
+    .tabs-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .tab-panel {
+      display: none;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .tab-panel.active {
+      display: flex;
+    }
+
+    /* Form Design & Grouping */
+    .panel-section-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .panel-section-title button {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .form-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 0.6rem;
+      padding: 1rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+      margin-bottom: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-group label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .form-group input, .form-group textarea, .form-group select {
+      background-color: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 0.375rem;
+      padding: 0.55rem 0.75rem;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.82rem;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .form-group input:focus, .form-group textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.15);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    /* PFP Upload Zone */
+    .pfp-upload-container {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 0.85rem;
+      border-radius: 0.5rem;
+      border: 1px dashed var(--border-color);
+    }
+
+    .pfp-preview-circle {
+      width: 4rem;
+      height: 4rem;
+      border-radius: 50%;
+      background: var(--bg-input);
+      border: 2px solid var(--accent);
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .pfp-preview-circle img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .pfp-preview-circle span {
+      font-size: 1.5rem;
+      color: var(--text-muted);
+    }
+
+    .pfp-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .pfp-btn {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0.3rem 0.75rem;
+      font-size: 0.72rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .pfp-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Collapsible card lists */
+    .collapsible-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 0.5rem;
+      margin-bottom: 0.65rem;
+      overflow: hidden;
+    }
+
+    .collapsible-header {
+      background: rgba(0,0,0,0.1);
+      padding: 0.75rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .collapsible-header-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .collapsible-header-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .collapsible-header-subtitle {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .collapsible-header-actions {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .collapsible-toggle-icon {
+      width: 0.9rem;
+      height: 0.9rem;
+      transition: transform 0.2s;
+    }
+
+    .collapsible-card.open .collapsible-toggle-icon {
+      transform: rotate(180deg);
+    }
+
+    .collapsible-content {
+      padding: 1rem;
+      border-top: 1px solid var(--border-color);
+      display: none;
+    }
+
+    .collapsible-card.open .collapsible-content {
+      display: block;
+    }
+
+    /* Bottom utilities */
+    .sidebar-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    /* ----------------------------------------------------
+       3. PREVIEW CONTAINER (Right Column)
+       ---------------------------------------------------- */
+    .preview-container {
+      background-color: #030712;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+      position: relative;
+    }
+
+    .preview-toolbar {
+      display: flex;
+      gap: 1.25rem;
+      background: rgba(17, 24, 39, 0.8);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      padding: 0.65rem 1.5rem;
+      border-radius: 50px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .toolbar-select {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      color: #ffffff;
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .toolbar-select:hover {
+      border-color: var(--accent);
+    }
+
+    .btn-action {
+      background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+      color: #000;
+      border: none;
+      padding: 0.4rem 1.2rem;
+      border-radius: 20px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.2s;
+    }
+
+    .btn-action:hover {
+      box-shadow: 0 5px 15px rgba(251, 191, 36, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .btn-danger {
+      background: transparent;
+      border: 1px solid #ef4444;
+      color: #ef4444;
+    }
+
+    .btn-danger:hover {
+      background: #ef4444;
+      color: white;
+      box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
+    }
+
+    .a4-sheet {
+      width: 210mm;
+      min-height: 297mm;
+      background: #ffffff;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
+      transform-origin: top center;
+      position: relative;
+    }
+
+    /* Off-screen master container for height calculation */
+    @media screen {
+      #print-preview-container {
+        position: absolute !important;
+        top: -9999px !important;
+        left: -9999px !important;
+        width: 180mm !important; /* A4 width (210mm) minus 15mm margins on left/right (30mm) */
+        height: auto !important;
+        visibility: hidden !important;
+        z-index: -1000 !important;
+      }
+      
+      /* Reset layout wrappers padding on screen to prevent double padding */
+      .cv-designed-body,
+      .cv-prof-body,
+      .cv-ats-body,
+      .cv-sidebar-body,
+      .cv-mini-body,
+      .cv-euro-body {
+        padding: 0 !important;
+        box-sizing: border-box;
+      }
+    }
+
+    /* Screen-only A4 Page Sheets */
+    .a4-page-sheet {
+      width: 210mm;
+      height: 297mm;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+      margin-bottom: 25px; /* Gap between physical pages */
+      background-color: #ffffff;
+      transform-origin: top center;
+      padding: 15mm; /* Page margins on screen */
+      box-sizing: border-box;
+    }
+    
+    .a4-page-sheet:last-child {
+      margin-bottom: 0;
+    }
+    
+    .a4-page-content-wrapper {
+      position: absolute;
+      top: 15mm;
+      left: 15mm;
+      width: 180mm;
+      height: 267mm; /* A4 height (297mm) minus 15mm margins on top/bottom (30mm) */
+      overflow: hidden;
+    }
+    
+    .a4-page-clone {
+      width: 180mm;
+      transform-origin: top left;
+    }
+    
+    .cv-layout-spacer {
+      width: 100%;
+      page-break-after: avoid;
+      break-after: avoid;
+    }
+
+    /* ----------------------------------------------------
+       4. CV STYLING & DYNAMIC PREVIEWS
+       ---------------------------------------------------- */
+    
+    /* Layout 1: Designed (Midnight Gold) */
+    .cv-designed-body {
+      background-color: var(--design-bg) !important;
+      color: #f3f4f6 !important;
+      font-family: 'Inter', sans-serif;
+      padding: 12mm 12mm 12mm 12mm;
+      box-sizing: border-box;
+      min-height: 297mm;
+    }
+    .cv-designed-body a { color: var(--design-gold) !important; text-decoration: none; }
+    .cv-designed-header {
+      border-bottom: 1px solid rgba(245,158,11,0.2);
+      padding-bottom: 1.2rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    .cv-designed-header-text { flex: 1; }
+    .cv-designed-name { font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 800; color: var(--design-gold); line-height: 1.1; }
+    .cv-designed-title { font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 600; color: #ffffff; margin-top: 0.3rem; }
+    .cv-designed-contacts { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.85rem; font-size: 0.75rem; color: #9ca3af; }
+    .cv-designed-contacts span { background: rgba(255,255,255,0.03); padding: 0.2rem 0.5rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); }
+    
+    .cv-designed-pfp {
+      border-radius: 50%;
+      border: 2.5px solid var(--design-gold);
+      object-fit: cover;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+      flex-shrink: 0;
+    }
+    
+    .cv-designed-grid { display: grid; grid-template-columns: 32% 64%; gap: 4%; }
+    .cv-designed-sidebar { display: flex; flex-direction: column; gap: 1.2rem; }
+    .cv-designed-main { display: flex; flex-direction: column; gap: 1.2rem; }
+    .cv-designed-sectitle {
+      font-family: 'Outfit', sans-serif; font-size: 0.9rem; font-weight: 700;
+      text-transform: uppercase; color: #ffffff; border-bottom: 2px solid var(--design-gold);
+      padding-bottom: 0.25rem; margin-bottom: 0.65rem;
+    }
+    .cv-designed-card { background: rgba(17,24,39,0.5); border: 1px solid rgba(255,255,255,0.02); border-radius: 0.4rem; padding: 0.75rem 0.85rem; margin-bottom: 0.65rem; }
+    .cv-designed-cardtitle { font-size: 0.85rem; font-weight: 700; color: #ffffff; display: flex; justify-content: space-between; }
+    .cv-designed-cardorg { font-size: 0.8rem; font-weight: 600; color: var(--design-gold); margin-top: 0.1rem; }
+    .cv-designed-carddate { font-size: 0.7rem; color: #9ca3af; background: rgba(245,158,11,0.05); padding: 0.1rem 0.35rem; border-radius: 3px; font-weight: 500; }
+    .cv-designed-bullets { list-style-type: none; margin-top: 0.35rem; padding-left: 0.75rem; }
+    .cv-designed-bullets li { position: relative; padding-left: 0.75rem; font-size: 0.75rem; color: #9ca3af; margin-bottom: 0.25rem; line-height: 1.4; }
+    .cv-designed-bullets li::before { content: "▪"; color: var(--design-gold); position: absolute; left: 0; top: 0; font-size: 0.6rem; }
+    .cv-designed-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.3rem; }
+    .cv-designed-tag { background: rgba(245,158,11,0.04); color: var(--design-gold); border: 1px solid rgba(245,158,11,0.12); border-radius: 3px; padding: 0.1rem 0.35rem; font-size: 0.65rem; font-weight: 600; }
+    .cv-designed-simplelist { display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.72rem; }
+    .cv-designed-simpleitem { display: flex; justify-content: space-between; border-left: 2px solid var(--design-gold); padding-left: 0.4rem; background: rgba(255,255,255,0.01); padding: 0.2rem 0.4rem; }
+
+    /* Layout 2: Corporate Professional */
+    .cv-prof-body { background: #ffffff !important; color: #111827 !important; padding: 12mm 12mm; font-family: 'Inter', sans-serif; min-height: 297mm; box-sizing: border-box; }
+    .cv-prof-body a { color: var(--prof-navy) !important; text-decoration: none; }
+    .cv-prof-header {
+      border-bottom: 2px solid var(--prof-navy);
+      padding-bottom: 1.2rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    .cv-prof-header-text { flex: 1; text-align: left; }
+    .cv-prof-name { font-family: 'Playfair Display', serif; font-size: 2.3rem; font-weight: 700; color: var(--prof-navy); }
+    .cv-prof-title { font-size: 0.95rem; font-weight: 600; text-transform: uppercase; color: #374151; letter-spacing: 0.05em; margin-top: 0.25rem; }
+    .cv-prof-contacts { display: flex; flex-wrap: wrap; gap: 0.85rem; margin-top: 0.75rem; font-size: 0.76rem; color: #4b5563; }
+    
+    .cv-prof-pfp {
+      border-radius: 4px;
+      border: 1px solid #d1d5db;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    
+    .cv-prof-sectitle { font-size: 0.95rem; font-weight: 700; color: var(--prof-navy); text-transform: uppercase; border-bottom: 1px solid #d1d5db; padding-bottom: 0.15rem; margin-bottom: 0.75rem; margin-top: 1.1rem; }
+    .cv-prof-item { margin-bottom: 0.85rem; }
+    .cv-prof-itemhead { display: flex; justify-content: space-between; font-size: 0.88rem; font-weight: 700; }
+    .cv-prof-itemorg { font-style: italic; color: var(--prof-navy); font-weight: 600; }
+    .cv-prof-itemdate { font-size: 0.75rem; color: #6b7280; font-weight: 600; }
+    .cv-prof-bullets { list-style-type: disc; padding-left: 1.1rem; margin-top: 0.25rem; }
+    .cv-prof-bullets li { font-size: 0.78rem; color: #374151; margin-bottom: 0.2rem; line-height: 1.45; }
+    .cv-prof-grid { display: grid; grid-template-columns: 48% 48%; gap: 4%; }
+    .cv-prof-skillrow { font-size: 0.78rem; margin-bottom: 0.5rem; color: #374151; line-height: 1.4; }
+    .cv-prof-skillrow strong { color: var(--prof-navy); }
+
+    /* Layout 3: ATS Optimized */
+    .cv-ats-body { background: #ffffff !important; color: #333333 !important; font-family: Arial, Helvetica, sans-serif; padding: 15mm 15mm; min-height: 297mm; box-sizing: border-box; font-size: 11pt; line-height: 1.45; }
+    .cv-ats-body a { color: #333333 !important; text-decoration: none; }
+    .cv-ats-header { text-align: center; margin-bottom: 1.2rem; }
+    .cv-ats-name { font-size: 18pt; font-weight: bold; text-transform: uppercase; color: #000000; }
+    .cv-ats-contacts { font-size: 10pt; color: #333333; margin-top: 0.25rem; }
+    .cv-ats-sectitle { font-size: 12pt; font-weight: bold; text-transform: uppercase; border-bottom: 1.5px solid #000000; padding-bottom: 2px; margin-top: 1.2rem; margin-bottom: 0.65rem; color: #000000; }
+    .cv-ats-item { margin-bottom: 0.85rem; }
+    .cv-ats-itemhead { font-weight: bold; display: flex; justify-content: space-between; font-size: 11pt; }
+    .cv-ats-itemsub { font-style: italic; font-weight: normal; }
+    .cv-ats-bullets { padding-left: 1.2rem; margin-top: 0.25rem; }
+    .cv-ats-bullets li { font-size: 10pt; color: #333333; margin-bottom: 0.15rem; }
+
+    /* Layout 4: Two-Column Sidebar */
+    :root {
+      --sidebar-bg: #1e293b;
+      --sidebar-text: #ffffff;
+      --sidebar-accent: #3b82f6;
+    }
+    .cv-sidebar-body { background: #ffffff !important; color: #1e293b !important; padding: 10mm 10mm; min-height: 297mm; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+    .cv-sidebar-body a { color: var(--sidebar-accent) !important; text-decoration: none; }
+    .cv-sidebar-container { display: flex; gap: 8mm; height: 100%; }
+    .cv-sidebar-left { width: 33%; background: var(--sidebar-bg); color: var(--sidebar-text); padding: 5mm; border-radius: 6px; display: flex; flex-direction: column; gap: 4mm; }
+    .cv-sidebar-right { width: 67%; display: flex; flex-direction: column; gap: 4mm; }
+    .cv-sidebar-pfp { border-radius: 50%; border: 3px solid var(--sidebar-accent); object-fit: cover; align-self: center; margin-bottom: 0.2rem; }
+    .cv-sidebar-left-section { margin-bottom: 0.3rem; }
+    .cv-sidebar-left-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; color: var(--sidebar-accent); border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 0.15rem; margin-bottom: 0.4rem; letter-spacing: 0.05em; }
+    .cv-sidebar-left-content { font-size: 0.72rem; color: rgba(255,255,255,0.85); line-height: 1.4; }
+    .cv-sidebar-left-bullets { list-style-type: none; }
+    .cv-sidebar-left-bullets li { position: relative; padding-left: 0.6rem; margin-bottom: 0.25rem; font-size: 0.72rem; }
+    .cv-sidebar-left-bullets li::before { content: "•"; color: var(--sidebar-accent); position: absolute; left: 0; }
+    .cv-sidebar-right-section { margin-bottom: 0.4rem; }
+    .cv-sidebar-right-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.9rem; font-weight: 800; text-transform: uppercase; color: var(--sidebar-bg); border-bottom: 2px solid var(--sidebar-accent); padding-bottom: 0.15rem; margin-bottom: 0.6rem; letter-spacing: 0.05em; }
+    .cv-sidebar-item { margin-bottom: 0.65rem; }
+    .cv-sidebar-itemhead { display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 700; color: #0f172a; }
+    .cv-sidebar-itemorg { color: var(--sidebar-accent); font-weight: 600; }
+    .cv-sidebar-itemdate { font-size: 0.7rem; color: #64748b; font-weight: 600; }
+    .cv-sidebar-bullets { list-style-type: none; margin-top: 0.25rem; padding-left: 0.5rem; }
+    .cv-sidebar-bullets li { position: relative; padding-left: 0.75rem; font-size: 0.74rem; color: #334155; margin-bottom: 0.2rem; line-height: 1.4; }
+    .cv-sidebar-bullets li::before { content: "›"; color: var(--sidebar-accent); position: absolute; left: 0; font-size: 0.9rem; font-weight: bold; top: -1px; }
+
+    /* Layout 5: Minimalist Swiss */
+    .cv-mini-body { background: #ffffff !important; color: #27272a !important; padding: 15mm 15mm; min-height: 297mm; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+    .cv-mini-body a { color: #09090b !important; text-decoration: underline; }
+    .cv-mini-header { border-bottom: 1px solid #e4e4e7; padding-bottom: 1rem; margin-bottom: 1.2rem; display: flex; justify-content: space-between; align-items: flex-end; gap: 1.5rem; }
+    .cv-mini-name { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 700; color: #09090b; line-height: 1.1; }
+    .cv-mini-title { font-size: 0.88rem; font-weight: 600; text-transform: uppercase; color: #71717a; letter-spacing: 0.08em; margin-top: 0.4rem; }
+    .cv-mini-contacts { display: flex; flex-direction: column; gap: 0.2rem; text-align: right; font-size: 0.72rem; color: #52525b; font-weight: 500; }
+    .cv-mini-pfp { border-radius: 2px; filter: grayscale(100%); object-fit: cover; border: 1px solid #e4e4e7; }
+    .cv-mini-grid { display: grid; grid-template-columns: 30% 66%; gap: 4%; }
+    .cv-mini-left-col { display: flex; flex-direction: column; gap: 1rem; border-right: 1px solid #f4f4f5; padding-right: 4%; }
+    .cv-mini-right-col { display: flex; flex-direction: column; gap: 1rem; }
+    .cv-mini-sectitle { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; color: #09090b; border-bottom: 1px solid #09090b; padding-bottom: 0.15rem; margin-bottom: 0.6rem; }
+    .cv-mini-item { margin-bottom: 0.8rem; }
+    .cv-mini-itemhead { display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 700; color: #09090b; }
+    .cv-mini-itemorg { font-weight: 500; color: #52525b; }
+    .cv-mini-itemdate { font-size: 0.7rem; color: #71717a; font-weight: 500; }
+    .cv-mini-bullets { list-style-type: none; padding-left: 0; margin-top: 0.25rem; }
+    .cv-mini-bullets li { position: relative; padding-left: 0.6rem; font-size: 0.74rem; color: #3f3f46; margin-bottom: 0.25rem; line-height: 1.4; }
+    .cv-mini-bullets li::before { content: "—"; position: absolute; left: 0; color: #a1a1aa; }
+    .cv-mini-skillcat { font-size: 0.72rem; margin-bottom: 0.5rem; line-height: 1.35; color: #3f3f46; }
+    .cv-mini-skillcat strong { color: #09090b; display: block; margin-bottom: 0.1rem; font-size: 0.74rem; }
+
+    /* Layout 6: Europass Standard */
+    .cv-euro-body { background: #ffffff !important; color: #333333 !important; padding: 12mm 12mm; min-height: 297mm; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+    .cv-euro-body a { color: #0055a5 !important; text-decoration: none; }
+    .cv-euro-header { display: flex; border-bottom: 1px solid #dcdcdc; padding-bottom: 1rem; margin-bottom: 1.2rem; gap: 1.5rem; align-items: center; }
+    .cv-euro-logo-container { width: 30%; font-size: 1.5rem; font-weight: 800; color: #0055a5; display: flex; align-items: center; gap: 0.25rem; letter-spacing: -0.02em; }
+    .cv-euro-logo-container span { color: #ffcc00; }
+    .cv-euro-header-text { width: 70%; display: flex; justify-content: space-between; align-items: center; }
+    .cv-euro-pfp { border-radius: 4px; border: 1px solid #dcdcdc; object-fit: cover; }
+    .cv-euro-row { display: grid; grid-template-columns: 30% 70%; gap: 0; border-bottom: 1px solid #f2f2f2; padding: 0.6rem 0; }
+    .cv-euro-row:last-child { border-bottom: none; }
+    .cv-euro-left { font-weight: 600; color: #0055a5; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.05em; padding-right: 1.5rem; text-align: right; border-right: 1px solid #0055a5; }
+    .cv-euro-right { padding-left: 1.5rem; font-size: 0.76rem; color: #333333; }
+    .cv-euro-name { font-size: 1.4rem; font-weight: 700; color: #333333; }
+    .cv-euro-title { font-size: 0.8rem; font-weight: 600; color: #666666; margin-top: 0.15rem; }
+    .cv-euro-contact-item { margin-bottom: 0.2rem; font-size: 0.72rem; }
+    .cv-euro-sectitle { font-size: 0.85rem; font-weight: 700; color: #0055a5; text-transform: uppercase; border-bottom: 2px solid #0055a5; padding-bottom: 0.15rem; margin-top: 1rem; margin-bottom: 0.4rem; }
+    .cv-euro-item { margin-bottom: 0.6rem; }
+    .cv-euro-itemhead { display: flex; justify-content: space-between; font-weight: 700; font-size: 0.78rem; color: #333333; }
+    .cv-euro-itemorg { color: #666666; font-weight: 500; font-style: italic; }
+    .cv-euro-itemdate { font-weight: 600; color: #0055a5; font-size: 0.72rem; }
+    .cv-euro-bullets { list-style-type: square; padding-left: 1rem; margin-top: 0.2rem; }
+    .cv-euro-bullets li { font-size: 0.74rem; color: #444444; margin-bottom: 0.2rem; line-height: 1.4; }
+
+    /* ----------------------------------------------------
+       5. PRINT SETTINGS & MARGIN INJECTION
+       ---------------------------------------------------- */
+    @media print {
+      body {
+        background: #fff !important;
+        color: #000 !important;
+      }
+      #app-container {
+        display: block !important;
+      }
+      .editor-sidebar {
+        display: none !important;
+      }
+      .preview-container {
+        padding: 0 !important;
+        background: none !important;
+        height: auto !important;
+        overflow: visible !important;
+      }
+      .preview-toolbar {
+        display: none !important;
+      }
+      .a4-sheet {
+        box-shadow: none !important;
+        transform: none !important;
+        width: 100% !important; /* Flow naturally with the page breaks */
+        height: auto !important;
+        margin: 0 !important;
+      }
+      #screen-preview-container {
+        display: none !important;
+      }
+      
+      #print-preview-container {
+        position: relative !important;
+        top: 0 !important;
+        left: 0 !important;
+        visibility: visible !important;
+        display: block !important;
+      }
+
+      p, li, h1, h2, h3, h4, h5, h6,
+      .cv-designed-card,
+      .cv-prof-item,
+      .cv-ats-item,
+      .cv-sidebar-item,
+      .cv-mini-item,
+      .cv-euro-row,
+      .cv-euro-item,
+      .skill-cat,
+      .cv-prof-skillrow,
+      .cv-designed-simpleitem,
+      .cv-mini-skillcat,
+      .cv-sidebar-left-section {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+      
+      /* Force browser to apply clean 15mm margins on page breaks automatically */
+      @page {
+        margin: 15mm !important;
+      }
+      
+      .cv-layout-spacer {
+        display: block !important;
+        background: transparent !important;
+        border: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+      
+      /* Reset standard padding on containers to prevent double margins */
+      .cv-designed-body,
+      .cv-prof-body,
+      .cv-ats-body,
+      .cv-sidebar-body,
+      .cv-mini-body,
+      .cv-euro-body {
+        background-color: #ffffff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+      }
+      .cv-designed-body { color: #1f2937 !important; }
+      .cv-prof-body { color: #111827 !important; }
+      .cv-ats-body { color: #333333 !important; }
+      
+      /* Creative style conversions to print cleanly */
+      .cv-designed-name { color: #0b0f19 !important; }
+      .cv-designed-title { color: var(--design-gold-dark) !important; }
+      .cv-designed-contacts span { background: #f3f4f6 !important; border: 1px solid #e5e7eb !important; color: #4b5563 !important; }
+      .cv-designed-sectitle { color: #0b0f19 !important; border-bottom: 2px solid var(--design-gold-dark) !important; }
+      .cv-designed-card { background: #ffffff !important; border: 1px solid #e5e7eb !important; box-shadow: none !important; page-break-inside: avoid; }
+      .cv-designed-cardtitle { color: #0b0f19 !important; }
+      .cv-designed-cardorg { color: var(--design-gold-dark) !important; }
+      .cv-designed-carddate { background: #f9fafb !important; border: 1px solid #e5e7eb !important; color: #4b5563 !important; }
+      .cv-designed-bullets li { color: #4b5563 !important; }
+      .cv-designed-bullets li::before { color: var(--design-gold-dark) !important; }
+      .cv-designed-tag { background: #f3f4f6 !important; color: #1f2937 !important; border: 1px solid #e5e7eb !important; }
+      .cv-designed-simpleitem { background: #f9fafb !important; border-left: 2px solid var(--design-gold-dark) !important; }
+      .cv-designed-pfp { border-color: var(--design-gold-dark) !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="app-container">
+    
+    <!-- LEFT SIDEBAR: NEW DASHBOARD EDITOR -->
+    <aside class="editor-sidebar">
+      
+      <!-- Top Branding -->
+      <div class="sidebar-brand">
+        <div class="brand-title">
+          <h1>Dashboard CV</h1>
+          <p>Modifier et personnaliser votre profil</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="tabs-nav">
+        <button class="tab-btn active" onclick="switchTab('tab-profile')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Profil
+        </button>
+        <button class="tab-btn" onclick="switchTab('tab-experiences')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          Expériences
+        </button>
+        <button class="tab-btn" onclick="switchTab('tab-projects')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+          Projets
+        </button>
+        <button class="tab-btn" onclick="switchTab('tab-skills')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+          Compétences
+        </button>
+        <button class="tab-btn" onclick="switchTab('tab-education')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12.5V16a6 6 0 0 0 12 0v-3.5"/></svg>
+          Études+
+        </button>
+      </div>
+
+      <!-- Tab Content Panels -->
+      <div class="tabs-content">
+        
+        <!-- Tab 1: Profil & Photo -->
+        <div id="tab-profile" class="tab-panel active">
+          
+          <div class="panel-section-title">Photo de profil & Dimension</div>
+          <div class="form-card" style="display: flex; flex-direction: column; gap: 1rem;">
+            <div class="pfp-upload-container">
+              <div id="pfp-preview" class="pfp-preview-circle">
+                <span>👤</span>
+              </div>
+              <div class="pfp-actions">
+                <label class="pfp-btn" style="cursor: pointer;">
+                  Télécharger une photo
+                  <input type="file" id="pfp-input" accept="image/*" style="display: none;" onchange="uploadProfileImage(this)">
+                </label>
+                <button class="pfp-btn" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.2);" onclick="removeProfileImage()">Supprimer</button>
+              </div>
+            </div>
+            
+            <!-- Image size slider -->
+            <div class="form-group" id="image-size-group">
+              <label id="lbl-image-size">Taille de l'image : 80px</label>
+              <input type="range" id="input-image-size" min="60" max="180" step="5" value="80" oninput="changeImageSize(this.value)">
+            </div>
+          </div>
+
+          <div class="panel-section-title">Identité & Contact</div>
+          <div class="form-card">
+            <div class="form-group">
+              <label>Nom Complet</label>
+              <input type="text" id="input-name" oninput="updateField('contact.name', this.value)">
+            </div>
+            <div class="form-group">
+              <label>Titre Professionnel</label>
+              <input type="text" id="input-title-sub" oninput="updateField('contact.title_sub', this.value)">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>E-mail</label>
+                <input type="text" id="input-email" oninput="updateField('contact.email', this.value)">
+              </div>
+              <div class="form-group">
+                <label>Téléphone</label>
+                <input type="text" id="input-phone" oninput="updateField('contact.phone', this.value)">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Localisation</label>
+              <input type="text" id="input-location" oninput="updateField('contact.location', this.value)">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>LinkedIn</label>
+                <input type="text" id="input-linkedin" oninput="updateField('contact.linkedin', this.value)">
+              </div>
+              <div class="form-group">
+                <label>GitHub</label>
+                <input type="text" id="input-github" oninput="updateField('contact.github', this.value)">
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-section-title">Profil / Résumé</div>
+          <div class="form-card">
+            <div class="form-group">
+              <textarea id="input-profile" rows="6" placeholder="Décrivez votre parcours..." oninput="updateField('profile', this.value)"></textarea>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Tab 2: Expériences (Collapsible Cards) -->
+        <div id="tab-experiences" class="tab-panel">
+          <div class="panel-section-title">
+            Parcours Professionnel
+            <button onclick="addItem('experiences')">+ Ajouter</button>
+          </div>
+          <div id="list-experiences"></div>
+        </div>
+
+        <!-- Tab 3: Projets (Collapsible Cards) -->
+        <div id="tab-projects" class="tab-panel">
+          <div class="panel-section-title">
+            Projets & Réalisations
+            <button onclick="addItem('projects')">+ Ajouter</button>
+          </div>
+          <div id="list-projects"></div>
+        </div>
+
+        <!-- Tab 4: Compétences (Refactored Dynamic List) -->
+        <div id="tab-skills" class="tab-panel">
+          <div class="panel-section-title">
+            Catégories de Compétences
+            <button onclick="addSkillCategory()">+ Catégorie</button>
+          </div>
+          <div id="list-skills" style="display: flex; flex-direction: column; gap: 0.85rem;"></div>
+        </div>
+
+        <!-- Tab 5: Formations & Autre -->
+        <div id="tab-education" class="tab-panel">
+          
+          <div class="panel-section-title">
+            Formations / Études
+            <button onclick="addItem('education')">+ Ajouter</button>
+          </div>
+          <div id="list-education"></div>
+
+          <div class="panel-section-title">
+            Certifications
+            <button onclick="addSimpleItem('certifications')">+ Ajouter</button>
+          </div>
+          <div id="list-certifications"></div>
+
+          <div class="panel-section-title">
+            Engagements / Activités
+            <button onclick="addSimpleItem('activities')">+ Ajouter</button>
+          </div>
+          <div id="list-activities"></div>
+
+          <div class="panel-section-title">
+            Langues
+            <button onclick="addItem('languages')">+ Ajouter</button>
+          </div>
+          <div id="list-languages"></div>
+
+          <div class="panel-section-title">
+            Centres d'intérêt
+            <button onclick="addSimpleItem('interests')">+ Ajouter</button>
+          </div>
+          <div id="list-interests"></div>
+
+        </div>
+
+      </div>
+
+      <!-- Footer Utilities -->
+      <div class="sidebar-footer">
+        <button class="btn-action btn-danger" style="flex: 1; padding: 0.5rem;" onclick="resetToDefaults()">Réinitialiser</button>
+        <button class="btn-action" style="flex: 1; padding: 0.5rem; background: #3b82f6; color: white;" onclick="downloadJSON()">⬇ Exporter</button>
+        <button class="btn-action" style="flex: 1; padding: 0.5rem; background: #10b981; color: white;" onclick="document.getElementById('import-json-input').click()">⬆ Importer</button>
+        <input type="file" id="import-json-input" accept=".json" style="display:none;" onchange="importJSON(this)">
+      </div>
+
+    </aside>
+
+    <!-- RIGHT SIDEBAR: LIVE A4 PREVIEW -->
+    <main class="preview-container">
+      
+      <!-- Toolbar -->
+      <div class="preview-toolbar">
+        <select id="layout-picker" class="toolbar-select" onchange="changeLayout(this.value)">
+          <option value="designed">Midnight Gold (Créatif)</option>
+          <option value="professional">Corporate (Professionnel)</option>
+          <option value="ats">ATS-Optimisé (Linéaire)</option>
+          <option value="sidebar">Sidebar Bicolore (Compact)</option>
+          <option value="minimalist">Minimalisme Suisse (Moderne)</option>
+          <option value="europass">Norme Europass (Standard)</option>
+        </select>
+        
+        <!-- Quick Designed customizer -->
+        <div id="color-designed-group" style="display: flex; gap: 0.5rem; align-items: center;">
+          <input type="color" id="picker-design-bg" value="#0b0f19" onchange="updateThemeColor('bg', this.value)" title="Couleur de Fond">
+          <input type="color" id="picker-design-gold" value="#f59e0b" onchange="updateThemeColor('gold', this.value)" title="Couleur Accent">
+        </div>
+        
+        <!-- Quick Professional customizer -->
+        <div id="color-prof-group" style="display: none; align-items: center;">
+          <input type="color" id="picker-prof-navy" value="#1e3a8a" onchange="updateThemeColor('navy', this.value)" title="Couleur Marine">
+        </div>
+
+        <!-- Quick Sidebar customizer -->
+        <div id="color-sidebar-group" style="display: none; gap: 0.5rem; align-items: center;">
+          <input type="color" id="picker-sidebar-bg" value="#1e293b" onchange="updateThemeColor('sidebar-bg', this.value)" title="Fond Sidebar">
+          <input type="color" id="picker-sidebar-accent" value="#3b82f6" onchange="updateThemeColor('sidebar-accent', this.value)" title="Accent Sidebar">
+        </div>
+
+        <button class="btn-action" onclick="window.print()">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+          Imprimer / PDF
+        </button>
+      </div>
+
+      <!-- A4 Page Container -->
+      <div id="a4-page" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+        <div id="screen-preview-container" style="width: 100%; display: flex; flex-direction: column; align-items: center;"></div>
+        <div id="print-preview-container" class="a4-sheet"></div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- ----------------------------------------------------
+       6. JAVASCRIPT STATE ENGINE
+       ---------------------------------------------------- -->
+  <script src="data.js"></script>
+  <script>
+    const emptyCVData = {
+      "contact": { "name": "", "title_sub": "", "email": "", "phone": "", "location": "", "linkedin": "", "github": "", "image": "", "image_size": 80 },
+      "profile": "",
+      "experiences": [],
+      "projects": [],
+      "skills": [],
+      "education": [],
+      "certifications": [],
+      "activities": [],
+      "languages": [],
+      "interests": [],
+      "themes": {
+        "designed": { "bg_color": "#0b0f19", "gold_primary": "#f59e0b", "gold_dark": "#d97706" },
+        "professional": { "navy_primary": "#1e3a8a", "navy_light": "#eff6ff" },
+        "sidebar": { "sidebar_bg": "#1e293b", "sidebar_accent": "#3b82f6" }
+      }
+    };
+
+    let cvData = JSON.parse(localStorage.getItem('cv_data')) || (typeof window.defaultCVData !== 'undefined' ? window.defaultCVData : JSON.parse(JSON.stringify(emptyCVData)));
+    let currentLayout = localStorage.getItem('cv_layout') || 'designed';
+    let openCollapseKeys = {}; // Collapsed items status tracking
+
+    /* ----------------------------------------------------
+       MIGRATION CHECK (For old flat skills object)
+       ---------------------------------------------------- */
+    function runMigrations(data) {
+      if (!data) return;
+      if (data.skills && !Array.isArray(data.skills)) {
+        data.skills = [
+          { "category": "Développement Web & Mobile", "value": data.skills.dev || "" },
+          { "category": "Bases de Données", "value": data.skills.databases || "" },
+          { "category": "Réseaux & Systèmes", "value": data.skills.networks || "" },
+          { "category": "Matériel & IoT", "value": data.skills.hardware_iot || "" }
+        ];
+      }
+      if (data.contact && data.contact.image_size === undefined) {
+        data.contact.image_size = 80;
+      }
+      if (!data.themes) {
+        data.themes = JSON.parse(JSON.stringify(emptyCVData.themes));
+      }
+      if (!data.themes.sidebar) {
+        data.themes.sidebar = { "sidebar_bg": "#1e293b", "sidebar_accent": "#3b82f6" };
+      }
+    }
+
+    runMigrations(cvData);
+
+    /* ----------------------------------------------------
+       7. TAB NAV CONTROLLER
+       ---------------------------------------------------- */
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+      
+      const targetBtn = Array.from(document.querySelectorAll('.tab-btn')).find(btn => btn.getAttribute('onclick').includes(tabId));
+      if (targetBtn) targetBtn.classList.add('active');
+      
+      document.getElementById(tabId).classList.add('active');
+    }
+
+    function toggleCollapse(key, idx) {
+      if (openCollapseKeys[key] === idx) {
+        delete openCollapseKeys[key];
+      } else {
+        openCollapseKeys[key] = idx;
+      }
+      renderList(key);
+    }
+
+    /* ----------------------------------------------------
+       8. IMAGE UPLOAD & SCALING
+       ---------------------------------------------------- */
+    function uploadProfileImage(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          cvData.contact.image = e.target.result;
+          saveAndSync();
+          updatePfpPreview();
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    function removeProfileImage() {
+      cvData.contact.image = "";
+      saveAndSync();
+      updatePfpPreview();
+    }
+
+    function updatePfpPreview() {
+      const container = document.getElementById('pfp-preview');
+      if (cvData.contact.image) {
+        container.innerHTML = `<img src="${cvData.contact.image}" alt="PFP">`;
+      } else {
+        container.innerHTML = `<span>👤</span>`;
+      }
+    }
+
+    function changeImageSize(px) {
+      cvData.contact.image_size = parseInt(px);
+      document.getElementById('lbl-image-size').innerText = `Taille de l'image : ${px}px`;
+      saveAndSync();
+    }
+
+    /* ----------------------------------------------------
+       9. TEMPLATE RENDER ENGINE
+       ---------------------------------------------------- */
+    function renderDesignedLayout() {
+      const themes = cvData.themes.designed;
+      document.documentElement.style.setProperty('--design-bg', themes.bg_color);
+      document.documentElement.style.setProperty('--design-gold', themes.gold_primary);
+      document.documentElement.style.setProperty('--design-gold-dark', themes.gold_dark);
+
+      // PFP rendering
+      let pfpHTML = "";
+      if (cvData.contact.image) {
+        const sz = cvData.contact.image_size || 80;
+        pfpHTML = `<img src="${cvData.contact.image}" class="cv-designed-pfp" style="width:${sz}px; height:${sz}px;" alt="PFP">`;
+      }
+
+      // Experiences HTML
+      let expHTML = "";
+      cvData.experiences.forEach(exp => {
+        let bulletsHTML = exp.bullets.map(b => `<li>${b}</li>`).join('');
+        expHTML += `
+          <div class="cv-designed-card">
+            <div class="cv-designed-cardtitle">
+              <span style="font-weight:700; color:#fff;">${exp.title}</span>
+              <span class="cv-designed-carddate">${exp.period}</span>
+            </div>
+            <div class="cv-designed-cardorg">${exp.company} | ${exp.location}</div>
+            <ul class="cv-designed-bullets">${bulletsHTML}</ul>
+          </div>`;
+      });
+
+      // Projects HTML
+      let projHTML = "";
+      cvData.projects.forEach(proj => {
+        projHTML += `
+          <div class="cv-designed-card">
+            <div class="cv-designed-cardtitle">
+              <span style="font-weight:700; color:#fff;">${proj.title}</span>
+              <span class="cv-designed-carddate" style="background:rgba(255,255,255,0.05); color:#fff; border:1px solid rgba(255,255,255,0.1);">${proj.stack}</span>
+            </div>
+            <p style="font-size:0.75rem; color:#9ca3af; margin-top:0.4rem; line-height:1.4;">${proj.description}</p>
+          </div>`;
+      });
+
+      // Education HTML
+      let eduHTML = "";
+      cvData.education.forEach(edu => {
+        eduHTML += `
+          <div class="cv-designed-card" style="padding: 0.6rem 0.75rem;">
+            <div style="font-size:0.78rem; font-weight:700; color:#fff;">${edu.degree}</div>
+            <div style="font-size:0.72rem; color:#9ca3af; margin-top:0.1rem;">${edu.school}</div>
+            <div style="font-size:0.7rem; color:var(--design-gold); font-weight:600; margin-top:0.2rem;">${edu.period}</div>
+          </div>`;
+      });
+
+      // Certifications HTML
+      let certsHTML = "";
+      cvData.certifications.forEach(c => {
+        const parts = c.includes(" – ") ? c.split(" – ") : c.split(" - ");
+        certsHTML += `
+          <div class="cv-designed-simpleitem">
+            <span class="list-label">${parts[0]}</span>
+            <span class="list-val" style="color:var(--design-gold);">${parts[1] || 'Certifié'}</span>
+          </div>`;
+      });
+
+      // Languages HTML
+      let langHTML = "";
+      cvData.languages.forEach(l => {
+        langHTML += `
+          <div class="cv-designed-simpleitem">
+            <span class="list-label">${l.name}</span>
+            <span class="list-val">${l.level}</span>
+          </div>`;
+      });
+
+      // Activities HTML
+      let actHTML = cvData.activities.map(a => `<div style="margin-bottom:0.3rem;">▪ ${a}</div>`).join('');
+
+      // Skill categories rendering loop
+      const getTags = (str) => {
+        return str.split(',').map(s => s.trim()).filter(s => s).map(s => `<span class="cv-designed-tag">${s}</span>`).join('');
+      };
+      
+      let skillsHTML = "";
+      cvData.skills.forEach(s => {
+        skillsHTML += `
+          <div class="skill-cat" style="margin-bottom:0.85rem;">
+            <div style="font-weight:700; color:#fff; margin-bottom:0.25rem; font-size:0.78rem;">${s.category}</div>
+            <div class="cv-designed-tags">${getTags(s.value)}</div>
+          </div>`;
+      });
+
+      return `
+        <div class="cv-designed-body">
+          <header class="cv-designed-header">
+            <div class="cv-designed-header-text">
+              <h1 class="cv-designed-name">${cvData.contact.name}</h1>
+              <p class="cv-designed-title">${cvData.contact.title_sub}</p>
+              <div class="cv-designed-contacts">
+                <span>✉ ${cvData.contact.email}</span>
+                <span>☎ ${cvData.contact.phone}</span>
+                <span>📍 ${cvData.contact.location}</span>
+                <span>🔗 ${cvData.contact.linkedin}</span>
+                <span>💻 ${cvData.contact.github}</span>
+              </div>
+            </div>
+            ${pfpHTML}
+          </header>
+          
+          <div class="cv-designed-grid">
+            <div class="cv-designed-sidebar">
+              <section>
+                <div class="cv-designed-sectitle">Profil</div>
+                <p style="font-size:0.73rem; color:#9ca3af; line-height:1.45; text-align:justify;">${cvData.profile}</p>
+              </section>
+              <section>
+                <div class="cv-designed-sectitle">Compétences</div>
+                <div class="skills-group">
+                  ${skillsHTML}
+                </div>
+              </section>
+              <section>
+                <div class="cv-designed-sectitle">Formation</div>
+                ${eduHTML}
+              </section>
+              <section>
+                <div class="cv-designed-sectitle">Certifications</div>
+                <div class="cv-designed-simplelist">${certsHTML}</div>
+              </section>
+              <section>
+                <div class="cv-designed-sectitle">Langues</div>
+                <div class="cv-designed-simplelist">${langHTML}</div>
+              </section>
+            </div>
+            <div class="cv-designed-main">
+              <section>
+                <div class="cv-designed-sectitle">Expériences Professionnelles</div>
+                ${expHTML}
+              </section>
+              <section>
+                <div class="cv-designed-sectitle">Projets Clés</div>
+                ${projHTML}
+              </section>
+              <section>
+                <div class="cv-designed-sectitle">Engagements</div>
+                <div class="cv-designed-card" style="font-size:0.72rem; color:#9ca3af; line-height:1.4;">
+                  ${actHTML}
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function renderProfessionalLayout() {
+      const themes = cvData.themes.professional;
+      document.documentElement.style.setProperty('--prof-navy', themes.navy_primary);
+
+      // PFP rendering
+      let pfpHTML = "";
+      if (cvData.contact.image) {
+        const sz = cvData.contact.image_size || 80;
+        pfpHTML = `<img src="${cvData.contact.image}" class="cv-prof-pfp" style="width:${sz}px; height:${sz}px;" alt="PFP">`;
+      }
+
+      // Experiences HTML
+      let expHTML = "";
+      cvData.experiences.forEach(exp => {
+        let bulletsHTML = exp.bullets.map(b => `<li>${b}</li>`).join('');
+        expHTML += `
+          <div class="cv-prof-item">
+            <div class="cv-prof-itemhead">
+              <span>${exp.title} — <span class="cv-prof-itemorg">${exp.company}</span></span>
+              <span class="cv-prof-itemdate">${exp.period}</span>
+            </div>
+            <div style="font-size: 0.78rem; color:#6b7280; margin-bottom:0.2rem;">${exp.location}</div>
+            <ul class="cv-prof-bullets">${bulletsHTML}</ul>
+          </div>`;
+      });
+
+      // Projects HTML
+      let projHTML = "";
+      cvData.projects.forEach(proj => {
+        projHTML += `
+          <div class="cv-prof-item">
+            <div class="cv-prof-itemhead">
+              <span>${proj.title}</span>
+              <span class="cv-prof-itemdate" style="font-weight:600;">${proj.stack}</span>
+            </div>
+            <p style="font-size:0.78rem; color:#374151; margin-top:0.2rem; line-height:1.45;">${proj.description}</p>
+          </div>`;
+      });
+
+      // Education HTML
+      let eduHTML = "";
+      cvData.education.forEach(edu => {
+        eduHTML += `
+          <div class="cv-prof-item" style="margin-bottom:0.4rem;">
+            <div style="font-size:0.8rem; font-weight:700;">${edu.degree}</div>
+            <div style="font-size:0.75rem; color:#4b5563;">${edu.school} | ${edu.period}</div>
+          </div>`;
+      });
+
+      // Skill categories list Professional
+      let skillsHTML = "";
+      cvData.skills.forEach(s => {
+        skillsHTML += `
+          <div class="cv-prof-skillrow">
+            <strong>${s.category} :</strong> ${s.value}
+          </div>`;
+      });
+
+      let certsHTML = cvData.certifications.map(c => `<li>${c}</li>`).join('');
+      let actHTML = cvData.activities.map(a => `<li>${a}</li>`).join('');
+      let langHTML = cvData.languages.map(l => `${l.name} (${l.level})`).join(', ');
+
+      return `
+        <div class="cv-prof-body">
+          <header class="cv-prof-header">
+            <div class="cv-prof-header-text">
+              <h1 class="cv-prof-name">${cvData.contact.name}</h1>
+              <p class="cv-prof-title">${cvData.contact.title_sub}</p>
+              <div class="cv-prof-contacts">
+                <span>✉ ${cvData.contact.email}</span>
+                <span>☎ ${cvData.contact.phone}</span>
+                <span>📍 ${cvData.contact.location}</span> <br>
+                <span>🔗 ${cvData.contact.linkedin}</span>
+                <span>💻 ${cvData.contact.github}</span>
+              </div>
+            </div>
+            ${pfpHTML}
+          </header>
+          
+          <section class="section">
+            <div class="cv-prof-sectitle">Profil Professionnel</div>
+            <p style="font-size:0.8rem; color:#374151; text-align:justify; line-height:1.45;">${cvData.profile}</p>
+          </section>
+
+          <section class="section">
+            <div class="cv-prof-sectitle">Expériences Professionnelles</div>
+            ${expHTML}
+          </section>
+
+          <section class="section">
+            <div class="cv-prof-sectitle">Projets Clés</div>
+            ${projHTML}
+          </section>
+
+          <div class="cv-prof-grid">
+            <div>
+              <section class="section">
+                <div class="cv-prof-sectitle">Compétences Techniques</div>
+                ${skillsHTML}
+              </section>
+              <section class="section">
+                <div class="cv-prof-sectitle">Formation</div>
+                ${eduHTML}
+              </section>
+            </div>
+            <div>
+              <section class="section">
+                <div class="cv-prof-sectitle">Certifications</div>
+                <ul class="cv-prof-bullets">${certsHTML}</ul>
+              </section>
+              <section class="section">
+                <div class="cv-prof-sectitle">Engagements & Langues</div>
+                <ul class="cv-prof-bullets" style="margin-bottom:0.5rem;">${actHTML}</ul>
+                <div style="font-size:0.78rem; border-top:1px solid #d1d5db; padding-top:0.4rem; color:#374151;">
+                  🗣️ <strong>Langues :</strong> ${langHTML}
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function renderATSLayout() {
+      // PFP is automatically hidden for parser safety in ATS layout
+      let expHTML = "";
+      cvData.experiences.forEach(exp => {
+        let bulletsHTML = exp.bullets.map(b => `<li>${b}</li>`).join('');
+        expHTML += `
+          <div class="cv-ats-item">
+            <div class="cv-ats-itemhead">
+              <span>${exp.title}</span>
+              <span>${exp.period}</span>
+            </div>
+            <div class="cv-ats-itemsub">${exp.company} — ${exp.location}</div>
+            <ul class="cv-ats-bullets">${bulletsHTML}</ul>
+          </div>`;
+      });
+
+      let projHTML = "";
+      cvData.projects.forEach(proj => {
+        projHTML += `
+          <div class="cv-ats-item">
+            <div class="cv-ats-itemhead">
+              <span>${proj.title}</span>
+              <span style="font-weight:normal; font-size:10pt;">${proj.stack}</span>
+            </div>
+            <ul class="cv-ats-bullets">
+              <li>${proj.description}</li>
+            </ul>
+          </div>`;
+      });
+
+      let eduHTML = "";
+      cvData.education.forEach(edu => {
+        eduHTML += `
+          <div class="cv-ats-item">
+            <div class="cv-ats-itemhead">
+              <span>${edu.degree}</span>
+              <span>${edu.period}</span>
+            </div>
+            <div class="cv-ats-itemsub">${edu.school}</div>
+          </div>`;
+      });
+
+      let skillsHTML = "";
+      cvData.skills.forEach(s => {
+        skillsHTML += `<p><strong>${s.category} :</strong> ${s.value}</p>`;
+      });
+
+      let certsHTML = cvData.certifications.map(c => `<li>${c}</li>`).join('');
+      let actHTML = cvData.activities.map(a => `<li>${a}</li>`).join('');
+      let langHTML = cvData.languages.map(l => `<li><strong>${l.name} :</strong> ${l.level}</li>`).join('');
+
+      let pfpHTML = "";
+      if (cvData.contact.image) {
+        const sz = cvData.contact.image_size || 80;
+        pfpHTML = `<img src="${cvData.contact.image}" style="width:${sz}px; height:${sz}px; border-radius:50%; object-fit:cover; border:1px solid #cccccc; display:block; margin:0 auto 0.5rem auto;" alt="Photo">`;
+      }
+
+      return `
+        <div class="cv-ats-body">
+          <header class="cv-ats-header">
+            ${pfpHTML}
+            <div class="cv-ats-name">${cvData.contact.name}</div>
+            <div class="cv-ats-contacts">
+              ${cvData.contact.location} | Tél : ${cvData.contact.phone} | Email : ${cvData.contact.email} <br>
+              LinkedIn : ${cvData.contact.linkedin} | GitHub : ${cvData.contact.github}
+            </div>
+          </header>
+          
+          <div class="cv-ats-sectitle">Profil Professionnel</div>
+          <p style="font-size:10pt; margin-bottom:0.75rem; text-align:justify;">${cvData.profile}</p>
+
+          <div class="cv-ats-sectitle">Expérience Professionnelle</div>
+          ${expHTML}
+
+          <div class="cv-ats-sectitle">Projets Réalisés</div>
+          ${projHTML}
+
+          <div class="cv-ats-sectitle">Compétences Techniques</div>
+          <div style="font-size:10pt; margin-bottom:0.5rem;">
+            ${skillsHTML}
+          </div>
+
+          <div class="cv-ats-sectitle">Formation</div>
+          ${eduHTML}
+
+          <div class="cv-ats-sectitle">Certifications</div>
+          <ul class="cv-ats-bullets">${certsHTML}</ul>
+
+          <div class="cv-ats-sectitle">Engagements & Activités</div>
+          <ul class="cv-ats-bullets">${actHTML}</ul>
+
+          <div class="cv-ats-sectitle">Langues</div>
+          <ul class="cv-ats-bullets">${langHTML}</ul>
+
+          <div class="cv-ats-sectitle">Centres d'Intérêt</div>
+          <p style="font-size:10pt;">${cvData.interests.join(', ')}</p>
+        </div>`;
+    }
+
+    function renderSidebarLayout() {
+      const themes = cvData.themes.sidebar || { "sidebar_bg": "#1e293b", "sidebar_accent": "#3b82f6" };
+      document.documentElement.style.setProperty('--sidebar-bg', themes.sidebar_bg);
+      document.documentElement.style.setProperty('--sidebar-accent', themes.sidebar_accent);
+      
+      const hex = themes.sidebar_bg.replace('#', '');
+      const r = parseInt(hex.substr(0,2), 16);
+      const g = parseInt(hex.substr(2,2), 16);
+      const b = parseInt(hex.substr(4,2), 16);
+      const luma = [0.299 * r, 0.587 * g, 0.114 * b].reduce((x, y) => x + y);
+      const textColor = luma > 160 ? '#0f172a' : '#ffffff';
+      document.documentElement.style.setProperty('--sidebar-text', textColor);
+
+      let pfpHTML = "";
+      if (cvData.contact.image) {
+        const sz = cvData.contact.image_size || 80;
+        pfpHTML = `<img src="${cvData.contact.image}" class="cv-sidebar-pfp" style="width:${sz}px; height:${sz}px;" alt="PFP">`;
+      }
+
+      let contactHTML = `
+        <div class="cv-sidebar-left-section">
+          <div class="cv-sidebar-left-title">Contact</div>
+          <div class="cv-sidebar-left-content">
+            <div style="margin-bottom: 0.35rem;">✉ ${cvData.contact.email}</div>
+            <div style="margin-bottom: 0.35rem;">☎ ${cvData.contact.phone}</div>
+            <div style="margin-bottom: 0.35rem;">📍 ${cvData.contact.location}</div>
+            <div style="margin-bottom: 0.35rem;">🔗 <a href="https://${cvData.contact.linkedin}" target="_blank" style="color:var(--sidebar-accent); font-weight:600; text-decoration:underline;">LinkedIn</a></div>
+            <div>💻 <a href="https://${cvData.contact.github}" target="_blank" style="color:var(--sidebar-accent); font-weight:600; text-decoration:underline;">GitHub</a></div>
+          </div>
+        </div>
+      `;
+
+      let skillsHTML = "";
+      cvData.skills.forEach(s => {
+        skillsHTML += `
+          <div style="margin-bottom:0.5rem;">
+            <div style="font-weight:700; font-size:0.74rem; color:var(--sidebar-accent); margin-bottom:0.2rem;">${s.category}</div>
+            <div style="font-size:0.68rem; opacity:0.9; line-height:1.35;">${s.value}</div>
+          </div>`;
+      });
+
+      let langHTML = cvData.languages.map(l => `<li><strong>${l.name}</strong>: ${l.level}</li>`).join('');
+      let certsHTML = cvData.certifications.map(c => `<li>${c}</li>`).join('');
+
+      let expHTML = "";
+      cvData.experiences.forEach(exp => {
+        let bulletsHTML = exp.bullets.map(b => `<li>${b}</li>`).join('');
+        expHTML += `
+          <div class="cv-sidebar-item">
+            <div class="cv-sidebar-itemhead">
+              <span>${exp.title} — <span class="cv-sidebar-itemorg">${exp.company}</span></span>
+              <span class="cv-sidebar-itemdate">${exp.period}</span>
+            </div>
+            <div style="font-size: 0.72rem; color:#64748b; margin-bottom:0.15rem;">${exp.location}</div>
+            <ul class="cv-sidebar-bullets">${bulletsHTML}</ul>
+          </div>`;
+      });
+
+      let projHTML = "";
+      cvData.projects.forEach(proj => {
+        projHTML += `
+          <div class="cv-sidebar-item">
+            <div class="cv-sidebar-itemhead">
+              <span>${proj.title}</span>
+              <span class="cv-sidebar-itemdate" style="font-weight:600; color:var(--sidebar-accent);">${proj.stack}</span>
+            </div>
+            <p style="font-size:0.72rem; color:#475569; margin-top:0.25rem; line-height:1.4;">${proj.description}</p>
+          </div>`;
+      });
+
+      let eduHTML = "";
+      cvData.education.forEach(edu => {
+        eduHTML += `
+          <div style="margin-bottom:0.5rem; font-size:0.74rem;">
+            <div style="font-weight:700; color:#0f172a;">${edu.degree}</div>
+            <div style="color:#475569;">${edu.school} | <span style="font-weight:600; color:var(--sidebar-accent);">${edu.period}</span></div>
+          </div>`;
+      });
+
+      let actHTML = cvData.activities.map(a => `<div style="font-size:0.72rem; color:#334155; margin-bottom:0.25rem;">▪ ${a}</div>`).join('');
+
+      return `
+        <div class="cv-sidebar-body">
+          <div class="cv-sidebar-container">
+            <div class="cv-sidebar-left">
+              ${pfpHTML}
+              ${contactHTML}
+              <div class="cv-sidebar-left-section">
+                <div class="cv-sidebar-left-title">Compétences</div>
+                <div class="cv-sidebar-left-content">${skillsHTML}</div>
+              </div>
+              <div class="cv-sidebar-left-section">
+                <div class="cv-sidebar-left-title">Langues</div>
+                <ul class="cv-sidebar-left-bullets" style="color:var(--sidebar-text);">${langHTML}</ul>
+              </div>
+              <div class="cv-sidebar-left-section">
+                <div class="cv-sidebar-left-title">Intérêts</div>
+                <div class="cv-sidebar-left-content" style="font-size:0.7rem; opacity:0.85;">${cvData.interests.join(', ')}</div>
+              </div>
+            </div>
+            <div class="cv-sidebar-right">
+              <header style="margin-bottom:0.5rem;">
+                <h1 style="font-family:'Plus Jakarta Sans', sans-serif; font-size:1.8rem; font-weight:800; color:#0f172a; line-height:1.15;">${cvData.contact.name}</h1>
+                <p style="font-size:0.85rem; font-weight:700; color:var(--sidebar-accent); text-transform:uppercase; letter-spacing:0.04em; margin-top:0.25rem;">${cvData.contact.title_sub}</p>
+              </header>
+              
+              <div class="cv-sidebar-right-section">
+                <div class="cv-sidebar-right-title">Profil</div>
+                <p style="font-size:0.74rem; color:#334155; line-height:1.45; text-align:justify;">${cvData.profile}</p>
+              </div>
+
+              <div class="cv-sidebar-right-section">
+                <div class="cv-sidebar-right-title">Expériences Professionnelles</div>
+                ${expHTML}
+              </div>
+
+              <div class="cv-sidebar-right-section">
+                <div class="cv-sidebar-right-title">Projets Clés</div>
+                ${projHTML}
+              </div>
+
+              <div class="cv-sidebar-right-section">
+                <div class="cv-sidebar-right-title">Formation</div>
+                ${eduHTML}
+              </div>
+
+              <div class="cv-sidebar-right-section">
+                <div class="cv-sidebar-right-title">Certifications & Activités</div>
+                <ul class="cv-sidebar-bullets" style="margin-bottom:0.4rem;">${certsHTML}</ul>
+                <div style="border-top:1px solid #e2e8f0; padding-top:0.35rem; margin-top:0.4rem;">
+                  ${actHTML}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderMinimalistLayout() {
+      let pfpHTML = "";
+      if (cvData.contact.image) {
+        const sz = cvData.contact.image_size || 80;
+        pfpHTML = `<img src="${cvData.contact.image}" class="cv-mini-pfp" style="width:${sz}px; height:${sz}px;" alt="PFP">`;
+      }
+
+      let contactHTML = `
+        <div class="cv-mini-contacts">
+          <div>${cvData.contact.email}</div>
+          <div>${cvData.contact.phone}</div>
+          <div>${cvData.contact.location}</div>
+          <div><a href="https://${cvData.contact.linkedin}" target="_blank">LinkedIn</a></div>
+          <div><a href="https://${cvData.contact.github}" target="_blank">GitHub</a></div>
+        </div>
+      `;
+
+      let skillsHTML = "";
+      cvData.skills.forEach(s => {
+        skillsHTML += `
+          <div class="cv-mini-skillcat">
+            <strong>${s.category}</strong>
+            ${s.value}
+          </div>`;
+      });
+
+      let eduHTML = "";
+      cvData.education.forEach(edu => {
+        eduHTML += `
+          <div style="margin-bottom: 0.6rem; font-size: 0.72rem; color:#3f3f46;">
+            <div style="font-weight:700; color:#09090b;">${edu.degree}</div>
+            <div>${edu.school}</div>
+            <div style="font-style:italic; font-size:0.68rem; color:#71717a; margin-top:0.1rem;">${edu.period}</div>
+          </div>`;
+      });
+
+      let langHTML = cvData.languages.map(l => `<div style="font-size:0.72rem; margin-bottom:0.25rem; color:#3f3f46;"><strong>${l.name}</strong>: ${l.level}</div>`).join('');
+      let certsHTML = cvData.certifications.map(c => `<li>${c}</li>`).join('');
+
+      let expHTML = "";
+      cvData.experiences.forEach(exp => {
+        let bulletsHTML = exp.bullets.map(b => `<li>${b}</li>`).join('');
+        expHTML += `
+          <div class="cv-mini-item">
+            <div class="cv-mini-itemhead">
+              <span>${exp.title}</span>
+              <span class="cv-mini-itemdate">${exp.period}</span>
+            </div>
+            <div class="cv-mini-itemorg">${exp.company} — <span style="font-size:0.7rem; font-style:normal;">${exp.location}</span></div>
+            <ul class="cv-mini-bullets">${bulletsHTML}</ul>
+          </div>`;
+      });
+
+      let projHTML = "";
+      cvData.projects.forEach(proj => {
+        projHTML += `
+          <div class="cv-mini-item">
+            <div class="cv-mini-itemhead">
+              <span>${proj.title}</span>
+              <span class="cv-mini-itemdate" style="font-weight:500; font-family:'Inter', sans-serif;">${proj.stack}</span>
+            </div>
+            <p style="font-size:0.74rem; color:#52525b; margin-top:0.25rem; line-height:1.4;">${proj.description}</p>
+          </div>`;
+      });
+
+      let actHTML = cvData.activities.map(a => `<div style="font-size:0.72rem; color:#52525b; margin-bottom:0.25rem;">— ${a}</div>`).join('');
+
+      return `
+        <div class="cv-mini-body">
+          <header class="cv-mini-header">
+            <div style="flex:1;">
+              <h1 class="cv-mini-name">${cvData.contact.name}</h1>
+              <p class="cv-mini-title">${cvData.contact.title_sub}</p>
+            </div>
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:0.5rem;">
+              ${pfpHTML}
+              ${contactHTML}
+            </div>
+          </header>
+          
+          <div class="cv-mini-grid">
+            <div class="cv-mini-left-col">
+              <div>
+                <div class="cv-mini-sectitle">Compétences</div>
+                ${skillsHTML}
+              </div>
+              <div>
+                <div class="cv-mini-sectitle">Formation</div>
+                ${eduHTML}
+              </div>
+              <div>
+                <div class="cv-mini-sectitle">Langues</div>
+                ${langHTML}
+              </div>
+              <div>
+                <div class="cv-mini-sectitle">Intérêts</div>
+                <div style="font-size:0.7rem; color:#52525b; line-height:1.45;">${cvData.interests.join(', ')}</div>
+              </div>
+            </div>
+            <div class="cv-mini-right-col">
+              <div>
+                <div class="cv-mini-sectitle">Profil</div>
+                <p style="font-size:0.74rem; color:#3f3f46; line-height:1.5; text-align:justify; margin-bottom:0.4rem;">${cvData.profile}</p>
+              </div>
+              <div>
+                <div class="cv-mini-sectitle">Expériences Professionnelles</div>
+                ${expHTML}
+              </div>
+              <div>
+                <div class="cv-mini-sectitle">Projets Clés</div>
+                ${projHTML}
+              </div>
+              <div>
+                <div class="cv-mini-sectitle">Certifications & Activités</div>
+                <ul class="cv-mini-bullets" style="margin-bottom:0.5rem;">${certsHTML}</ul>
+                <div style="border-top:1px solid #f4f4f5; padding-top:0.4rem; margin-top:0.4rem;">
+                  ${actHTML}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderEuropassLayout() {
+      let pfpHTML = "";
+      if (cvData.contact.image) {
+        const sz = cvData.contact.image_size || 80;
+        pfpHTML = `<img src="${cvData.contact.image}" class="cv-euro-pfp" style="width:${sz}px; height:${sz}px;" alt="PFP">`;
+      }
+
+      let expHTML = "";
+      cvData.experiences.forEach(exp => {
+        let bulletsHTML = exp.bullets.map(b => `<li>${b}</li>`).join('');
+        expHTML += `
+          <div class="cv-euro-item">
+            <div class="cv-euro-itemhead">
+              <span>${exp.title}</span>
+              <span class="cv-euro-itemdate">${exp.period}</span>
+            </div>
+            <div class="cv-euro-itemorg">${exp.company} | ${exp.location}</div>
+            <ul class="cv-euro-bullets">${bulletsHTML}</ul>
+          </div>`;
+      });
+
+      let projHTML = "";
+      cvData.projects.forEach(proj => {
+        projHTML += `
+          <div class="cv-euro-item">
+            <div class="cv-euro-itemhead">
+              <span>${proj.title}</span>
+              <span class="cv-euro-itemdate" style="font-weight:600; color:#0055a5;">${proj.stack}</span>
+            </div>
+            <p style="font-size:0.74rem; color:#444444; margin-top:0.25rem; line-height:1.4;">${proj.description}</p>
+          </div>`;
+      });
+
+      let eduHTML = "";
+      cvData.education.forEach(edu => {
+        eduHTML += `
+          <div style="margin-bottom:0.5rem; font-size:0.74rem;">
+            <div style="font-weight:700; color:#333333;">${edu.degree}</div>
+            <div style="color:#666666;">${edu.school} | <span style="font-weight:600; color:#0055a5;">${edu.period}</span></div>
+          </div>`;
+      });
+
+      let skillsHTML = "";
+      cvData.skills.forEach(s => {
+        skillsHTML += `
+          <div style="margin-bottom: 0.5rem;">
+            <div style="font-weight:700; font-size:0.74rem; color:#0055a5; margin-bottom:0.15rem;">${s.category}</div>
+            <div style="font-size:0.7rem; color:#444444; line-height:1.4;">${s.value}</div>
+          </div>`;
+      });
+
+      let certsHTML = cvData.certifications.map(c => `<li>${c}</li>`).join('');
+      let actHTML = cvData.activities.map(a => `<li>${a}</li>`).join('');
+      let langHTML = cvData.languages.map(l => `<li><strong>${l.name}</strong>: ${l.level}</li>`).join('');
+
+      return `
+        <div class="cv-euro-body">
+          <header class="cv-euro-header">
+            <div class="cv-euro-logo-container">
+              europass<span>★</span>
+            </div>
+            <div class="cv-euro-header-text">
+              <div>
+                <h1 class="cv-euro-name">${cvData.contact.name}</h1>
+                <p class="cv-euro-title">${cvData.contact.title_sub}</p>
+              </div>
+              ${pfpHTML}
+            </div>
+          </header>
+
+          <div class="cv-euro-row">
+            <div class="cv-euro-left">Coordonnées</div>
+            <div class="cv-euro-right">
+              <div class="cv-euro-contact-item">✉ Email : ${cvData.contact.email}</div>
+              <div class="cv-euro-contact-item">☎ Téléphone : ${cvData.contact.phone}</div>
+              <div class="cv-euro-contact-item">📍 Adresse : ${cvData.contact.location}</div>
+              <div class="cv-euro-contact-item">🔗 LinkedIn : <a href="https://${cvData.contact.linkedin}" target="_blank">${cvData.contact.linkedin}</a></div>
+              <div class="cv-euro-contact-item">💻 GitHub : <a href="https://${cvData.contact.github}" target="_blank">${cvData.contact.github}</a></div>
+            </div>
+          </div>
+
+          <div class="cv-euro-row">
+            <div class="cv-euro-left">Profil</div>
+            <div class="cv-euro-right">
+              <p style="line-height:1.45; text-align:justify;">${cvData.profile}</p>
+            </div>
+          </div>
+
+          <div class="cv-euro-row">
+            <div class="cv-euro-left">Expériences</div>
+            <div class="cv-euro-right">
+              ${expHTML}
+            </div>
+          </div>
+
+          <div class="cv-euro-row">
+            <div class="cv-euro-left">Projets</div>
+            <div class="cv-euro-right">
+              ${projHTML}
+            </div>
+          </div>
+
+          <div class="cv-euro-row">
+            <div class="cv-euro-left">Compétences</div>
+            <div class="cv-euro-right">
+              ${skillsHTML}
+            </div>
+          </div>
+
+          <div class="cv-euro-row">
+            <div class="cv-euro-left">Formation</div>
+            <div class="cv-euro-right">
+              ${eduHTML}
+            </div>
+          </div>
+
+          <div class="cv-euro-row">
+            <div class="cv-euro-left">Langues</div>
+            <div class="cv-euro-right">
+              <ul class="cv-euro-bullets" style="list-style-type:none; padding-left:0; margin:0;">${langHTML}</ul>
+            </div>
+          </div>
+
+          <div class="cv-euro-row">
+            <div class="cv-euro-left">Divers</div>
+            <div class="cv-euro-right">
+              <div style="font-weight:700; color:#0055a5; margin-bottom:0.25rem;">Certifications</div>
+              <ul class="cv-euro-bullets" style="margin-bottom:0.5rem;">${certsHTML}</ul>
+              <div style="font-weight:700; color:#0055a5; margin-bottom:0.25rem; margin-top:0.4rem;">Activités</div>
+              <ul class="cv-euro-bullets" style="margin-bottom:0.5rem;">${actHTML}</ul>
+              <div style="font-weight:700; color:#0055a5; margin-bottom:0.25rem; margin-top:0.4rem;">Intérêts</div>
+              <div style="font-size:0.72rem; color:#444444;">${cvData.interests.join(', ')}</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPreview() {
+      const printContainer = document.getElementById('print-preview-container');
+      const screenContainer = document.getElementById('screen-preview-container');
+      
+      // 1. Generate full layout HTML inside the print container
+      let layoutHTML = '';
+      if (currentLayout === 'designed') {
+        layoutHTML = renderDesignedLayout();
+      } else if (currentLayout === 'professional') {
+        layoutHTML = renderProfessionalLayout();
+      } else if (currentLayout === 'sidebar') {
+        layoutHTML = renderSidebarLayout();
+      } else if (currentLayout === 'minimalist') {
+        layoutHTML = renderMinimalistLayout();
+      } else if (currentLayout === 'europass') {
+        layoutHTML = renderEuropassLayout();
+      } else {
+        layoutHTML = renderATSLayout();
+      }
+      printContainer.innerHTML = layoutHTML;
+
+      // 2. Determine conversion from 297mm and 15mm to pixels
+      const dummyPage = document.createElement('div');
+      dummyPage.style.height = '297mm';
+      dummyPage.style.position = 'absolute';
+      dummyPage.style.visibility = 'hidden';
+      document.body.appendChild(dummyPage);
+      const pageHeightPx = dummyPage.offsetHeight;
+      document.body.removeChild(dummyPage);
+
+      const dummyMargin = document.createElement('div');
+      dummyMargin.style.height = '15mm';
+      dummyMargin.style.position = 'absolute';
+      dummyMargin.style.visibility = 'hidden';
+      document.body.appendChild(dummyMargin);
+      const marginHeightPx = dummyMargin.offsetHeight;
+      document.body.removeChild(dummyMargin);
+
+      const pageContentHeightPx = pageHeightPx - (2 * marginHeightPx);
+
+      // 3. Clear any existing spacers
+      printContainer.querySelectorAll('.cv-layout-spacer').forEach(el => el.remove());
+
+      // 4. Run spacer insertion algorithm to prevent element splitting
+      const items = printContainer.querySelectorAll(`
+        p, li, h1, h2, h3, h4, h5, h6,
+        .cv-designed-card,
+        .cv-prof-item,
+        .cv-ats-item,
+        .cv-sidebar-item,
+        .cv-mini-item,
+        .cv-euro-row,
+        .cv-euro-item,
+        .cv-designed-sectitle,
+        .cv-prof-sectitle,
+        .cv-ats-sectitle,
+        .cv-sidebar-right-title,
+        .cv-mini-sectitle,
+        .cv-euro-sectitle,
+        .skill-cat,
+        .cv-prof-skillrow,
+        .cv-designed-simpleitem,
+        .cv-mini-skillcat,
+        .cv-sidebar-left-section
+      `);
+
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (item.classList.contains('cv-layout-spacer')) continue;
+        
+        // Calculate absolute top offset relative to printContainer
+        let itemTop = 0;
+        let p = item;
+        while (p && p !== printContainer) {
+          itemTop += p.offsetTop;
+          p = p.offsetParent;
+        }
+        
+        const itemHeight = item.offsetHeight;
+        const itemBottom = itemTop + itemHeight;
+        
+        // Find boundary index
+        const pageIndex = Math.floor(itemTop / pageContentHeightPx);
+        const boundary = (pageIndex + 1) * pageContentHeightPx;
+        
+        // Push element to next page if it crosses the boundary and can fit on the next page
+        if (itemTop < boundary && itemBottom > boundary && itemHeight <= pageContentHeightPx) {
+          let targetElement = item;
+          let prev = item.previousElementSibling;
+          
+          // Prevent orphan section titles (push the preceding title instead if it's on the same page)
+          if (prev && (
+            prev.classList.contains('cv-designed-sectitle') ||
+            prev.classList.contains('cv-prof-sectitle') ||
+            prev.classList.contains('cv-ats-sectitle') ||
+            prev.classList.contains('cv-sidebar-right-title') ||
+            prev.classList.contains('cv-mini-sectitle') ||
+            prev.classList.contains('cv-euro-sectitle') ||
+            prev.tagName.match(/^H[1-6]$/)
+          )) {
+            let titleTop = 0;
+            let pTitle = prev;
+            while (pTitle && pTitle !== printContainer) {
+              titleTop += pTitle.offsetTop;
+              pTitle = pTitle.offsetParent;
+            }
+            const titlePageIndex = Math.floor(titleTop / pageContentHeightPx);
+            if (titlePageIndex === pageIndex) {
+              targetElement = prev;
+              itemTop = titleTop;
+            }
+          }
+
+          const spacerHeight = boundary - itemTop;
+          const isListItem = targetElement.tagName.toLowerCase() === 'li';
+          const spacer = document.createElement(isListItem ? 'li' : 'div');
+          spacer.className = 'cv-layout-spacer';
+          spacer.style.height = `${spacerHeight}px`;
+          if (isListItem) {
+            spacer.style.listStyleType = 'none';
+          }
+          targetElement.parentNode.insertBefore(spacer, targetElement);
+        }
+      }
+
+      // 5. Measure total height with spacers included
+      const contentHeightPx = printContainer.offsetHeight;
+      const totalPages = Math.ceil(contentHeightPx / pageContentHeightPx) || 1;
+
+      // 6. Clear screen container and populate A4 sliced pages
+      screenContainer.innerHTML = '';
+      
+      // Determine theme background color for visual continuity
+      let bg = '#ffffff';
+      if (currentLayout === 'designed') {
+        bg = cvData.themes.designed.bg_color || '#0b0f19';
+      }
+
+      for (let i = 0; i < totalPages; i++) {
+        const pageSheet = document.createElement('div');
+        pageSheet.className = 'a4-page-sheet';
+        pageSheet.style.backgroundColor = bg;
+        
+        // Add page number badge
+        const pageBadge = document.createElement('div');
+        pageBadge.style.position = 'absolute';
+        pageBadge.style.bottom = '8px';
+        pageBadge.style.right = '12px';
+        pageBadge.style.fontSize = '10px';
+        pageBadge.style.fontWeight = 'bold';
+        pageBadge.style.color = (currentLayout === 'designed') ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)';
+        pageBadge.style.zIndex = '999';
+        pageBadge.style.pointerEvents = 'none';
+        pageBadge.innerText = `Page ${i + 1} / ${totalPages}`;
+        pageSheet.appendChild(pageBadge);
+
+        const pageContentWrapper = document.createElement('div');
+        pageContentWrapper.className = 'a4-page-content-wrapper';
+        
+        const pageClone = document.createElement('div');
+        pageClone.className = 'a4-page-clone';
+        pageClone.innerHTML = printContainer.innerHTML;
+        pageClone.style.transform = `translateY(-${i * pageContentHeightPx}px)`;
+        
+        pageContentWrapper.appendChild(pageClone);
+        pageSheet.appendChild(pageContentWrapper);
+        screenContainer.appendChild(pageSheet);
+      }
+    }
+
+    /* ----------------------------------------------------
+       10. FORM FIELDS POPULATOR & DYNAMIC LISTS
+       ---------------------------------------------------- */
+    function populateFormInputs() {
+      document.getElementById('layout-picker').value = currentLayout;
+      
+      document.getElementById('input-name').value = cvData.contact.name;
+      document.getElementById('input-title-sub').value = cvData.contact.title_sub;
+      document.getElementById('input-email').value = cvData.contact.email;
+      document.getElementById('input-phone').value = cvData.contact.phone;
+      document.getElementById('input-location').value = cvData.contact.location;
+      document.getElementById('input-linkedin').value = cvData.contact.linkedin;
+      document.getElementById('input-github').value = cvData.contact.github;
+      
+      document.getElementById('input-profile').value = cvData.profile;
+      
+      // Image Size Slider initialization
+      const sz = cvData.contact.image_size || 80;
+      document.getElementById('input-image-size').value = sz;
+      document.getElementById('lbl-image-size').innerText = `Taille de l'image : ${sz}px`;
+
+      document.getElementById('picker-design-bg').value = cvData.themes.designed.bg_color;
+      document.getElementById('picker-design-gold').value = cvData.themes.designed.gold_primary;
+      document.getElementById('picker-prof-navy').value = cvData.themes.professional.navy_primary;
+      if (cvData.themes.sidebar) {
+        document.getElementById('picker-sidebar-bg').value = cvData.themes.sidebar.sidebar_bg || "#1e293b";
+        document.getElementById('picker-sidebar-accent').value = cvData.themes.sidebar.sidebar_accent || "#3b82f6";
+      }
+
+      updatePfpPreview();
+
+      renderList('experiences');
+      renderList('projects');
+      renderList('education');
+      renderList('languages');
+      
+      renderSkillsList();
+      
+      renderSimpleList('certifications');
+      renderSimpleList('activities');
+      renderSimpleList('interests');
+    }
+
+    // Dynamic Skill Categories panel renderer
+    function renderSkillsList() {
+      const container = document.getElementById('list-skills');
+      container.innerHTML = "";
+      
+      cvData.skills.forEach((s, index) => {
+        const card = document.createElement('div');
+        card.className = "form-card";
+        card.style.position = "relative";
+        card.innerHTML = `
+          <button class="pfp-btn" style="position:absolute; top:0.75rem; right:0.75rem; color:#ef4444; border-color:transparent;" onclick="deleteSkillCategory(${index})">✕</button>
+          <div class="form-group" style="margin-right:2rem; margin-bottom:0.5rem;">
+            <label>Nom de Catégorie</label>
+            <input type="text" value="${s.category}" oninput="updateSkillCategory(${index}, 'category', this.value)">
+          </div>
+          <div class="form-group">
+            <label>Compétences (Séparez par virgules)</label>
+            <textarea rows="3" placeholder="HTML, CSS, JavaScript, ..." oninput="updateSkillCategory(${index}, 'value', this.value)">${s.value}</textarea>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function addSkillCategory() {
+      cvData.skills.push({ "category": "Nouvelle Catégorie", "value": "A, B, C" });
+      renderSkillsList();
+      saveAndSync();
+    }
+
+    function updateSkillCategory(index, field, val) {
+      cvData.skills[index][field] = val;
+      saveAndSync();
+    }
+
+    function deleteSkillCategory(index) {
+      cvData.skills.splice(index, 1);
+      renderSkillsList();
+      saveAndSync();
+    }
+
+    // Render lists as compact collapsible cards
+    function renderList(key) {
+      const container = document.getElementById(`list-${key}`);
+      container.innerHTML = "";
+      
+      cvData[key].forEach((item, index) => {
+        const isOpen = openCollapseKeys[key] === index;
+        
+        let titleText = "";
+        let subtitleText = "";
+        let fields = "";
+
+        if (key === 'experiences') {
+          titleText = item.title || "Poste sans titre";
+          subtitleText = `${item.company || 'Entreprise'} | ${item.period || 'Période'}`;
+          fields = `
+            <div class="form-group">
+              <label>Intitulé du Poste</label>
+              <input type="text" value="${item.title}" oninput="updateListItem('${key}', ${index}, 'title', this.value)">
+            </div>
+            <div class="form-group">
+              <label>Entreprise</label>
+              <input type="text" value="${item.company}" oninput="updateListItem('${key}', ${index}, 'company', this.value)">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Période</label>
+                <input type="text" value="${item.period}" oninput="updateListItem('${key}', ${index}, 'period', this.value)">
+              </div>
+              <div class="form-group">
+                <label>Lieu</label>
+                <input type="text" value="${item.location}" oninput="updateListItem('${key}', ${index}, 'location', this.value)">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Missions (Une mission par ligne)</label>
+              <textarea rows="4" oninput="updateListBullets('${key}', ${index}, this.value)">${item.bullets.join('\n')}</textarea>
+            </div>`;
+        } else if (key === 'projects') {
+          titleText = item.title || "Projet sans titre";
+          subtitleText = item.stack || "Tech stack";
+          fields = `
+            <div class="form-group">
+              <label>Titre du Projet</label>
+              <input type="text" value="${item.title}" oninput="updateListItem('${key}', ${index}, 'title', this.value)">
+            </div>
+            <div class="form-group">
+              <label>Stack Technique</label>
+              <input type="text" value="${item.stack}" oninput="updateListItem('${key}', ${index}, 'stack', this.value)">
+            </div>
+            <div class="form-group">
+              <label>Description du projet</label>
+              <textarea rows="4" oninput="updateListItem('${key}', ${index}, 'description', this.value)">${item.description}</textarea>
+            </div>`;
+        } else if (key === 'education') {
+          titleText = item.degree || "Diplôme";
+          subtitleText = `${item.school || 'Établissement'} | ${item.period || 'Période'}`;
+          fields = `
+            <div class="form-group">
+              <label>Intitulé du Diplôme / Formation</label>
+              <input type="text" value="${item.degree}" oninput="updateListItem('${key}', ${index}, 'degree', this.value)">
+            </div>
+            <div class="form-group">
+              <label>Établissement</label>
+              <input type="text" value="${item.school}" oninput="updateListItem('${key}', ${index}, 'school', this.value)">
+            </div>
+            <div class="form-group">
+              <label>Période</label>
+              <input type="text" value="${item.period}" oninput="updateListItem('${key}', ${index}, 'period', this.value)">
+            </div>`;
+        } else if (key === 'languages') {
+          titleText = item.name || "Nouvelle langue";
+          subtitleText = item.level || "Niveau";
+          fields = `
+            <div class="form-row">
+              <div class="form-group">
+                <label>Langue</label>
+                <input type="text" value="${item.name}" oninput="updateListItem('${key}', ${index}, 'name', this.value)">
+              </div>
+              <div class="form-group">
+                <label>Niveau</label>
+                <input type="text" value="${item.level}" oninput="updateListItem('${key}', ${index}, 'level', this.value)">
+              </div>
+            </div>`;
+        }
+
+        const div = document.createElement('div');
+        div.className = `collapsible-card ${isOpen ? 'open' : ''}`;
+        div.innerHTML = `
+          <div class="collapsible-header" onclick="toggleCollapse('${key}', ${index})">
+            <div class="collapsible-header-info">
+              <span class="collapsible-header-title">${titleText}</span>
+              <span class="collapsible-header-subtitle">${subtitleText}</span>
+            </div>
+            <div class="collapsible-header-actions">
+              <button class="pfp-btn" style="color:#ef4444; border-color:transparent; padding:0.2rem 0.4rem;" onclick="event.stopPropagation(); deleteItem('${key}', ${index})">Supprimer</button>
+              <svg class="collapsible-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
+          </div>
+          <div class="collapsible-content">
+            ${fields}
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function renderSimpleList(key) {
+      const container = document.getElementById(`list-${key}`);
+      container.innerHTML = "";
+      
+      cvData[key].forEach((item, index) => {
+        const div = document.createElement('div');
+        div.style.display = "flex";
+        div.style.gap = "0.5rem";
+        div.style.marginBottom = "0.5rem";
+        div.innerHTML = `
+          <input type="text" value="${item}" style="flex:1; background:var(--bg-input); border:1px solid var(--border-color); color:white; padding:0.4rem; font-size:0.8rem; border-radius:4px;" oninput="updateSimpleListItem('${key}', ${index}, this.value)">
+          <button class="pfp-btn" style="color:#ef4444; border-color:rgba(239,68,68,0.15);" onclick="deleteSimpleItem('${key}', ${index})">✕</button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    /* Input bindings */
+    function updateField(path, val) {
+      const parts = path.split('.');
+      if (parts.length === 2) {
+        cvData[parts[0]][parts[1]] = val;
+      } else {
+        cvData[path] = val;
+      }
+      saveAndSync();
+    }
+
+    function updateListItem(key, index, field, val) {
+      cvData[key][index][field] = val;
+      saveAndSync();
+    }
+
+    function updateListBullets(key, index, text) {
+      cvData[key][index].bullets = text.split('\n').filter(line => line.trim());
+      saveAndSync();
+    }
+
+    function updateSimpleListItem(key, index, val) {
+      cvData[key][index] = val;
+      saveAndSync();
+    }
+
+    function addItem(key) {
+      let newItem = {};
+      if (key === 'experiences') {
+        newItem = { "title": "Nouveau Poste", "company": "Entreprise", "location": "Lieu", "period": "Période", "bullets": ["Nouvelle mission"] };
+      } else if (key === 'projects') {
+        newItem = { "title": "Nouveau Projet", "stack": "Technologies", "description": "Description du projet." };
+      } else if (key === 'education') {
+        newItem = { "degree": "Diplôme", "school": "Établissement", "period": "Période" };
+      } else if (key === 'languages') {
+        newItem = { "name": "Langue", "level": "Niveau" };
+      }
+      cvData[key].push(newItem);
+      openCollapseKeys[key] = cvData[key].length - 1; // Auto-expand new item
+      renderList(key);
+      saveAndSync();
+    }
+
+    function deleteItem(key, index) {
+      cvData[key].splice(index, 1);
+      delete openCollapseKeys[key];
+      renderList(key);
+      saveAndSync();
+    }
+
+    function addSimpleItem(key) {
+      cvData[key].push("Nouvelle entrée");
+      renderSimpleList(key);
+      saveAndSync();
+    }
+
+    function deleteSimpleItem(key, index) {
+      cvData[key].splice(index, 1);
+      renderSimpleList(key);
+      saveAndSync();
+    }
+
+    function changeLayout(layout) {
+      currentLayout = layout;
+      localStorage.setItem('cv_layout', layout);
+      
+      document.getElementById('color-designed-group').style.display = (layout === 'designed') ? 'flex' : 'none';
+      document.getElementById('color-prof-group').style.display = (layout === 'professional') ? 'flex' : 'none';
+      document.getElementById('color-sidebar-group').style.display = (layout === 'sidebar') ? 'flex' : 'none';
+      
+      renderPreview();
+    }
+
+    function darkenColor(hex, percent) {
+      hex = hex.replace('#', '');
+      let r = parseInt(hex.substr(0, 2), 16);
+      let g = parseInt(hex.substr(2, 2), 16);
+      let b = parseInt(hex.substr(4, 2), 16);
+      r = Math.max(0, Math.floor(r * (1 - percent / 100)));
+      g = Math.max(0, Math.floor(g * (1 - percent / 100)));
+      b = Math.max(0, Math.floor(b * (1 - percent / 100)));
+      return '#' + [r, g, b].map(c => c.toString(16).padStart(2, '0')).join('');
+    }
+
+    function updateThemeColor(type, hex) {
+      if (type === 'bg') {
+        cvData.themes.designed.bg_color = hex;
+      } else if (type === 'gold') {
+        cvData.themes.designed.gold_primary = hex;
+        cvData.themes.designed.gold_dark = darkenColor(hex, 15);
+      } else if (type === 'navy') {
+        cvData.themes.professional.navy_primary = hex;
+      } else if (type === 'sidebar-bg') {
+        if (!cvData.themes.sidebar) cvData.themes.sidebar = {};
+        cvData.themes.sidebar.sidebar_bg = hex;
+      } else if (type === 'sidebar-accent') {
+        if (!cvData.themes.sidebar) cvData.themes.sidebar = {};
+        cvData.themes.sidebar.sidebar_accent = hex;
+      }
+      saveAndSync();
+    }
+
+    async function resetToDefaults() {
+      if (confirm("Voulez-vous vraiment réinitialiser toutes les données aux valeurs d'origine ?")) {
+        try {
+          const response = await fetch('data.json');
+          if (response.ok) {
+            const data = await response.json();
+            cvData = data;
+            runMigrations(cvData);
+            localStorage.setItem('cv_data', JSON.stringify(cvData));
+            populateFormInputs();
+            renderPreview();
+            return;
+          }
+        } catch (e) {
+          console.warn("Could not fetch data.json for reset, falling back to embedded defaults:", e);
+        }
+        // Fallback to empty skeleton or data.js if fetch fails
+        cvData = typeof window.defaultCVData !== 'undefined' ? window.defaultCVData : JSON.parse(JSON.stringify(emptyCVData));
+        runMigrations(cvData);
+        localStorage.removeItem('cv_data');
+        populateFormInputs();
+        renderPreview();
+      }
+    }
+
+    function downloadJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cvData, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href",     dataStr);
+      downloadAnchor.setAttribute("download", "data.json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function importJSON(input) {
+      if (!input.files || !input.files[0]) return;
+      const file = input.files[0];
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          // Basic validation: check for required top-level keys
+          if (!imported.contact || !imported.contact.name) {
+            alert('❌ Fichier JSON invalide : la clé "contact.name" est manquante.');
+            return;
+          }
+          cvData = imported;
+          runMigrations(cvData);
+          localStorage.setItem('cv_data', JSON.stringify(cvData));
+          populateFormInputs();
+          renderPreview();
+          alert('✅ Données importées avec succès pour : ' + cvData.contact.name);
+        } catch (err) {
+          alert('❌ Erreur de lecture du fichier JSON : ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+      input.value = ''; // Reset so re-importing the same file works
+    }
+
+    function saveAndSync() {
+      localStorage.setItem('cv_data', JSON.stringify(cvData));
+      renderPreview();
+    }
+
+    window.onload = async function() {
+      if (!localStorage.getItem('cv_data')) {
+        try {
+          const response = await fetch('data.json');
+          if (response.ok) {
+            const data = await response.json();
+            cvData = data;
+            runMigrations(cvData);
+            localStorage.setItem('cv_data', JSON.stringify(cvData));
+          }
+        } catch (e) {
+          console.warn("Could not fetch data.json, falling back to embedded defaults:", e);
+        }
+      }
+      populateFormInputs();
+      changeLayout(currentLayout);
+    };
+  </script>
+</body>
+</html>
