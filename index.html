@@ -138,6 +138,44 @@
       color: var(--accent);
     }
 
+    /* Mode selector tabs (Data vs Design) */
+    .mode-selector {
+      display: flex;
+      padding: 0.5rem 1rem;
+      background: rgba(0, 0, 0, 0.4);
+      border-bottom: 1px solid var(--border-color);
+      gap: 0.5rem;
+    }
+    
+    .mode-btn {
+      flex: 1;
+      padding: 0.55rem 1rem;
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      transition: all 0.2s;
+    }
+    
+    .mode-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .mode-btn.active {
+      color: var(--accent);
+      background: rgba(16, 185, 129, 0.15) !important;
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+
     /* Tab Content panels container */
     .tabs-content {
       flex: 1;
@@ -456,7 +494,7 @@
         position: absolute !important;
         top: -9999px !important;
         left: -9999px !important;
-        width: 180mm !important; /* A4 width (210mm) minus 15mm margins on left/right (30mm) */
+        width: calc(210mm - (2 * var(--page-margin, 15mm))) !important;
         height: auto !important;
         visibility: hidden !important;
         z-index: -1000 !important;
@@ -474,6 +512,35 @@
       }
     }
 
+    /* Click-to-edit editor highlights */
+    #screen-preview-container [data-editor-target],
+    #screen-preview-container [data-editor-tab] {
+      cursor: pointer;
+      position: relative;
+      transition: outline 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+    #screen-preview-container [data-editor-target]:hover,
+    #screen-preview-container [data-editor-tab]:hover {
+      outline: 2px dashed #10b981 !important;
+      outline-offset: 4px;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.15);
+    }
+
+    @keyframes pulseHighlight {
+      0% {
+        border-color: #10b981;
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+      }
+      70% {
+        border-color: #10b981;
+        box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+      }
+      100% {
+        border-color: var(--border-color);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+      }
+    }
+
     /* Screen-only A4 Page Sheets */
     .a4-page-sheet {
       width: 210mm;
@@ -484,7 +551,7 @@
       margin-bottom: 25px; /* Gap between physical pages */
       background-color: #ffffff;
       transform-origin: top center;
-      padding: 15mm; /* Page margins on screen */
+      padding: var(--page-margin, 15mm); /* Page margins on screen */
       box-sizing: border-box;
     }
     
@@ -494,15 +561,15 @@
     
     .a4-page-content-wrapper {
       position: absolute;
-      top: 15mm;
-      left: 15mm;
-      width: 180mm;
-      height: 267mm; /* A4 height (297mm) minus 15mm margins on top/bottom (30mm) */
+      top: var(--page-margin, 15mm);
+      left: var(--page-margin, 15mm);
+      width: calc(210mm - (2 * var(--page-margin, 15mm)));
+      height: calc(297mm - (2 * var(--page-margin, 15mm))); /* A4 height (297mm) minus 15mm margins on top/bottom (30mm) */
       overflow: hidden;
     }
     
     .a4-page-clone {
-      width: 180mm;
+      width: calc(210mm - (2 * var(--page-margin, 15mm)));
       transform-origin: top left;
     }
     
@@ -515,6 +582,27 @@
     /* ----------------------------------------------------
        4. CV STYLING & DYNAMIC PREVIEWS
        ---------------------------------------------------- */
+    
+    /* Dynamic design customizer variables */
+    .cv-designed-body,
+    .cv-prof-body,
+    .cv-ats-body,
+    .cv-sidebar-body,
+    .cv-mini-body,
+    .cv-euro-body {
+      font-family: var(--font-global, 'Inter'), sans-serif !important;
+      font-size: var(--font-base-size, 14px) !important;
+      line-height: var(--line-height-base, 1.45) !important;
+    }
+    
+    .cv-designed-body section,
+    .cv-prof-body .section,
+    .cv-ats-body .cv-ats-sectitle,
+    .cv-sidebar-body .cv-sidebar-right-section,
+    .cv-mini-body .cv-mini-right-col > div,
+    .cv-euro-body .cv-euro-row {
+      margin-bottom: var(--section-margin, 1.2rem) !important;
+    }
     
     /* Layout 1: Designed (Midnight Gold) */
     .cv-designed-body {
@@ -800,179 +888,305 @@
         </div>
       </div>
 
-      <!-- Navigation Tabs -->
-      <div class="tabs-nav">
-        <button class="tab-btn active" onclick="switchTab('tab-profile')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          Profil
+      <!-- Mode Selector -->
+      <div class="mode-selector">
+        <button class="mode-btn active" id="btn-mode-data" onclick="setEditorMode('data')">
+          ✍ Données
         </button>
-        <button class="tab-btn" onclick="switchTab('tab-experiences')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-          Expériences
-        </button>
-        <button class="tab-btn" onclick="switchTab('tab-projects')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
-          Projets
-        </button>
-        <button class="tab-btn" onclick="switchTab('tab-skills')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
-          Compétences
-        </button>
-        <button class="tab-btn" onclick="switchTab('tab-education')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12.5V16a6 6 0 0 0 12 0v-3.5"/></svg>
-          Études+
+        <button class="mode-btn" id="btn-mode-design" onclick="setEditorMode('design')">
+          🎨 Design
         </button>
       </div>
 
-      <!-- Tab Content Panels -->
-      <div class="tabs-content">
-        
-        <!-- Tab 1: Profil & Photo -->
-        <div id="tab-profile" class="tab-panel active">
+      <!-- Données Mode Container -->
+      <div id="mode-data-container" style="display: flex; flex-direction: column; flex: 1; overflow: hidden;">
+        <!-- Navigation Tabs -->
+        <div class="tabs-nav">
+          <button class="tab-btn active" onclick="switchTab('tab-profile')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Profil
+          </button>
+          <button class="tab-btn" onclick="switchTab('tab-experiences')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            Expériences
+          </button>
+          <button class="tab-btn" onclick="switchTab('tab-projects')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+            Projets
+          </button>
+          <button class="tab-btn" onclick="switchTab('tab-skills')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+            Compétences
+          </button>
+          <button class="tab-btn" onclick="switchTab('tab-education')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12.5V16a6 6 0 0 0 12 0v-3.5"/></svg>
+            Études+
+          </button>
+        </div>
+
+        <!-- Tab Content Panels -->
+        <div class="tabs-content">
           
-          <div class="panel-section-title">Photo de profil & Dimension</div>
-          <div class="form-card" style="display: flex; flex-direction: column; gap: 1rem;">
-            <div class="pfp-upload-container">
-              <div id="pfp-preview" class="pfp-preview-circle">
-                <span>👤</span>
+          <!-- Tab 1: Profil & Photo -->
+          <div id="tab-profile" class="tab-panel active">
+            
+            <div class="panel-section-title">Photo de profil & Dimension</div>
+            <div class="form-card" style="display: flex; flex-direction: column; gap: 1rem;">
+              <div class="pfp-upload-container">
+                <div id="pfp-preview" class="pfp-preview-circle">
+                  <span>👤</span>
+                </div>
+                <div class="pfp-actions">
+                  <label class="pfp-btn" style="cursor: pointer;">
+                    Télécharger une photo
+                    <input type="file" id="pfp-input" accept="image/*" style="display: none;" onchange="uploadProfileImage(this)">
+                  </label>
+                  <button class="pfp-btn" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.2);" onclick="removeProfileImage()">Supprimer</button>
+                </div>
               </div>
-              <div class="pfp-actions">
-                <label class="pfp-btn" style="cursor: pointer;">
-                  Télécharger une photo
-                  <input type="file" id="pfp-input" accept="image/*" style="display: none;" onchange="uploadProfileImage(this)">
-                </label>
-                <button class="pfp-btn" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.2);" onclick="removeProfileImage()">Supprimer</button>
+              
+              <!-- Image size slider -->
+              <div class="form-group" id="image-size-group">
+                <label id="lbl-image-size">Taille de l'image : 80px</label>
+                <input type="range" id="input-image-size" min="60" max="180" step="5" value="80" oninput="changeImageSize(this.value)">
+              </div>
+            </div>
+
+            <div class="panel-section-title">Identité & Contact</div>
+            <div class="form-card">
+              <div class="form-group">
+                <label>Nom Complet</label>
+                <input type="text" id="input-name" placeholder="Ex: Hassen Abdelli" oninput="updateField('contact.name', this.value)">
+              </div>
+              <div class="form-group">
+                <label>Titre Professionnel</label>
+                <input type="text" id="input-title-sub" placeholder="Ex: Développeur Full Stack" oninput="updateField('contact.title_sub', this.value)">
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>E-mail</label>
+                  <input type="text" id="input-email" placeholder="Ex: hassen@gmail.com" oninput="updateField('contact.email', this.value)">
+                </div>
+                <div class="form-group">
+                  <label>Téléphone</label>
+                  <input type="text" id="input-phone" placeholder="Ex: +216 22 333 444" oninput="updateField('contact.phone', this.value)">
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Localisation</label>
+                <input type="text" id="input-location" placeholder="Ex: Tunis, Tunisie" oninput="updateField('contact.location', this.value)">
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>LinkedIn</label>
+                  <input type="text" id="input-linkedin" placeholder="Ex: linkedin.com/in/username or username" oninput="updateField('contact.linkedin', this.value)">
+                </div>
+                <div class="form-group">
+                  <label>GitHub</label>
+                  <input type="text" id="input-github" placeholder="Ex: github.com/username or username" oninput="updateField('contact.github', this.value)">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Site Web / Portfolio</label>
+                  <input type="text" id="input-website" placeholder="Ex: mon-portfolio.com" oninput="updateField('contact.website', this.value)">
+                </div>
+                <div class="form-group">
+                  <label>Permis de conduire</label>
+                  <input type="text" id="input-driver" placeholder="Ex: Permis B" oninput="updateField('contact.driver', this.value)">
+                </div>
+              </div>
+            </div>
+
+            <div class="panel-section-title">Profil / Résumé</div>
+            <div class="form-card">
+              <div class="form-group">
+                <textarea id="input-profile" rows="6" placeholder="Décrivez votre parcours..." oninput="updateField('profile', this.value)"></textarea>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Tab 2: Expériences (Collapsible Cards) -->
+          <div id="tab-experiences" class="tab-panel">
+            <div class="panel-section-title">
+              Parcours Professionnel
+              <button onclick="addItem('experiences')">+ Ajouter</button>
+            </div>
+            <div id="list-experiences"></div>
+
+            <div class="panel-section-title" style="margin-top: 1.5rem;">
+              Stages / Formations
+              <button onclick="addItem('formations')">+ Ajouter</button>
+            </div>
+            <div id="list-formations"></div>
+          </div>
+
+          <!-- Tab 3: Projets (Collapsible Cards) -->
+          <div id="tab-projects" class="tab-panel">
+            <div class="panel-section-title">
+              Projets & Réalisations
+              <button onclick="addItem('projects')">+ Ajouter</button>
+            </div>
+            <div id="list-projects"></div>
+          </div>
+
+          <!-- Tab 4: Compétences (Refactored Dynamic List) -->
+          <div id="tab-skills" class="tab-panel">
+            <div class="panel-section-title">
+              Catégories de Compétences
+              <button onclick="addSkillCategory()">+ Catégorie</button>
+            </div>
+            <div id="list-skills" style="display: flex; flex-direction: column; gap: 0.85rem;"></div>
+          </div>
+
+          <!-- Tab 5: Formations & Autre -->
+          <div id="tab-education" class="tab-panel">
+            
+            <div class="panel-section-title">
+              Formations / Études
+              <button onclick="addItem('education')">+ Ajouter</button>
+            </div>
+            <div id="list-education"></div>
+
+            <div class="panel-section-title">
+              Certifications
+              <button onclick="addSimpleItem('certifications')">+ Ajouter</button>
+            </div>
+            <div id="list-certifications"></div>
+
+            <div class="panel-section-title">
+              Engagements / Activités
+              <button onclick="addSimpleItem('activities')">+ Ajouter</button>
+            </div>
+            <div id="list-activities"></div>
+
+            <div class="panel-section-title">
+              Langues
+              <button onclick="addItem('languages')">+ Ajouter</button>
+            </div>
+            <div id="list-languages"></div>
+
+            <div class="panel-section-title">
+              Centres d'intérêt
+              <button onclick="addSimpleItem('interests')">+ Ajouter</button>
+            </div>
+            <div id="list-interests"></div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Design Mode Container -->
+      <div id="mode-design-container" style="display: none; padding: 1.5rem; overflow-y: auto; flex: 1; flex-direction: column; gap: 1.25rem;">
+        
+        <!-- Layout Selection -->
+        <div class="panel-section-title">Modèle de CV</div>
+        <div class="form-card">
+          <div class="form-group">
+            <label>Choisissez la structure globale</label>
+            <select id="design-layout-picker" class="toolbar-select" style="width: 100%; border-radius: 6px; padding: 0.5rem;" onchange="changeLayout(this.value)">
+              <option value="designed">Midnight Gold (Créatif)</option>
+              <option value="professional">Corporate (Professionnel)</option>
+              <option value="ats">ATS-Optimisé (Linéaire)</option>
+              <option value="sidebar">Sidebar Bicolore (Compact)</option>
+              <option value="minimalist">Minimalisme Suisse (Moderne)</option>
+              <option value="europass">Norme Europass (Standard)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Color Customizer -->
+        <div id="design-colors-section">
+          <div class="panel-section-title">Couleurs & Thème</div>
+          <div class="form-card" style="display: flex; flex-direction: column; gap: 0.85rem;">
+            <!-- Designed Colors -->
+            <div id="design-color-designed-group" style="display: none; flex-direction: column; gap: 0.75rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted);">Couleur de Fond</label>
+                <input type="color" id="design-picker-bg" oninput="updateThemeColor('bg', this.value)" onchange="saveAndSync()" style="border:none; width:45px; height:28px; cursor:pointer; background:none;">
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted);">Couleur Accent</label>
+                <input type="color" id="design-picker-gold" oninput="updateThemeColor('gold', this.value)" onchange="saveAndSync()" style="border:none; width:45px; height:28px; cursor:pointer; background:none;">
               </div>
             </div>
             
-            <!-- Image size slider -->
-            <div class="form-group" id="image-size-group">
-              <label id="lbl-image-size">Taille de l'image : 80px</label>
-              <input type="range" id="input-image-size" min="60" max="180" step="5" value="80" oninput="changeImageSize(this.value)">
+            <!-- Professional Colors -->
+            <div id="design-color-prof-group" style="display: none; flex-direction: column; gap: 0.75rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted);">Couleur Marine / Accent</label>
+                <input type="color" id="design-picker-navy" oninput="updateThemeColor('navy', this.value)" onchange="saveAndSync()" style="border:none; width:45px; height:28px; cursor:pointer; background:none;">
+              </div>
             </div>
-          </div>
 
-          <div class="panel-section-title">Identité & Contact</div>
-          <div class="form-card">
-            <div class="form-group">
-              <label>Nom Complet</label>
-              <input type="text" id="input-name" placeholder="Ex: Hassen Abdelli" oninput="updateField('contact.name', this.value)">
-            </div>
-            <div class="form-group">
-              <label>Titre Professionnel</label>
-              <input type="text" id="input-title-sub" placeholder="Ex: Développeur Full Stack" oninput="updateField('contact.title_sub', this.value)">
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>E-mail</label>
-                <input type="text" id="input-email" placeholder="Ex: hassen@gmail.com" oninput="updateField('contact.email', this.value)">
+            <!-- Sidebar Colors -->
+            <div id="design-color-sidebar-group" style="display: none; flex-direction: column; gap: 0.75rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted);">Fond Sidebar</label>
+                <input type="color" id="design-picker-sidebar-bg" oninput="updateThemeColor('sidebar-bg', this.value)" onchange="saveAndSync()" style="border:none; width:45px; height:28px; cursor:pointer; background:none;">
               </div>
-              <div class="form-group">
-                <label>Téléphone</label>
-                <input type="text" id="input-phone" placeholder="Ex: +216 22 333 444" oninput="updateField('contact.phone', this.value)">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted);">Accent Sidebar</label>
+                <input type="color" id="design-picker-sidebar-accent" oninput="updateThemeColor('sidebar-accent', this.value)" onchange="saveAndSync()" style="border:none; width:45px; height:28px; cursor:pointer; background:none;">
               </div>
             </div>
-            <div class="form-group">
-              <label>Localisation</label>
-              <input type="text" id="input-location" placeholder="Ex: Tunis, Tunisie" oninput="updateField('contact.location', this.value)">
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>LinkedIn</label>
-                <input type="text" id="input-linkedin" placeholder="Ex: linkedin.com/in/username or username" oninput="updateField('contact.linkedin', this.value)">
-              </div>
-              <div class="form-group">
-                <label>GitHub</label>
-                <input type="text" id="input-github" placeholder="Ex: github.com/username or username" oninput="updateField('contact.github', this.value)">
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Site Web / Portfolio</label>
-                <input type="text" id="input-website" placeholder="Ex: mon-portfolio.com" oninput="updateField('contact.website', this.value)">
-              </div>
-              <div class="form-group">
-                <label>Permis de conduire</label>
-                <input type="text" id="input-driver" placeholder="Ex: Permis B" oninput="updateField('contact.driver', this.value)">
-              </div>
-            </div>
-          </div>
 
-          <div class="panel-section-title">Profil / Résumé</div>
-          <div class="form-card">
-            <div class="form-group">
-              <textarea id="input-profile" rows="6" placeholder="Décrivez votre parcours..." oninput="updateField('profile', this.value)"></textarea>
-            </div>
+            <button id="design-btn-random" class="btn-action" onclick="applyRandomPalette()" style="width: 100%; justify-content: center; margin-top: 0.25rem;">
+              🎨 Palette Aléatoire
+            </button>
           </div>
-
         </div>
 
-        <!-- Tab 2: Expériences (Collapsible Cards) -->
-        <div id="tab-experiences" class="tab-panel">
-          <div class="panel-section-title">
-            Parcours Professionnel
-            <button onclick="addItem('experiences')">+ Ajouter</button>
+        <!-- Typography -->
+        <div class="panel-section-title">Typographie</div>
+        <div class="form-card" style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="form-group">
+            <label>Police de caractères</label>
+            <select id="design-font-family" class="toolbar-select" style="width: 100%; border-radius: 6px; padding: 0.5rem;" onchange="updateDesignField('font_family', this.value)">
+              <option value="Inter">Inter (Sans-serif Moderne)</option>
+              <option value="Outfit">Outfit (Géométrique)</option>
+              <option value="Playfair Display">Playfair Display (Serif Classique)</option>
+              <option value="Lora">Lora (Serif Sophistiqué)</option>
+              <option value="Plus Jakarta Sans">Plus Jakarta Sans (Moderne Sans)</option>
+              <option value="Roboto">Roboto (Lisible & Neutre)</option>
+            </select>
           </div>
-          <div id="list-experiences"></div>
-
-          <div class="panel-section-title" style="margin-top: 1.5rem;">
-            Stages / Formations
-            <button onclick="addItem('formations')">+ Ajouter</button>
+          <div class="form-group">
+            <label id="lbl-design-base-size">Taille de police : 14px</label>
+            <input type="range" id="design-base-size" min="10" max="18" step="1" value="14" oninput="updateDesignField('base_size', parseInt(this.value))">
           </div>
-          <div id="list-formations"></div>
+          <div class="form-group">
+            <label id="lbl-design-line-height">Interligne : 1.45</label>
+            <input type="range" id="design-line-height" min="1.1" max="1.8" step="0.05" value="1.45" oninput="updateDesignField('line_height', parseFloat(this.value))">
+          </div>
         </div>
 
-        <!-- Tab 3: Projets (Collapsible Cards) -->
-        <div id="tab-projects" class="tab-panel">
-          <div class="panel-section-title">
-            Projets & Réalisations
-            <button onclick="addItem('projects')">+ Ajouter</button>
+        <!-- Dimensions & Spacing -->
+        <div class="panel-section-title">Dimensions & Espacement</div>
+        <div class="form-card" style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="form-group">
+            <label id="lbl-design-page-margin">Marges de page : 15mm</label>
+            <input type="range" id="design-page-margin" min="8" max="25" step="1" value="15" oninput="updateDesignField('page_margin', parseInt(this.value))">
           </div>
-          <div id="list-projects"></div>
+          <div class="form-group">
+            <label id="lbl-design-section-spacing">Espacement des sections : 1.2rem</label>
+            <input type="range" id="design-section-spacing" min="0.5" max="2.5" step="0.1" value="1.2" oninput="updateDesignField('section_spacing', parseFloat(this.value))">
+          </div>
         </div>
 
-        <!-- Tab 4: Compétences (Refactored Dynamic List) -->
-        <div id="tab-skills" class="tab-panel">
-          <div class="panel-section-title">
-            Catégories de Compétences
-            <button onclick="addSkillCategory()">+ Catégorie</button>
+        <!-- Display toggles -->
+        <div class="panel-section-title">Visibilité des éléments</div>
+        <div class="form-card" style="display: flex; flex-direction: column; gap: 0.85rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted);">Afficher la photo de profil</label>
+            <input type="checkbox" id="design-show-pfp" onchange="updateDesignField('show_pfp', this.checked)" style="width: 18px; height: 18px; cursor: pointer;">
           </div>
-          <div id="list-skills" style="display: flex; flex-direction: column; gap: 0.85rem;"></div>
-        </div>
-
-        <!-- Tab 5: Formations & Autre -->
-        <div id="tab-education" class="tab-panel">
-          
-          <div class="panel-section-title">
-            Formations / Études
-            <button onclick="addItem('education')">+ Ajouter</button>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted);">Afficher les numéros de page</label>
+            <input type="checkbox" id="design-show-page-number" onchange="updateDesignField('show_page_number', this.checked)" style="width: 18px; height: 18px; cursor: pointer;">
           </div>
-          <div id="list-education"></div>
-
-          <div class="panel-section-title">
-            Certifications
-            <button onclick="addSimpleItem('certifications')">+ Ajouter</button>
-          </div>
-          <div id="list-certifications"></div>
-
-          <div class="panel-section-title">
-            Engagements / Activités
-            <button onclick="addSimpleItem('activities')">+ Ajouter</button>
-          </div>
-          <div id="list-activities"></div>
-
-          <div class="panel-section-title">
-            Langues
-            <button onclick="addItem('languages')">+ Ajouter</button>
-          </div>
-          <div id="list-languages"></div>
-
-          <div class="panel-section-title">
-            Centres d'intérêt
-            <button onclick="addSimpleItem('interests')">+ Ajouter</button>
-          </div>
-          <div id="list-interests"></div>
-
         </div>
 
       </div>
@@ -991,36 +1205,18 @@
     <main class="preview-container">
       
       <!-- Toolbar -->
-      <div class="preview-toolbar">
-        <select id="layout-picker" class="toolbar-select" onchange="changeLayout(this.value)">
-          <option value="designed">Midnight Gold (Créatif)</option>
-          <option value="professional">Corporate (Professionnel)</option>
-          <option value="ats">ATS-Optimisé (Linéaire)</option>
-          <option value="sidebar">Sidebar Bicolore (Compact)</option>
-          <option value="minimalist">Minimalisme Suisse (Moderne)</option>
-          <option value="europass">Norme Europass (Standard)</option>
-        </select>
-        
-        <!-- Quick Designed customizer -->
-        <div id="color-designed-group" style="display: flex; gap: 0.5rem; align-items: center;">
-          <input type="color" id="picker-design-bg" value="#0b0f19" oninput="updateThemeColor('bg', this.value)" onchange="saveAndSync()" title="Couleur de Fond">
-          <input type="color" id="picker-design-gold" value="#f59e0b" oninput="updateThemeColor('gold', this.value)" onchange="saveAndSync()" title="Couleur Accent">
-        </div>
-        
-        <!-- Quick Professional customizer -->
-        <div id="color-prof-group" style="display: none; align-items: center;">
-          <input type="color" id="picker-prof-navy" value="#1e3a8a" oninput="updateThemeColor('navy', this.value)" onchange="saveAndSync()" title="Couleur Marine">
-        </div>
+      <div class="preview-toolbar" style="justify-content: space-between;">
+        <span style="font-family:'Plus Jakarta Sans', sans-serif; font-size:0.85rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:0.4rem;">
+          🖨️ Prévisualisation du CV
+        </span>
 
-        <!-- Quick Sidebar customizer -->
-        <div id="color-sidebar-group" style="display: none; gap: 0.5rem; align-items: center;">
-          <input type="color" id="picker-sidebar-bg" value="#1e293b" oninput="updateThemeColor('sidebar-bg', this.value)" onchange="saveAndSync()" title="Fond Sidebar">
-          <input type="color" id="picker-sidebar-accent" value="#3b82f6" oninput="updateThemeColor('sidebar-accent', this.value)" onchange="saveAndSync()" title="Accent Sidebar">
+        <!-- Zoom Controls -->
+        <div style="display: flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.05); padding: 0.25rem 0.65rem; border-radius: 20px; border: 1px solid var(--border-color);">
+          <button onclick="changeZoom(-0.1)" title="Zoom arrière" style="background:transparent; border:none; color:white; cursor:pointer; font-weight:bold; font-size:1.1rem; padding: 0 0.4rem; outline: none; line-height: 1;">−</button>
+          <span id="lbl-zoom-level" style="font-family:'Plus Jakarta Sans', sans-serif; font-size:0.75rem; font-weight:700; color:#fff; min-width:40px; text-align:center;">100%</span>
+          <button onclick="changeZoom(0.1)" title="Zoom avant" style="background:transparent; border:none; color:white; cursor:pointer; font-weight:bold; font-size:1.1rem; padding: 0 0.4rem; outline: none; line-height: 1;">+</button>
+          <button onclick="resetZoom()" title="Réinitialiser" style="background:transparent; border:none; color:var(--text-muted); cursor:pointer; font-size:0.75rem; padding: 0 0.2rem; margin-left:4px; outline: none; line-height: 1;">↺</button>
         </div>
-
-        <button id="btn-random-theme" class="btn-action" onclick="applyRandomPalette()" title="Générer une palette de couleurs harmonieuse" style="display: inline-flex; align-items: center; gap: 0.25rem;">
-          🎨 Palette
-        </button>
 
         <button class="btn-action" onclick="window.print()">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
@@ -1030,7 +1226,7 @@
 
       <!-- A4 Page Container -->
       <div id="a4-page" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
-        <div id="screen-preview-container" style="width: 100%; display: flex; flex-direction: column; align-items: center;"></div>
+        <div id="screen-preview-container" style="width: 100%; display: flex; flex-direction: column; align-items: center; zoom: var(--preview-zoom, 1); transform-origin: top center;"></div>
         <div id="print-preview-container" class="a4-sheet"></div>
       </div>
 
@@ -1090,6 +1286,17 @@
       }
       if (!data.formations) {
         data.formations = [];
+      }
+      if (!data.design) {
+        data.design = {
+          "font_family": "Inter",
+          "base_size": 14,
+          "line_height": 1.45,
+          "page_margin": 15,
+          "section_spacing": 1.2,
+          "show_pfp": true,
+          "show_page_number": true
+        };
       }
     }
 
@@ -1206,9 +1413,8 @@
       document.documentElement.style.setProperty('--design-gold', themes.gold_primary);
       document.documentElement.style.setProperty('--design-gold-dark', themes.gold_dark);
 
-      // PFP rendering
       let pfpHTML = "";
-      if (cvData.contact.image) {
+      if (cvData.contact.image && (!cvData.design || cvData.design.show_pfp)) {
         const sz = cvData.contact.image_size || 80;
         pfpHTML = `<img src="${cvData.contact.image}" class="cv-designed-pfp" style="width:${sz}px; height:${sz}px;" alt="PFP">`;
       }
@@ -1400,7 +1606,7 @@
 
       // PFP rendering
       let pfpHTML = "";
-      if (cvData.contact.image) {
+      if (cvData.contact.image && (!cvData.design || cvData.design.show_pfp)) {
         const sz = cvData.contact.image_size || 80;
         pfpHTML = `<img src="${cvData.contact.image}" class="cv-prof-pfp" style="width:${sz}px; height:${sz}px;" alt="PFP">`;
       }
@@ -1633,7 +1839,7 @@
       let langHTML = cvData.languages.map(l => `<li><strong>${l.name} :</strong> ${l.level}</li>`).join('');
 
       let pfpHTML = "";
-      if (cvData.contact.image) {
+      if (cvData.contact.image && (!cvData.design || cvData.design.show_pfp)) {
         const sz = cvData.contact.image_size || 80;
         pfpHTML = `<img src="${cvData.contact.image}" style="width:${sz}px; height:${sz}px; border-radius:50%; object-fit:cover; border:1px solid #cccccc; display:block; margin:0 auto 0.5rem auto;" alt="Photo">`;
       }
@@ -1729,7 +1935,7 @@
       document.documentElement.style.setProperty('--sidebar-text', textColor);
 
       let pfpHTML = "";
-      if (cvData.contact.image) {
+      if (cvData.contact.image && (!cvData.design || cvData.design.show_pfp)) {
         const sz = cvData.contact.image_size || 80;
         pfpHTML = `<img src="${cvData.contact.image}" class="cv-sidebar-pfp" style="width:${sz}px; height:${sz}px;" alt="PFP">`;
       }
@@ -1908,7 +2114,7 @@
 
     function renderMinimalistLayout() {
       let pfpHTML = "";
-      if (cvData.contact.image) {
+      if (cvData.contact.image && (!cvData.design || cvData.design.show_pfp)) {
         const sz = cvData.contact.image_size || 80;
         pfpHTML = `<img src="${cvData.contact.image}" class="cv-mini-pfp" style="width:${sz}px; height:${sz}px;" alt="PFP">`;
       }
@@ -2084,7 +2290,7 @@
 
     function renderEuropassLayout() {
       let pfpHTML = "";
-      if (cvData.contact.image) {
+      if (cvData.contact.image && (!cvData.design || cvData.design.show_pfp)) {
         const sz = cvData.contact.image_size || 80;
         pfpHTML = `<img src="${cvData.contact.image}" class="cv-euro-pfp" style="width:${sz}px; height:${sz}px;" alt="PFP">`;
       }
@@ -2305,7 +2511,10 @@
       }
       printContainer.innerHTML = layoutHTML;
 
-      // 2. Determine conversion from 297mm and 15mm to pixels
+      // Attach data attributes to connect preview elements to their editor sections
+      attachEditorBindings(printContainer);
+
+      // 2. Determine conversion from page height and margins to pixels
       const dummyPage = document.createElement('div');
       dummyPage.style.height = '297mm';
       dummyPage.style.position = 'absolute';
@@ -2314,8 +2523,9 @@
       const pageHeightPx = dummyPage.offsetHeight;
       document.body.removeChild(dummyPage);
 
+      const marginMm = (cvData.design && cvData.design.page_margin !== undefined) ? cvData.design.page_margin : 15;
       const dummyMargin = document.createElement('div');
-      dummyMargin.style.height = '15mm';
+      dummyMargin.style.height = `${marginMm}mm`;
       dummyMargin.style.position = 'absolute';
       dummyMargin.style.visibility = 'hidden';
       document.body.appendChild(dummyMargin);
@@ -2438,6 +2648,10 @@
         pageBadge.style.zIndex = '999';
         pageBadge.style.pointerEvents = 'none';
         pageBadge.innerText = `Page ${i + 1} / ${totalPages}`;
+        
+        const showPageNum = !cvData.design || cvData.design.show_page_number !== false;
+        pageBadge.style.display = showPageNum ? 'block' : 'none';
+        
         pageSheet.appendChild(pageBadge);
 
         const pageContentWrapper = document.createElement('div');
@@ -2458,7 +2672,9 @@
        10. FORM FIELDS POPULATOR & DYNAMIC LISTS
        ---------------------------------------------------- */
     function populateFormInputs() {
-      document.getElementById('layout-picker').value = currentLayout;
+      if (document.getElementById('design-layout-picker')) {
+        document.getElementById('design-layout-picker').value = currentLayout;
+      }
       
       document.getElementById('input-name').value = cvData.contact.name;
       document.getElementById('input-title-sub').value = cvData.contact.title_sub;
@@ -2477,13 +2693,44 @@
       document.getElementById('input-image-size').value = sz;
       document.getElementById('lbl-image-size').innerText = `Taille de l'image : ${sz}px`;
 
-      document.getElementById('picker-design-bg').value = cvData.themes.designed.bg_color;
-      document.getElementById('picker-design-gold').value = cvData.themes.designed.gold_primary;
-      document.getElementById('picker-prof-navy').value = cvData.themes.professional.navy_primary;
-      if (cvData.themes.sidebar) {
-        document.getElementById('picker-sidebar-bg').value = cvData.themes.sidebar.sidebar_bg || "#1e293b";
-        document.getElementById('picker-sidebar-accent').value = cvData.themes.sidebar.sidebar_accent || "#3b82f6";
+      // Design settings initialization
+      if (!cvData.design) {
+        cvData.design = {
+          "font_family": "Inter",
+          "base_size": 14,
+          "line_height": 1.45,
+          "page_margin": 15,
+          "section_spacing": 1.2,
+          "show_pfp": true,
+          "show_page_number": true
+        };
       }
+
+      if (document.getElementById('design-font-family')) {
+        document.getElementById('design-font-family').value = cvData.design.font_family || "Inter";
+        document.getElementById('design-base-size').value = cvData.design.base_size || 14;
+        document.getElementById('lbl-design-base-size').innerText = `Taille de police : ${cvData.design.base_size || 14}px`;
+        document.getElementById('design-line-height').value = cvData.design.line_height || 1.45;
+        document.getElementById('lbl-design-line-height').innerText = `Interligne : ${cvData.design.line_height || 1.45}`;
+        document.getElementById('design-page-margin').value = cvData.design.page_margin || 15;
+        document.getElementById('lbl-design-page-margin').innerText = `Marges de page : ${cvData.design.page_margin || 15}mm`;
+        document.getElementById('design-section-spacing').value = cvData.design.section_spacing || 1.2;
+        document.getElementById('lbl-design-section-spacing').innerText = `Espacement des sections : ${cvData.design.section_spacing || 1.2}rem`;
+        document.getElementById('design-show-pfp').checked = cvData.design.show_pfp !== false;
+        document.getElementById('design-show-page-number').checked = cvData.design.show_page_number !== false;
+      }
+
+      if (document.getElementById('design-picker-bg')) {
+        document.getElementById('design-picker-bg').value = cvData.themes.designed.bg_color;
+        document.getElementById('design-picker-gold').value = cvData.themes.designed.gold_primary;
+        document.getElementById('design-picker-navy').value = cvData.themes.professional.navy_primary;
+        if (cvData.themes.sidebar) {
+          document.getElementById('design-picker-sidebar-bg').value = cvData.themes.sidebar.sidebar_bg || "#1e293b";
+          document.getElementById('design-picker-sidebar-accent').value = cvData.themes.sidebar.sidebar_accent || "#3b82f6";
+        }
+      }
+
+      applyDesignStyles();
 
       updatePfpPreview();
 
@@ -2552,32 +2799,32 @@
         let titleText = "";
         let subtitleText = "";
         let fields = "";
-
+ 
         if (key === 'experiences' || key === 'formations') {
           titleText = key === 'experiences' ? (item.title || "Poste sans titre") : (item.title || "Stage / Formation sans titre");
           subtitleText = `${item.company || (key === 'experiences' ? 'Entreprise' : 'Organisme')} | ${item.period || 'Période'}`;
           fields = `
             <div class="form-group">
               <label>${key === 'experiences' ? 'Intitulé du Poste' : 'Intitulé du Stage / Formation'}</label>
-              <input type="text" value="${item.title}" oninput="updateListItem('${key}', ${index}, 'title', this.value)">
+              <input type="text" data-field="title" value="${item.title}" oninput="updateListItem('${key}', ${index}, 'title', this.value)">
             </div>
             <div class="form-group">
               <label>${key === 'experiences' ? 'Entreprise' : 'Organisme / Établissement'}</label>
-              <input type="text" value="${item.company}" oninput="updateListItem('${key}', ${index}, 'company', this.value)">
+              <input type="text" data-field="company" value="${item.company}" oninput="updateListItem('${key}', ${index}, 'company', this.value)">
             </div>
             <div class="form-row">
               <div class="form-group">
                 <label>Période</label>
-                <input type="text" value="${item.period}" oninput="updateListItem('${key}', ${index}, 'period', this.value)">
+                <input type="text" data-field="period" value="${item.period}" oninput="updateListItem('${key}', ${index}, 'period', this.value)">
               </div>
               <div class="form-group">
                 <label>Lieu</label>
-                <input type="text" value="${item.location}" oninput="updateListItem('${key}', ${index}, 'location', this.value)">
+                <input type="text" data-field="location" value="${item.location}" oninput="updateListItem('${key}', ${index}, 'location', this.value)">
               </div>
             </div>
             <div class="form-group">
               <label>${key === 'experiences' ? 'Missions (Une mission par ligne)' : 'Détails / Missions (Un par ligne)'}</label>
-              <textarea rows="4" oninput="updateListBullets('${key}', ${index}, this.value)">${item.bullets.join('\n')}</textarea>
+              <textarea rows="4" data-field="bullets" oninput="updateListBullets('${key}', ${index}, this.value)">${item.bullets.join('\n')}</textarea>
             </div>`;
         } else if (key === 'projects') {
           titleText = item.title || "Projet sans titre";
@@ -2585,15 +2832,15 @@
           fields = `
             <div class="form-group">
               <label>Titre du Projet</label>
-              <input type="text" value="${item.title}" oninput="updateListItem('${key}', ${index}, 'title', this.value)">
+              <input type="text" data-field="title" value="${item.title}" oninput="updateListItem('${key}', ${index}, 'title', this.value)">
             </div>
             <div class="form-group">
               <label>Stack Technique</label>
-              <input type="text" value="${item.stack}" oninput="updateListItem('${key}', ${index}, 'stack', this.value)">
+              <input type="text" data-field="stack" value="${item.stack}" oninput="updateListItem('${key}', ${index}, 'stack', this.value)">
             </div>
             <div class="form-group">
               <label>Description du projet</label>
-              <textarea rows="4" oninput="updateListItem('${key}', ${index}, 'description', this.value)">${item.description}</textarea>
+              <textarea rows="4" data-field="description" oninput="updateListItem('${key}', ${index}, 'description', this.value)">${item.description}</textarea>
             </div>`;
         } else if (key === 'education') {
           titleText = item.degree || "Diplôme";
@@ -2601,15 +2848,15 @@
           fields = `
             <div class="form-group">
               <label>Intitulé du Diplôme / Formation</label>
-              <input type="text" value="${item.degree}" oninput="updateListItem('${key}', ${index}, 'degree', this.value)">
+              <input type="text" data-field="degree" value="${item.degree}" oninput="updateListItem('${key}', ${index}, 'degree', this.value)">
             </div>
             <div class="form-group">
               <label>Établissement</label>
-              <input type="text" value="${item.school}" oninput="updateListItem('${key}', ${index}, 'school', this.value)">
+              <input type="text" data-field="school" value="${item.school}" oninput="updateListItem('${key}', ${index}, 'school', this.value)">
             </div>
             <div class="form-group">
               <label>Période</label>
-              <input type="text" value="${item.period}" oninput="updateListItem('${key}', ${index}, 'period', this.value)">
+              <input type="text" data-field="period" value="${item.period}" oninput="updateListItem('${key}', ${index}, 'period', this.value)">
             </div>`;
         } else if (key === 'languages') {
           titleText = item.name || "Nouvelle langue";
@@ -2618,11 +2865,11 @@
             <div class="form-row">
               <div class="form-group">
                 <label>Langue</label>
-                <input type="text" value="${item.name}" oninput="updateListItem('${key}', ${index}, 'name', this.value)">
+                <input type="text" data-field="name" value="${item.name}" oninput="updateListItem('${key}', ${index}, 'name', this.value)">
               </div>
               <div class="form-group">
                 <label>Niveau</label>
-                <input type="text" value="${item.level}" oninput="updateListItem('${key}', ${index}, 'level', this.value)">
+                <input type="text" data-field="level" value="${item.level}" oninput="updateListItem('${key}', ${index}, 'level', this.value)">
               </div>
             </div>`;
         }
@@ -2733,11 +2980,18 @@
       currentLayout = layout;
       localStorage.setItem('cv_layout', layout);
       
-      document.getElementById('color-designed-group').style.display = (layout === 'designed') ? 'flex' : 'none';
-      document.getElementById('color-prof-group').style.display = (layout === 'professional') ? 'flex' : 'none';
-      document.getElementById('color-sidebar-group').style.display = (layout === 'sidebar') ? 'flex' : 'none';
-      document.getElementById('btn-random-theme').style.display = 
-        (layout === 'designed' || layout === 'professional' || layout === 'sidebar') ? 'inline-flex' : 'none';
+      const select = document.getElementById('design-layout-picker');
+      if (select) select.value = layout;
+
+      const designedGrp = document.getElementById('design-color-designed-group');
+      const profGrp = document.getElementById('design-color-prof-group');
+      const sidebarGrp = document.getElementById('design-color-sidebar-group');
+      const btnRandom = document.getElementById('design-btn-random');
+
+      if (designedGrp) designedGrp.style.display = (layout === 'designed') ? 'flex' : 'none';
+      if (profGrp) profGrp.style.display = (layout === 'professional') ? 'flex' : 'none';
+      if (sidebarGrp) sidebarGrp.style.display = (layout === 'sidebar') ? 'flex' : 'none';
+      if (btnRandom) btnRandom.style.display = (layout === 'designed' || layout === 'professional' || layout === 'sidebar') ? 'inline-flex' : 'none';
       
       renderPreview();
     }
@@ -2757,23 +3011,33 @@
       if (type === 'bg') {
         cvData.themes.designed.bg_color = hex;
         document.documentElement.style.setProperty('--design-bg', hex);
+        const p = document.getElementById('design-picker-bg');
+        if (p) p.value = hex;
       } else if (type === 'gold') {
         cvData.themes.designed.gold_primary = hex;
         const dark = darkenColor(hex, 15);
         cvData.themes.designed.gold_dark = dark;
         document.documentElement.style.setProperty('--design-gold', hex);
         document.documentElement.style.setProperty('--design-gold-dark', dark);
+        const p = document.getElementById('design-picker-gold');
+        if (p) p.value = hex;
       } else if (type === 'navy') {
         cvData.themes.professional.navy_primary = hex;
         document.documentElement.style.setProperty('--prof-navy', hex);
+        const p = document.getElementById('design-picker-navy');
+        if (p) p.value = hex;
       } else if (type === 'sidebar-bg') {
         if (!cvData.themes.sidebar) cvData.themes.sidebar = {};
         cvData.themes.sidebar.sidebar_bg = hex;
         document.documentElement.style.setProperty('--sidebar-bg', hex);
+        const p = document.getElementById('design-picker-sidebar-bg');
+        if (p) p.value = hex;
       } else if (type === 'sidebar-accent') {
         if (!cvData.themes.sidebar) cvData.themes.sidebar = {};
         cvData.themes.sidebar.sidebar_accent = hex;
         document.documentElement.style.setProperty('--sidebar-accent', hex);
+        const p = document.getElementById('design-picker-sidebar-accent');
+        if (p) p.value = hex;
       }
     }
 
@@ -2816,8 +3080,10 @@
         cvData.themes.designed.gold_primary = choice.gold;
         cvData.themes.designed.gold_dark = darkenColor(choice.gold, 15);
         
-        document.getElementById('picker-design-bg').value = choice.bg;
-        document.getElementById('picker-design-gold').value = choice.gold;
+        const p1 = document.getElementById('design-picker-bg');
+        const p2 = document.getElementById('design-picker-gold');
+        if (p1) p1.value = choice.bg;
+        if (p2) p2.value = choice.gold;
       } else if (currentLayout === 'professional') {
         const list = PRESETS.professional;
         const currentNavy = cvData.themes.professional.navy_primary;
@@ -2828,7 +3094,8 @@
           }
         }
         cvData.themes.professional.navy_primary = choice.navy;
-        document.getElementById('picker-prof-navy').value = choice.navy;
+        const p = document.getElementById('design-picker-navy');
+        if (p) p.value = choice.navy;
       } else if (currentLayout === 'sidebar') {
         const list = PRESETS.sidebar;
         if (!cvData.themes.sidebar) cvData.themes.sidebar = {};
@@ -2842,8 +3109,10 @@
         cvData.themes.sidebar.sidebar_bg = choice.bg;
         cvData.themes.sidebar.sidebar_accent = choice.accent;
         
-        document.getElementById('picker-sidebar-bg').value = choice.bg;
-        document.getElementById('picker-sidebar-accent').value = choice.accent;
+        const p1 = document.getElementById('design-picker-sidebar-bg');
+        const p2 = document.getElementById('design-picker-sidebar-accent');
+        if (p1) p1.value = choice.bg;
+        if (p2) p2.value = choice.accent;
       }
       
       if (currentLayout === 'designed') {
@@ -2858,6 +3127,71 @@
       }
       
       saveAndSync();
+    }
+
+    function setEditorMode(mode) {
+      const btnData = document.getElementById('btn-mode-data');
+      const btnDesign = document.getElementById('btn-mode-design');
+      const containerData = document.getElementById('mode-data-container');
+      const containerDesign = document.getElementById('mode-design-container');
+
+      if (mode === 'data') {
+        btnData.classList.add('active');
+        btnDesign.classList.remove('active');
+        containerData.style.display = 'flex';
+        containerDesign.style.display = 'none';
+      } else {
+        btnData.classList.remove('active');
+        btnDesign.classList.add('active');
+        containerData.style.display = 'none';
+        containerDesign.style.display = 'flex';
+        
+        // Sync active layout sub-picker colors visibility:
+        changeLayout(currentLayout);
+      }
+    }
+
+    function updateDesignField(field, value) {
+      if (!cvData.design) cvData.design = {};
+      cvData.design[field] = value;
+      
+      // Update label readouts
+      if (field === 'base_size') {
+        document.getElementById('lbl-design-base-size').innerText = `Taille de police : ${value}px`;
+      } else if (field === 'line_height') {
+        document.getElementById('lbl-design-line-height').innerText = `Interligne : ${value}`;
+      } else if (field === 'page_margin') {
+        document.getElementById('lbl-design-page-margin').innerText = `Marges de page : ${value}mm`;
+      } else if (field === 'section_spacing') {
+        document.getElementById('lbl-design-section-spacing').innerText = `Espacement des sections : ${value}rem`;
+      }
+
+      applyDesignStyles();
+      renderPreview();
+      saveAndSync();
+    }
+
+    function applyDesignStyles() {
+      const design = cvData.design || {
+        font_family: "Inter",
+        base_size: 14,
+        line_height: 1.45,
+        page_margin: 15,
+        section_spacing: 1.2,
+        show_pfp: true,
+        show_page_number: true
+      };
+
+      const fontVal = design.font_family === 'Playfair Display' || design.font_family === 'Lora'
+        ? `'${design.font_family}', serif`
+        : `'${design.font_family}', sans-serif`;
+
+      document.documentElement.style.setProperty('--font-global', fontVal);
+      document.documentElement.style.setProperty('--font-base-size', `${design.base_size}px`);
+      document.documentElement.style.setProperty('--line-height-base', design.line_height);
+      document.documentElement.style.setProperty('--page-margin', `${design.page_margin}mm`);
+      document.documentElement.style.setProperty('--section-margin', `${design.section_spacing}rem`);
+      document.documentElement.style.setProperty('--pfp-display', design.show_pfp ? 'block' : 'none');
     }
 
     async function resetToDefaults() {
@@ -2926,6 +3260,326 @@
       renderPreview();
     }
 
+    function attachEditorBindings(container) {
+      // Find all elements that look like section titles or headers
+      const headers = container.querySelectorAll('h2, h3, h4, .cv-designed-sectitle, .cv-prof-sectitle, .cv-ats-sectitle, .cv-sidebar-right-title, .cv-sidebar-left-title, .cv-mini-sectitle, .cv-euro-sectitle');
+      
+      const keywordMap = {
+        'profil': { tab: 'tab-profile', key: null },
+        'résumé': { tab: 'tab-profile', key: null },
+        'contact': { tab: 'tab-profile', key: null },
+        'expéri': { tab: 'tab-experiences', key: 'experiences' },
+        'parcours': { tab: 'tab-experiences', key: 'experiences' },
+        'stage': { tab: 'tab-experiences', key: 'formations' },
+        'formation': { tab: 'tab-experiences', key: 'formations' },
+        'projet': { tab: 'tab-projects', key: 'projects' },
+        'réalis': { tab: 'tab-projects', key: 'projects' },
+        'compét': { tab: 'tab-skills', key: 'skills' },
+        'techni': { tab: 'tab-skills', key: 'skills' },
+        'éducat': { tab: 'tab-education', key: 'education' },
+        'étude': { tab: 'tab-education', key: 'education' },
+        'certif': { tab: 'tab-education', key: 'certifications' },
+        'engage': { tab: 'tab-education', key: 'activities' },
+        'activi': { tab: 'tab-education', key: 'activities' },
+        'langue': { tab: 'tab-education', key: 'languages' },
+        'intérêt': { tab: 'tab-education', key: 'interests' },
+        'loisir': { tab: 'tab-education', key: 'interests' }
+      };
+
+      headers.forEach(header => {
+        const text = header.textContent.toLowerCase();
+        let match = null;
+        for (const kw in keywordMap) {
+          if (text.includes(kw)) {
+            match = keywordMap[kw];
+            break;
+          }
+        }
+        if (!match) return;
+
+        header.setAttribute('data-editor-tab', match.tab);
+        if (match.key) {
+          header.setAttribute('data-editor-target', match.key);
+        }
+
+        let sectionContainer = header.closest('section, .section, .cv-sidebar-right-section, .cv-sidebar-left-section, .cv-mini-right-col > div, .cv-mini-left-col > div, .cv-euro-row');
+        if (!sectionContainer) {
+          sectionContainer = header.parentElement;
+        }
+
+        // Set target on all general children in this section first
+        const allChildren = sectionContainer.querySelectorAll('h1, h2, h3, h4, h5, h6, p, li, span, div, a, .cv-designed-simpleitem');
+        allChildren.forEach(child => {
+          child.setAttribute('data-editor-tab', match.tab);
+          if (match.key) {
+            child.setAttribute('data-editor-target', match.key);
+          }
+        });
+
+        // Set indexed targets on specific item cards
+        const items = sectionContainer.querySelectorAll('.cv-designed-card, .cv-prof-item, .cv-ats-item, .cv-sidebar-item, .cv-mini-item, .cv-euro-item, .skill-cat, .cv-prof-skillrow, .cv-designed-simpleitem, .cv-mini-skillcat, .cv-euro-item-row');
+        
+        items.forEach((item, index) => {
+          item.setAttribute('data-editor-tab', match.tab);
+          if (match.key) {
+            item.setAttribute('data-editor-target', match.key);
+            item.setAttribute('data-editor-index', index);
+
+            // Map title fields
+            item.querySelectorAll('.cv-designed-cardtitle, .cv-prof-cardtitle, .cv-ats-cardtitle, .cv-sidebar-cardtitle, .cv-mini-cardtitle, .cv-euro-cardtitle, h3, h4').forEach(el => {
+              el.setAttribute('data-editor-field', match.key === 'education' ? 'degree' : (match.key === 'languages' ? 'name' : 'title'));
+            });
+            
+            // Map company / school / level fields
+            item.querySelectorAll('.cv-designed-cardorg, .cv-prof-cardorg, .cv-ats-cardorg, .cv-sidebar-cardorg, .cv-mini-cardorg, .cv-euro-cardorg').forEach(el => {
+              el.setAttribute('data-editor-field', match.key === 'education' ? 'school' : (match.key === 'languages' ? 'level' : 'company'));
+            });
+            
+            // Map period fields
+            item.querySelectorAll('.cv-designed-carddate, .cv-prof-carddate, .cv-ats-carddate, .cv-sidebar-carddate, .cv-mini-carddate, .cv-euro-carddate').forEach(el => {
+              el.setAttribute('data-editor-field', 'period');
+            });
+            
+            // Map location fields
+            item.querySelectorAll('.cv-designed-cardloc, .cv-prof-cardloc, .cv-ats-cardloc, .cv-sidebar-cardloc, .cv-mini-cardloc, .cv-euro-cardloc').forEach(el => {
+              el.setAttribute('data-editor-field', 'location');
+            });
+
+            // Map description / bullets fields
+            item.querySelectorAll('.cv-designed-bullets, .cv-prof-bullets, .cv-ats-bullets, .cv-sidebar-bullets, .cv-mini-bullets, .cv-euro-bullets, .cv-designed-bullets li, .cv-prof-bullets li, .cv-ats-bullets li, p').forEach(el => {
+              el.setAttribute('data-editor-field', match.key === 'projects' ? 'description' : 'bullets');
+            });
+          }
+        });
+      });
+      
+      // Bind all profile/resume and personal header content
+      const profileHeaderSelectors = [
+        '.cv-designed-header', '.cv-prof-header', '.cv-ats-header', 
+        '.cv-sidebar-left-col', '.cv-mini-header', '.cv-euro-header',
+        '.cv-designed-profile', '.cv-prof-profile', '.cv-ats-profile',
+        '.cv-mini-profile', '.cv-euro-profile', '.cv-designed-contacts',
+        '.cv-prof-contacts', '.cv-ats-contacts', '.cv-sidebar-contacts',
+        '.cv-mini-contacts', '.cv-euro-contacts', '.cv-designed-name',
+        '.cv-prof-name', '.cv-designed-title', '.cv-prof-title'
+      ];
+      
+      profileHeaderSelectors.forEach(sel => {
+        const els = container.querySelectorAll(sel);
+        els.forEach(el => {
+          el.setAttribute('data-editor-tab', 'tab-profile');
+          const children = el.querySelectorAll('h1, h2, h3, h4, h5, h6, p, li, span, div, a, img');
+          children.forEach(c => c.setAttribute('data-editor-tab', 'tab-profile'));
+        });
+      });
+
+      // For the sidebar layout, the right-column header contains name + title directly
+      container.querySelectorAll('.cv-sidebar-right > header').forEach(hdr => {
+        hdr.setAttribute('data-editor-tab', 'tab-profile');
+        hdr.querySelectorAll('*').forEach(c => c.setAttribute('data-editor-tab', 'tab-profile'));
+        
+        // Name is an h1 inside header
+        const nameEl = hdr.querySelector('h1');
+        if (nameEl) {
+          nameEl.setAttribute('data-editor-focus', 'input-name');
+          nameEl.querySelectorAll('*').forEach(c => c.setAttribute('data-editor-focus', 'input-name'));
+        }
+        // Title is a p inside header
+        const titleEl = hdr.querySelector('p');
+        if (titleEl) {
+          titleEl.setAttribute('data-editor-focus', 'input-title-sub');
+          titleEl.querySelectorAll('*').forEach(c => c.setAttribute('data-editor-focus', 'input-title-sub'));
+        }
+      });
+
+      // For the sidebar layout, the profile section is a .cv-sidebar-right-section containing "Profil" title
+      // This is already handled by the keyword map + allChildren binding above.
+
+      // Bind specific profile fields for direct input focusing
+      const focusSelectors = {
+        '.cv-designed-name, .cv-prof-name, .cv-ats-name, .cv-sidebar-name, .cv-mini-name, .cv-euro-name': 'input-name',
+        '.cv-designed-title, .cv-prof-title, .cv-ats-title, .cv-sidebar-title, .cv-mini-title, .cv-euro-title': 'input-title-sub',
+        '.cv-designed-profile, .cv-prof-profile, .cv-ats-profile, .cv-mini-profile, .cv-euro-profile': 'input-profile'
+      };
+      
+      for (const sel in focusSelectors) {
+        container.querySelectorAll(sel).forEach(el => {
+          el.setAttribute('data-editor-focus', focusSelectors[sel]);
+          el.querySelectorAll('*').forEach(c => c.setAttribute('data-editor-focus', focusSelectors[sel]));
+        });
+      }
+
+      // Map dynamic contact items based on text content / icons
+      // Include both named-class containers AND the sidebar-left-content (which wraps contact in sidebar layout)
+      const contactContainerSels = [
+        '.cv-designed-contacts', '.cv-prof-contacts', '.cv-ats-contacts',
+        '.cv-sidebar-contacts', '.cv-mini-contacts', '.cv-euro-contacts'
+      ];
+      
+      // For the sidebar layout, find the contact section by its title text
+      container.querySelectorAll('.cv-sidebar-left-section').forEach(section => {
+        const title = section.querySelector('.cv-sidebar-left-title');
+        if (title && title.textContent.toLowerCase().includes('contact')) {
+          section.setAttribute('data-editor-tab', 'tab-profile');
+          section.querySelectorAll('*').forEach(c => c.setAttribute('data-editor-tab', 'tab-profile'));
+          contactContainerSels.push(null); // marker — we handle it inline below
+          
+          // Bind each contact row div inside the contact section
+          section.querySelectorAll('.cv-sidebar-left-content > div').forEach(row => {
+            const text = row.textContent.toLowerCase();
+            const link = row.querySelector('a');
+            const href = link ? (link.getAttribute('href') || '') : '';
+            
+            let focusId = null;
+            if (href.startsWith('mailto:') || text.includes('@')) {
+              focusId = 'input-email';
+            } else if (href.startsWith('tel:') || text.match(/[+0-9]{8,}/)) {
+              focusId = 'input-phone';
+            } else if (text.includes('linkedin') || href.includes('linkedin')) {
+              focusId = 'input-linkedin';
+            } else if (text.includes('github') || href.includes('github')) {
+              focusId = 'input-github';
+            } else if (text.includes('permis')) {
+              focusId = 'input-driver';
+            } else if (text.includes('site') || (text.includes('.') && !text.includes('@'))) {
+              focusId = 'input-website';
+            } else {
+              focusId = 'input-location';
+            }
+            
+            if (focusId) {
+              row.setAttribute('data-editor-focus', focusId);
+              row.setAttribute('data-editor-tab', 'tab-profile');
+              row.querySelectorAll('*').forEach(c => {
+                c.setAttribute('data-editor-focus', focusId);
+                c.setAttribute('data-editor-tab', 'tab-profile');
+              });
+            }
+          });
+        }
+      });
+
+      // Standard contact selectors for non-sidebar layouts
+      container.querySelectorAll('.cv-designed-contacts span, .cv-prof-contacts span, .cv-ats-contacts span, .cv-sidebar-contacts span, .cv-mini-contacts span, .cv-euro-contacts span, .cv-designed-contacts a, .cv-prof-contacts a, .cv-ats-contacts a, .cv-sidebar-contacts a, .cv-mini-contacts a, .cv-euro-contacts a').forEach(el => {
+        const text = el.textContent.toLowerCase();
+        const href = el.getAttribute('href') || '';
+        
+        let focusId = null;
+        if (href.startsWith('mailto:') || text.includes('@')) {
+          focusId = 'input-email';
+        } else if (href.startsWith('tel:') || text.match(/[+0-9]{8,}/)) {
+          focusId = 'input-phone';
+        } else if (text.includes('linkedin') || href.includes('linkedin')) {
+          focusId = 'input-linkedin';
+        } else if (text.includes('github') || href.includes('github')) {
+          focusId = 'input-github';
+        } else if (text.includes('permis')) {
+          focusId = 'input-driver';
+        } else if (text.includes('.') && !text.includes('@')) {
+          focusId = 'input-website';
+        } else {
+          focusId = 'input-location';
+        }
+        
+        if (focusId) {
+          el.setAttribute('data-editor-focus', focusId);
+          el.querySelectorAll('*').forEach(c => c.setAttribute('data-editor-focus', focusId));
+        }
+      });
+
+      // Bind sidebar-left profile photo to tab-profile
+      container.querySelectorAll('.cv-sidebar-pfp').forEach(el => {
+        el.setAttribute('data-editor-tab', 'tab-profile');
+      });
+    }
+ 
+    // Attach click listener for redirecting preview clicks to the editor
+    document.getElementById('screen-preview-container').addEventListener('click', (e) => {
+      const indexedTarget = e.target.closest('[data-editor-index]');
+      const target = e.target.closest('[data-editor-target], [data-editor-tab], [data-editor-focus]');
+      if (!target) return;
+      
+      const tabId = target.getAttribute('data-editor-tab');
+      const targetKey = indexedTarget ? indexedTarget.getAttribute('data-editor-target') : target.getAttribute('data-editor-target');
+      const index = indexedTarget ? indexedTarget.getAttribute('data-editor-index') : null;
+      const focusId = target.getAttribute('data-editor-focus');
+      
+      setEditorMode('data');
+      if (tabId) {
+        switchTab(tabId);
+      }
+      
+      if (focusId) {
+        setTimeout(() => {
+          const inputEl = document.getElementById(focusId);
+          if (inputEl) {
+            inputEl.focus();
+            inputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            inputEl.style.outline = '2px solid #10b981';
+            setTimeout(() => { inputEl.style.outline = ''; }, 1200);
+          }
+        }, 100);
+      } else if (targetKey && index !== null) {
+        const idx = parseInt(index, 10);
+        openCollapseKeys[targetKey] = idx;
+        
+        if (targetKey === 'skills') {
+          renderSkillsList();
+        } else if (targetKey === 'certifications' || targetKey === 'activities' || targetKey === 'interests') {
+          renderSimpleList(targetKey);
+        } else {
+          renderList(targetKey);
+        }
+        
+        setTimeout(() => {
+          const listContainer = document.getElementById(`list-${targetKey}`);
+          if (listContainer) {
+            const cards = listContainer.children;
+            const card = cards[idx];
+            if (card) {
+              card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+              card.style.animation = 'pulseHighlight 0.8s ease-out';
+              setTimeout(() => { card.style.animation = ''; }, 800);
+              
+              // Focus the specific field if targeted
+              const field = target.getAttribute('data-editor-field') || e.target.getAttribute('data-editor-field');
+              if (field) {
+                const inputEl = card.querySelector(`[data-field="${field}"], textarea[data-field="${field}"]`);
+                if (inputEl) {
+                  inputEl.focus();
+                  inputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  inputEl.style.outline = '2px solid #10b981';
+                  setTimeout(() => { inputEl.style.outline = ''; }, 1200);
+                }
+              }
+            }
+          }
+        }, 100);
+      }
+    });
+
+    let previewZoom = parseFloat(localStorage.getItem('preview_zoom')) || 1.0;
+
+    function changeZoom(delta) {
+      previewZoom = Math.min(2.0, Math.max(0.5, previewZoom + delta));
+      localStorage.setItem('preview_zoom', previewZoom.toFixed(2));
+      applyZoom();
+    }
+
+    function resetZoom() {
+      previewZoom = 1.0;
+      localStorage.setItem('preview_zoom', previewZoom.toFixed(2));
+      applyZoom();
+    }
+
+    function applyZoom() {
+      document.documentElement.style.setProperty('--preview-zoom', previewZoom);
+      const lbl = document.getElementById('lbl-zoom-level');
+      if (lbl) {
+        lbl.innerText = `${Math.round(previewZoom * 100)}%`;
+      }
+    }
+
     window.onload = async function() {
       if (!localStorage.getItem('cv_data')) {
         try {
@@ -2942,6 +3596,8 @@
       }
       populateFormInputs();
       changeLayout(currentLayout);
+      applyZoom();
+      setEditorMode('data');
     };
   </script>
 </body>
