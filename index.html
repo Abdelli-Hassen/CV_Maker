@@ -647,7 +647,7 @@
 
     /* Layout 5: Minimalist Swiss */
     .cv-mini-body { background: #ffffff !important; color: #27272a !important; padding: 15mm 15mm; min-height: 297mm; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-    .cv-mini-body a { color: #09090b !important; text-decoration: underline; }
+    .cv-mini-body a { color: #09090b !important; text-decoration: none; }
     .cv-mini-header { border-bottom: 1px solid #e4e4e7; padding-bottom: 1rem; margin-bottom: 1.2rem; display: flex; justify-content: space-between; align-items: flex-end; gap: 1.5rem; }
     .cv-mini-name { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 700; color: #09090b; line-height: 1.1; }
     .cv-mini-title { font-size: 0.88rem; font-weight: 600; text-transform: uppercase; color: #71717a; letter-spacing: 0.08em; margin-top: 0.4rem; }
@@ -694,9 +694,15 @@
        5. PRINT SETTINGS & MARGIN INJECTION
        ---------------------------------------------------- */
     @media print {
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
       body {
         background: #fff !important;
         color: #000 !important;
+        margin: 0 !important;
+        padding: 0 !important;
       }
       #app-container {
         display: block !important;
@@ -713,45 +719,27 @@
       .preview-toolbar {
         display: none !important;
       }
-      .a4-sheet {
-        box-shadow: none !important;
-        transform: none !important;
-        width: 100% !important; /* Flow naturally with the page breaks */
-        height: auto !important;
-        margin: 0 !important;
-      }
       #screen-preview-container {
+        display: block !important;
+        visibility: visible !important;
+      }
+      #print-preview-container {
         display: none !important;
       }
-      
-      #print-preview-container {
-        position: relative !important;
-        top: 0 !important;
-        left: 0 !important;
-        visibility: visible !important;
-        display: block !important;
-      }
-
-      p, li, h1, h2, h3, h4, h5, h6,
-      .cv-designed-card,
-      .cv-prof-item,
-      .cv-ats-item,
-      .cv-sidebar-item,
-      .cv-mini-item,
-      .cv-euro-row,
-      .cv-euro-item,
-      .skill-cat,
-      .cv-prof-skillrow,
-      .cv-designed-simpleitem,
-      .cv-mini-skillcat,
-      .cv-sidebar-left-section {
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
+      .a4-page-sheet {
+        width: 210mm !important;
+        height: 297mm !important;
+        page-break-after: always !important;
+        break-after: always !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        border: none !important;
+        transform: none !important;
       }
       
-      /* Force browser to apply clean 15mm margins on page breaks automatically */
+      /* Force browser to apply clean 0 margins since margins are handled inside sheets */
       @page {
-        margin: 15mm !important;
+        margin: 0 !important;
       }
       
       .cv-layout-spacer {
@@ -926,6 +914,12 @@
             <button onclick="addItem('experiences')">+ Ajouter</button>
           </div>
           <div id="list-experiences"></div>
+
+          <div class="panel-section-title" style="margin-top: 1.5rem;">
+            Stages / Formations
+            <button onclick="addItem('formations')">+ Ajouter</button>
+          </div>
+          <div id="list-formations"></div>
         </div>
 
         <!-- Tab 3: Projets (Collapsible Cards) -->
@@ -1009,20 +1003,24 @@
         
         <!-- Quick Designed customizer -->
         <div id="color-designed-group" style="display: flex; gap: 0.5rem; align-items: center;">
-          <input type="color" id="picker-design-bg" value="#0b0f19" onchange="updateThemeColor('bg', this.value)" title="Couleur de Fond">
-          <input type="color" id="picker-design-gold" value="#f59e0b" onchange="updateThemeColor('gold', this.value)" title="Couleur Accent">
+          <input type="color" id="picker-design-bg" value="#0b0f19" oninput="updateThemeColor('bg', this.value)" onchange="saveAndSync()" title="Couleur de Fond">
+          <input type="color" id="picker-design-gold" value="#f59e0b" oninput="updateThemeColor('gold', this.value)" onchange="saveAndSync()" title="Couleur Accent">
         </div>
         
         <!-- Quick Professional customizer -->
         <div id="color-prof-group" style="display: none; align-items: center;">
-          <input type="color" id="picker-prof-navy" value="#1e3a8a" onchange="updateThemeColor('navy', this.value)" title="Couleur Marine">
+          <input type="color" id="picker-prof-navy" value="#1e3a8a" oninput="updateThemeColor('navy', this.value)" onchange="saveAndSync()" title="Couleur Marine">
         </div>
 
         <!-- Quick Sidebar customizer -->
         <div id="color-sidebar-group" style="display: none; gap: 0.5rem; align-items: center;">
-          <input type="color" id="picker-sidebar-bg" value="#1e293b" onchange="updateThemeColor('sidebar-bg', this.value)" title="Fond Sidebar">
-          <input type="color" id="picker-sidebar-accent" value="#3b82f6" onchange="updateThemeColor('sidebar-accent', this.value)" title="Accent Sidebar">
+          <input type="color" id="picker-sidebar-bg" value="#1e293b" oninput="updateThemeColor('sidebar-bg', this.value)" onchange="saveAndSync()" title="Fond Sidebar">
+          <input type="color" id="picker-sidebar-accent" value="#3b82f6" oninput="updateThemeColor('sidebar-accent', this.value)" onchange="saveAndSync()" title="Accent Sidebar">
         </div>
+
+        <button id="btn-random-theme" class="btn-action" onclick="applyRandomPalette()" title="Générer une palette de couleurs harmonieuse" style="display: inline-flex; align-items: center; gap: 0.25rem;">
+          🎨 Palette
+        </button>
 
         <button class="btn-action" onclick="window.print()">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
@@ -1056,6 +1054,7 @@
       "activities": [],
       "languages": [],
       "interests": [],
+      "formations": [],
       "themes": {
         "designed": { "bg_color": "#0b0f19", "gold_primary": "#f59e0b", "gold_dark": "#d97706" },
         "professional": { "navy_primary": "#1e3a8a", "navy_light": "#eff6ff" },
@@ -1088,6 +1087,9 @@
       }
       if (!data.themes.sidebar) {
         data.themes.sidebar = { "sidebar_bg": "#1e293b", "sidebar_accent": "#3b82f6" };
+      }
+      if (!data.formations) {
+        data.formations = [];
       }
     }
 
@@ -1226,6 +1228,29 @@
           </div>`;
       });
 
+      // Formations HTML
+      let formHTML = "";
+      if (cvData.formations && cvData.formations.length > 0) {
+        let formItemsHTML = "";
+        cvData.formations.forEach(f => {
+          let bulletsHTML = f.bullets ? f.bullets.map(b => `<li>${b}</li>`).join('') : "";
+          formItemsHTML += `
+            <div class="cv-designed-card">
+              <div class="cv-designed-cardtitle">
+                <span style="font-weight:700; color:#fff;">${f.title}</span>
+                <span class="cv-designed-carddate">${f.period}</span>
+              </div>
+              <div class="cv-designed-cardorg">${f.company} | ${f.location}</div>
+              <ul class="cv-designed-bullets">${bulletsHTML}</ul>
+            </div>`;
+        });
+        formHTML = `
+          <section>
+            <div class="cv-designed-sectitle">Stages & Formations</div>
+            ${formItemsHTML}
+          </section>`;
+      }
+
       // Projects HTML
       let projHTML = "";
       cvData.projects.forEach(proj => {
@@ -1295,12 +1320,12 @@
               <h1 class="cv-designed-name">${cvData.contact.name}</h1>
               <p class="cv-designed-title">${cvData.contact.title_sub}</p>
               <div class="cv-designed-contacts">
-                ${cvData.contact.email ? `<span>${ICONS.email}<a href="${formatEmailHref(cvData.contact.email)}" target="_blank" style="color:inherit; text-decoration:underline;">${cvData.contact.email}</a></span>` : ''}
-                ${cvData.contact.phone ? `<span>${ICONS.phone}<a href="tel:${cvData.contact.phone}" style="color:inherit; text-decoration:underline;">${cvData.contact.phone}</a></span>` : ''}
+                ${cvData.contact.email ? `<span>${ICONS.email}<a href="${formatEmailHref(cvData.contact.email)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.email}</a></span>` : ''}
+                ${cvData.contact.phone ? `<span>${ICONS.phone}<a href="tel:${cvData.contact.phone}" style="color:inherit; text-decoration:none;">${cvData.contact.phone}</a></span>` : ''}
                 ${cvData.contact.location ? `<span>${ICONS.location}${cvData.contact.location}</span>` : ''}
-                ${cvData.contact.linkedin ? `<span>${ICONS.linkedin}<a href="${formatLinkedinHref(cvData.contact.linkedin)}" target="_blank" style="color:inherit; text-decoration:underline;">${cvData.contact.linkedin}</a></span>` : ''}
-                ${cvData.contact.github ? `<span>${ICONS.github}<a href="${formatGithubHref(cvData.contact.github)}" target="_blank" style="color:inherit; text-decoration:underline;">${cvData.contact.github}</a></span>` : ''}
-                ${cvData.contact.website ? `<span>${ICONS.website}<a href="${formatHref(cvData.contact.website)}" target="_blank" style="color:inherit; text-decoration:underline;">${cvData.contact.website}</a></span>` : ''}
+                ${cvData.contact.linkedin ? `<span>${ICONS.linkedin}<a href="${formatLinkedinHref(cvData.contact.linkedin)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.linkedin}</a></span>` : ''}
+                ${cvData.contact.github ? `<span>${ICONS.github}<a href="${formatGithubHref(cvData.contact.github)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.github}</a></span>` : ''}
+                ${cvData.contact.website ? `<span>${ICONS.website}<a href="${formatHref(cvData.contact.website)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.website}</a></span>` : ''}
                 ${cvData.contact.driver ? `<span>${ICONS.driver}${cvData.contact.driver}</span>` : ''}
               </div>
             </div>
@@ -1309,44 +1334,61 @@
           
           <div class="cv-designed-grid">
             <div class="cv-designed-sidebar">
-              <section>
-                <div class="cv-designed-sectitle">Profil</div>
-                <p style="font-size:0.73rem; color:#9ca3af; line-height:1.45; text-align:justify;">${cvData.profile}</p>
-              </section>
-              <section>
-                <div class="cv-designed-sectitle">Compétences</div>
-                <div class="skills-group">
-                  ${skillsHTML}
-                </div>
-              </section>
-              <section>
-                <div class="cv-designed-sectitle">Formation</div>
-                ${eduHTML}
-              </section>
-              <section>
-                <div class="cv-designed-sectitle">Certifications</div>
-                <div class="cv-designed-simplelist">${certsHTML}</div>
-              </section>
-              <section>
-                <div class="cv-designed-sectitle">Langues</div>
-                <div class="cv-designed-simplelist">${langHTML}</div>
-              </section>
+              ${cvData.profile && cvData.profile.trim() ? `
+                <section>
+                  <div class="cv-designed-sectitle">Profil</div>
+                  <p style="font-size:0.73rem; color:#9ca3af; line-height:1.45; text-align:justify;">${cvData.profile}</p>
+                </section>
+              ` : ''}
+              ${cvData.skills && cvData.skills.length > 0 ? `
+                <section>
+                  <div class="cv-designed-sectitle">Compétences</div>
+                  <div class="skills-group">
+                    ${skillsHTML}
+                  </div>
+                </section>
+              ` : ''}
+              ${cvData.education && cvData.education.length > 0 ? `
+                <section>
+                  <div class="cv-designed-sectitle">Éducation</div>
+                  ${eduHTML}
+                </section>
+              ` : ''}
+              ${cvData.certifications && cvData.certifications.length > 0 ? `
+                <section>
+                  <div class="cv-designed-sectitle">Certifications</div>
+                  <div class="cv-designed-simplelist">${certsHTML}</div>
+                </section>
+              ` : ''}
+              ${cvData.languages && cvData.languages.length > 0 ? `
+                <section>
+                  <div class="cv-designed-sectitle">Langues</div>
+                  <div class="cv-designed-simplelist">${langHTML}</div>
+                </section>
+              ` : ''}
             </div>
             <div class="cv-designed-main">
-              <section>
-                <div class="cv-designed-sectitle">Expériences Professionnelles</div>
-                ${expHTML}
-              </section>
-              <section>
-                <div class="cv-designed-sectitle">Projets Clés</div>
-                ${projHTML}
-              </section>
-              <section>
-                <div class="cv-designed-sectitle">Engagements</div>
-                <div class="cv-designed-card" style="font-size:0.72rem; color:#9ca3af; line-height:1.4;">
-                  ${actHTML}
-                </div>
-              </section>
+              ${cvData.experiences && cvData.experiences.length > 0 ? `
+                <section>
+                  <div class="cv-designed-sectitle">Expériences Professionnelles</div>
+                  ${expHTML}
+                </section>
+              ` : ''}
+              ${formHTML}
+              ${cvData.projects && cvData.projects.length > 0 ? `
+                <section>
+                  <div class="cv-designed-sectitle">Projets Clés</div>
+                  ${projHTML}
+                </section>
+              ` : ''}
+              ${cvData.activities && cvData.activities.length > 0 ? `
+                <section>
+                  <div class="cv-designed-sectitle">Engagements</div>
+                  <div class="cv-designed-card" style="font-size:0.72rem; color:#9ca3af; line-height:1.4;">
+                    ${actHTML}
+                  </div>
+                </section>
+              ` : ''}
             </div>
           </div>
         </div>`;
@@ -1377,6 +1419,29 @@
             <ul class="cv-prof-bullets">${bulletsHTML}</ul>
           </div>`;
       });
+
+      // Formations HTML
+      let formHTML = "";
+      if (cvData.formations && cvData.formations.length > 0) {
+        let formItemsHTML = "";
+        cvData.formations.forEach(f => {
+          let bulletsHTML = f.bullets ? f.bullets.map(b => `<li>${b}</li>`).join('') : "";
+          formItemsHTML += `
+            <div class="cv-prof-item">
+              <div class="cv-prof-itemhead">
+                <span>${f.title} — <span class="cv-prof-itemorg">${f.company}</span></span>
+                <span class="cv-prof-itemdate">${f.period}</span>
+              </div>
+              <div style="font-size: 0.78rem; color:#6b7280; margin-bottom:0.2rem;">${f.location}</div>
+              <ul class="cv-prof-bullets">${bulletsHTML}</ul>
+            </div>`;
+        });
+        formHTML = `
+          <section class="section">
+            <div class="cv-prof-sectitle">Stages & Formations</div>
+            ${formItemsHTML}
+          </section>`;
+      }
 
       // Projects HTML
       let projHTML = "";
@@ -1421,57 +1486,75 @@
               <h1 class="cv-prof-name">${cvData.contact.name}</h1>
               <p class="cv-prof-title">${cvData.contact.title_sub}</p>
               <div class="cv-prof-contacts">
-                ${cvData.contact.email ? `<span>${ICONS.email}<a href="${formatEmailHref(cvData.contact.email)}" target="_blank" style="color:inherit; text-decoration:underline;">${cvData.contact.email}</a></span>` : ''}
-                ${cvData.contact.phone ? `<span>${ICONS.phone}<a href="tel:${cvData.contact.phone}" style="color:inherit; text-decoration:underline;">${cvData.contact.phone}</a></span>` : ''}
+                ${cvData.contact.email ? `<span>${ICONS.email}<a href="${formatEmailHref(cvData.contact.email)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.email}</a></span>` : ''}
+                ${cvData.contact.phone ? `<span>${ICONS.phone}<a href="tel:${cvData.contact.phone}" style="color:inherit; text-decoration:none;">${cvData.contact.phone}</a></span>` : ''}
                 ${cvData.contact.location ? `<span>${ICONS.location}${cvData.contact.location}</span>` : ''}
                 ${cvData.contact.driver ? `<span>${ICONS.driver}${cvData.contact.driver}</span>` : ''}
                 ${(cvData.contact.email || cvData.contact.phone || cvData.contact.location || cvData.contact.driver) && (cvData.contact.linkedin || cvData.contact.github || cvData.contact.website) ? '<br>' : ''}
-                ${cvData.contact.linkedin ? `<span>${ICONS.linkedin}<a href="${formatLinkedinHref(cvData.contact.linkedin)}" target="_blank" style="color:inherit; text-decoration:underline;">${cvData.contact.linkedin}</a></span>` : ''}
-                ${cvData.contact.github ? `<span>${ICONS.github}<a href="${formatGithubHref(cvData.contact.github)}" target="_blank" style="color:inherit; text-decoration:underline;">${cvData.contact.github}</a></span>` : ''}
-                ${cvData.contact.website ? `<span>${ICONS.website}<a href="${formatHref(cvData.contact.website)}" target="_blank" style="color:inherit; text-decoration:underline;">${cvData.contact.website}</a></span>` : ''}
+                ${cvData.contact.linkedin ? `<span>${ICONS.linkedin}<a href="${formatLinkedinHref(cvData.contact.linkedin)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.linkedin}</a></span>` : ''}
+                ${cvData.contact.github ? `<span>${ICONS.github}<a href="${formatGithubHref(cvData.contact.github)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.github}</a></span>` : ''}
+                ${cvData.contact.website ? `<span>${ICONS.website}<a href="${formatHref(cvData.contact.website)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.website}</a></span>` : ''}
               </div>
             </div>
             ${pfpHTML}
           </header>
           
-          <section class="section">
-            <div class="cv-prof-sectitle">Profil Professionnel</div>
-            <p style="font-size:0.8rem; color:#374151; text-align:justify; line-height:1.45;">${cvData.profile}</p>
-          </section>
+          ${cvData.profile && cvData.profile.trim() ? `
+            <section class="section">
+              <div class="cv-prof-sectitle">Profil Professionnel</div>
+              <p style="font-size:0.8rem; color:#374151; text-align:justify; line-height:1.45;">${cvData.profile}</p>
+            </section>
+          ` : ''}
 
-          <section class="section">
-            <div class="cv-prof-sectitle">Expériences Professionnelles</div>
-            ${expHTML}
-          </section>
+          ${cvData.experiences && cvData.experiences.length > 0 ? `
+            <section class="section">
+              <div class="cv-prof-sectitle">Expériences Professionnelles</div>
+              ${expHTML}
+            </section>
+          ` : ''}
 
-          <section class="section">
-            <div class="cv-prof-sectitle">Projets Clés</div>
-            ${projHTML}
-          </section>
+          ${formHTML}
+
+          ${cvData.projects && cvData.projects.length > 0 ? `
+            <section class="section">
+              <div class="cv-prof-sectitle">Projets Clés</div>
+              ${projHTML}
+            </section>
+          ` : ''}
 
           <div class="cv-prof-grid">
             <div>
-              <section class="section">
-                <div class="cv-prof-sectitle">Compétences Techniques</div>
-                ${skillsHTML}
-              </section>
-              <section class="section">
-                <div class="cv-prof-sectitle">Formation</div>
-                ${eduHTML}
-              </section>
+              ${cvData.skills && cvData.skills.length > 0 ? `
+                <section class="section">
+                  <div class="cv-prof-sectitle">Compétences Techniques</div>
+                  ${skillsHTML}
+                </section>
+              ` : ''}
+              ${cvData.education && cvData.education.length > 0 ? `
+                <section class="section">
+                  <div class="cv-prof-sectitle">Éducation</div>
+                  ${eduHTML}
+                </section>
+              ` : ''}
             </div>
             <div>
-              <section class="section">
-                <div class="cv-prof-sectitle">Certifications</div>
-                <ul class="cv-prof-bullets">${certsHTML}</ul>
-              </section>
-              <section class="section">
-                <div class="cv-prof-sectitle">Engagements & Langues</div>
-                <ul class="cv-prof-bullets" style="margin-bottom:0.5rem;">${actHTML}</ul>
-                <div style="font-size:0.78rem; border-top:1px solid #d1d5db; padding-top:0.4rem; color:#374151;">
-                  🗣️ <strong>Langues :</strong> ${langHTML}
-                </div>
-              </section>
+              ${cvData.certifications && cvData.certifications.length > 0 ? `
+                <section class="section">
+                  <div class="cv-prof-sectitle">Certifications</div>
+                  <ul class="cv-prof-bullets">${certsHTML}</ul>
+                </section>
+              ` : ''}
+              ${(cvData.activities && cvData.activities.length > 0) || (cvData.languages && cvData.languages.length > 0) ? `
+                <section class="section">
+                  <div class="cv-prof-sectitle">Engagements & Langues</div>
+                  ${cvData.activities && cvData.activities.length > 0 ? `<ul class="cv-prof-bullets" style="margin-bottom:0.5rem;">${actHTML}</ul>` : ''}
+                  ${cvData.languages && cvData.languages.length > 0 ? `
+                    <div style="font-size:0.78rem; border-top:1px solid #d1d5db; padding-top:0.4rem; color:#374151;">
+                      🗣️ <strong>Langues :</strong> ${langHTML}
+                    </div>
+                  ` : ''}
+                </section>
+              ` : ''}
             </div>
           </div>
         </div>`;
@@ -1492,6 +1575,27 @@
             <ul class="cv-ats-bullets">${bulletsHTML}</ul>
           </div>`;
       });
+
+      // Formations HTML
+      let formHTML = "";
+      if (cvData.formations && cvData.formations.length > 0) {
+        let formItemsHTML = "";
+        cvData.formations.forEach(f => {
+          let bulletsHTML = f.bullets ? f.bullets.map(b => `<li>${b}</li>`).join('') : "";
+          formItemsHTML += `
+            <div class="cv-ats-item">
+              <div class="cv-ats-itemhead">
+                <span>${f.title}</span>
+                <span>${f.period}</span>
+              </div>
+              <div class="cv-ats-itemsub">${f.company} — ${f.location}</div>
+              <ul class="cv-ats-bullets">${bulletsHTML}</ul>
+            </div>`;
+        });
+        formHTML = `
+          <div class="cv-ats-sectitle">Stages & Formations</div>
+          ${formItemsHTML}`;
+      }
 
       let projHTML = "";
       cvData.projects.forEach(proj => {
@@ -1536,14 +1640,14 @@
 
       const atsContacts1 = [];
       if (cvData.contact.location) atsContacts1.push(cvData.contact.location);
-      if (cvData.contact.phone) atsContacts1.push(`Tél : <a href="tel:${cvData.contact.phone}" style="color:inherit; text-decoration:underline;">${cvData.contact.phone}</a>`);
-      if (cvData.contact.email) atsContacts1.push(`Email : <a href="${formatEmailHref(cvData.contact.email)}" target="_blank" style="color:inherit; text-decoration:underline;">${cvData.contact.email}</a>`);
+      if (cvData.contact.phone) atsContacts1.push(`Tél : <a href="tel:${cvData.contact.phone}" style="color:inherit; text-decoration:none;">${cvData.contact.phone}</a>`);
+      if (cvData.contact.email) atsContacts1.push(`Email : <a href="${formatEmailHref(cvData.contact.email)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.email}</a>`);
       if (cvData.contact.driver) atsContacts1.push(cvData.contact.driver);
       
       const atsContacts2 = [];
-      if (cvData.contact.linkedin) atsContacts2.push(`LinkedIn : <a href="${formatLinkedinHref(cvData.contact.linkedin)}" target="_blank" style="color:inherit; text-decoration:underline;">${cvData.contact.linkedin}</a>`);
-      if (cvData.contact.github) atsContacts2.push(`GitHub : <a href="${formatGithubHref(cvData.contact.github)}" target="_blank" style="color:inherit; text-decoration:underline;">${cvData.contact.github}</a>`);
-      if (cvData.contact.website) atsContacts2.push(`Portfolio : <a href="${formatHref(cvData.contact.website)}" target="_blank" style="color:inherit; text-decoration:underline;">${cvData.contact.website}</a>`);
+      if (cvData.contact.linkedin) atsContacts2.push(`LinkedIn : <a href="${formatLinkedinHref(cvData.contact.linkedin)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.linkedin}</a>`);
+      if (cvData.contact.github) atsContacts2.push(`GitHub : <a href="${formatGithubHref(cvData.contact.github)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.github}</a>`);
+      if (cvData.contact.website) atsContacts2.push(`Portfolio : <a href="${formatHref(cvData.contact.website)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.website}</a>`);
 
       let atsContactsHTML = "";
       if (atsContacts1.length > 0) atsContactsHTML += atsContacts1.join(' | ');
@@ -1560,34 +1664,54 @@
             </div>
           </header>
           
-          <div class="cv-ats-sectitle">Profil Professionnel</div>
-          <p style="font-size:10pt; margin-bottom:0.75rem; text-align:justify;">${cvData.profile}</p>
+          ${cvData.profile && cvData.profile.trim() ? `
+            <div class="cv-ats-sectitle">Profil Professionnel</div>
+            <p style="font-size:10pt; margin-bottom:0.75rem; text-align:justify;">${cvData.profile}</p>
+          ` : ''}
 
-          <div class="cv-ats-sectitle">Expérience Professionnelle</div>
-          ${expHTML}
+          ${cvData.experiences && cvData.experiences.length > 0 ? `
+            <div class="cv-ats-sectitle">Expérience Professionnelle</div>
+            ${expHTML}
+          ` : ''}
 
-          <div class="cv-ats-sectitle">Projets Réalisés</div>
-          ${projHTML}
+          ${formHTML}
 
-          <div class="cv-ats-sectitle">Compétences Techniques</div>
-          <div style="font-size:10pt; margin-bottom:0.5rem;">
-            ${skillsHTML}
-          </div>
+          ${cvData.projects && cvData.projects.length > 0 ? `
+            <div class="cv-ats-sectitle">Projets Réalisés</div>
+            ${projHTML}
+          ` : ''}
 
-          <div class="cv-ats-sectitle">Formation</div>
-          ${eduHTML}
+          ${cvData.skills && cvData.skills.length > 0 ? `
+            <div class="cv-ats-sectitle">Compétences Techniques</div>
+            <div style="font-size:10pt; margin-bottom:0.5rem;">
+              ${skillsHTML}
+            </div>
+          ` : ''}
 
-          <div class="cv-ats-sectitle">Certifications</div>
-          <ul class="cv-ats-bullets">${certsHTML}</ul>
+          ${cvData.education && cvData.education.length > 0 ? `
+            <div class="cv-ats-sectitle">Éducation</div>
+            ${eduHTML}
+          ` : ''}
 
-          <div class="cv-ats-sectitle">Engagements & Activités</div>
-          <ul class="cv-ats-bullets">${actHTML}</ul>
+          ${cvData.certifications && cvData.certifications.length > 0 ? `
+            <div class="cv-ats-sectitle">Certifications</div>
+            <ul class="cv-ats-bullets">${certsHTML}</ul>
+          ` : ''}
 
-          <div class="cv-ats-sectitle">Langues</div>
-          <ul class="cv-ats-bullets">${langHTML}</ul>
+          ${cvData.activities && cvData.activities.length > 0 ? `
+            <div class="cv-ats-sectitle">Engagements & Activités</div>
+            <ul class="cv-ats-bullets">${actHTML}</ul>
+          ` : ''}
 
-          <div class="cv-ats-sectitle">Centres d'Intérêt</div>
-          <p style="font-size:10pt;">${cvData.interests.join(', ')}</p>
+          ${cvData.languages && cvData.languages.length > 0 ? `
+            <div class="cv-ats-sectitle">Langues</div>
+            <ul class="cv-ats-bullets">${langHTML}</ul>
+          ` : ''}
+
+          ${cvData.interests && cvData.interests.length > 0 ? `
+            <div class="cv-ats-sectitle">Centres d'Intérêt</div>
+            <p style="font-size:10pt;">${cvData.interests.join(', ')}</p>
+          ` : ''}
         </div>`;
     }
 
@@ -1611,12 +1735,12 @@
       }
 
       let contactItems = [];
-      if (cvData.contact.email) contactItems.push(`<div style="margin-bottom: 0.35rem;">${ICONS.email}<a href="${formatEmailHref(cvData.contact.email)}" target="_blank" style="color:inherit; text-decoration:underline;">${cvData.contact.email}</a></div>`);
-      if (cvData.contact.phone) contactItems.push(`<div style="margin-bottom: 0.35rem;">${ICONS.phone}<a href="tel:${cvData.contact.phone}" style="color:inherit; text-decoration:underline;">${cvData.contact.phone}</a></div>`);
+      if (cvData.contact.email) contactItems.push(`<div style="margin-bottom: 0.35rem;">${ICONS.email}<a href="${formatEmailHref(cvData.contact.email)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.email}</a></div>`);
+      if (cvData.contact.phone) contactItems.push(`<div style="margin-bottom: 0.35rem;">${ICONS.phone}<a href="tel:${cvData.contact.phone}" style="color:inherit; text-decoration:none;">${cvData.contact.phone}</a></div>`);
       if (cvData.contact.location) contactItems.push(`<div style="margin-bottom: 0.35rem;">${ICONS.location}${cvData.contact.location}</div>`);
-      if (cvData.contact.linkedin) contactItems.push(`<div style="margin-bottom: 0.35rem;">${ICONS.linkedin}<a href="${formatLinkedinHref(cvData.contact.linkedin)}" target="_blank" style="color:var(--sidebar-accent); font-weight:600; text-decoration:underline;">LinkedIn</a></div>`);
-      if (cvData.contact.github) contactItems.push(`<div style="margin-bottom: 0.35rem;">${ICONS.github}<a href="${formatGithubHref(cvData.contact.github)}" target="_blank" style="color:var(--sidebar-accent); font-weight:600; text-decoration:underline;">GitHub</a></div>`);
-      if (cvData.contact.website) contactItems.push(`<div style="margin-bottom: 0.35rem;">${ICONS.website}<a href="${formatHref(cvData.contact.website)}" target="_blank" style="color:var(--sidebar-accent); font-weight:600; text-decoration:underline;">Site Web</a></div>`);
+      if (cvData.contact.linkedin) contactItems.push(`<div style="margin-bottom: 0.35rem;">${ICONS.linkedin}<a href="${formatLinkedinHref(cvData.contact.linkedin)}" target="_blank" style="color:var(--sidebar-accent); font-weight:600; text-decoration:none;">LinkedIn</a></div>`);
+      if (cvData.contact.github) contactItems.push(`<div style="margin-bottom: 0.35rem;">${ICONS.github}<a href="${formatGithubHref(cvData.contact.github)}" target="_blank" style="color:var(--sidebar-accent); font-weight:600; text-decoration:none;">GitHub</a></div>`);
+      if (cvData.contact.website) contactItems.push(`<div style="margin-bottom: 0.35rem;">${ICONS.website}<a href="${formatHref(cvData.contact.website)}" target="_blank" style="color:var(--sidebar-accent); font-weight:600; text-decoration:none;">Site Web</a></div>`);
       if (cvData.contact.driver) contactItems.push(`<div style="margin-bottom: 0.35rem;">${ICONS.driver}${cvData.contact.driver}</div>`);
 
       let contactHTML = "";
@@ -1643,6 +1767,7 @@
       let langHTML = cvData.languages.map(l => `<li><strong>${l.name}</strong>: ${l.level}</li>`).join('');
       let certsHTML = cvData.certifications.map(c => `<li>${c}</li>`).join('');
 
+      // Experiences HTML
       let expHTML = "";
       cvData.experiences.forEach(exp => {
         let bulletsHTML = exp.bullets.map(b => `<li>${b}</li>`).join('');
@@ -1656,6 +1781,29 @@
             <ul class="cv-sidebar-bullets">${bulletsHTML}</ul>
           </div>`;
       });
+
+      // Formations HTML
+      let formHTML = "";
+      if (cvData.formations && cvData.formations.length > 0) {
+        let formItemsHTML = "";
+        cvData.formations.forEach(f => {
+          let bulletsHTML = f.bullets ? f.bullets.map(b => `<li>${b}</li>`).join('') : "";
+          formItemsHTML += `
+            <div class="cv-sidebar-item">
+              <div class="cv-sidebar-itemhead">
+                <span>${f.title} — <span class="cv-sidebar-itemorg">${f.company}</span></span>
+                <span class="cv-sidebar-itemdate">${f.period}</span>
+              </div>
+              <div style="font-size: 0.72rem; color:#64748b; margin-bottom:0.15rem;">${f.location}</div>
+              <ul class="cv-sidebar-bullets">${bulletsHTML}</ul>
+            </div>`;
+        });
+        formHTML = `
+          <div class="cv-sidebar-right-section">
+            <div class="cv-sidebar-right-title">Stages & Formations</div>
+            ${formItemsHTML}
+          </div>`;
+      }
 
       let projHTML = "";
       cvData.projects.forEach(proj => {
@@ -1686,18 +1834,24 @@
             <div class="cv-sidebar-left">
               ${pfpHTML}
               ${contactHTML}
-              <div class="cv-sidebar-left-section">
-                <div class="cv-sidebar-left-title">Compétences</div>
-                <div class="cv-sidebar-left-content">${skillsHTML}</div>
-              </div>
-              <div class="cv-sidebar-left-section">
-                <div class="cv-sidebar-left-title">Langues</div>
-                <ul class="cv-sidebar-left-bullets" style="color:var(--sidebar-text);">${langHTML}</ul>
-              </div>
-              <div class="cv-sidebar-left-section">
-                <div class="cv-sidebar-left-title">Intérêts</div>
-                <div class="cv-sidebar-left-content" style="font-size:0.7rem; opacity:0.85;">${cvData.interests.join(', ')}</div>
-              </div>
+              ${cvData.skills && cvData.skills.length > 0 ? `
+                <div class="cv-sidebar-left-section">
+                  <div class="cv-sidebar-left-title">Compétences</div>
+                  <div class="cv-sidebar-left-content">${skillsHTML}</div>
+                </div>
+              ` : ''}
+              ${cvData.languages && cvData.languages.length > 0 ? `
+                <div class="cv-sidebar-left-section">
+                  <div class="cv-sidebar-left-title">Langues</div>
+                  <ul class="cv-sidebar-left-bullets" style="color:var(--sidebar-text);">${langHTML}</ul>
+                </div>
+              ` : ''}
+              ${cvData.interests && cvData.interests.length > 0 ? `
+                <div class="cv-sidebar-left-section">
+                  <div class="cv-sidebar-left-title">Intérêts</div>
+                  <div class="cv-sidebar-left-content" style="font-size:0.7rem; opacity:0.85;">${cvData.interests.join(', ')}</div>
+                </div>
+              ` : ''}
             </div>
             <div class="cv-sidebar-right">
               <header style="margin-bottom:0.5rem;">
@@ -1705,33 +1859,47 @@
                 <p style="font-size:0.85rem; font-weight:700; color:var(--sidebar-accent); text-transform:uppercase; letter-spacing:0.04em; margin-top:0.25rem;">${cvData.contact.title_sub}</p>
               </header>
               
-              <div class="cv-sidebar-right-section">
-                <div class="cv-sidebar-right-title">Profil</div>
-                <p style="font-size:0.74rem; color:#334155; line-height:1.45; text-align:justify;">${cvData.profile}</p>
-              </div>
-
-              <div class="cv-sidebar-right-section">
-                <div class="cv-sidebar-right-title">Expériences Professionnelles</div>
-                ${expHTML}
-              </div>
-
-              <div class="cv-sidebar-right-section">
-                <div class="cv-sidebar-right-title">Projets Clés</div>
-                ${projHTML}
-              </div>
-
-              <div class="cv-sidebar-right-section">
-                <div class="cv-sidebar-right-title">Formation</div>
-                ${eduHTML}
-              </div>
-
-              <div class="cv-sidebar-right-section">
-                <div class="cv-sidebar-right-title">Certifications & Activités</div>
-                <ul class="cv-sidebar-bullets" style="margin-bottom:0.4rem;">${certsHTML}</ul>
-                <div style="border-top:1px solid #e2e8f0; padding-top:0.35rem; margin-top:0.4rem;">
-                  ${actHTML}
+              ${cvData.profile && cvData.profile.trim() ? `
+                <div class="cv-sidebar-right-section">
+                  <div class="cv-sidebar-right-title">Profil</div>
+                  <p style="font-size:0.74rem; color:#334155; line-height:1.45; text-align:justify;">${cvData.profile}</p>
                 </div>
-              </div>
+              ` : ''}
+
+              ${cvData.experiences && cvData.experiences.length > 0 ? `
+                <div class="cv-sidebar-right-section">
+                  <div class="cv-sidebar-right-title">Expériences Professionnelles</div>
+                  ${expHTML}
+                </div>
+              ` : ''}
+
+              ${formHTML}
+
+              ${cvData.projects && cvData.projects.length > 0 ? `
+                <div class="cv-sidebar-right-section">
+                  <div class="cv-sidebar-right-title">Projets Clés</div>
+                  ${projHTML}
+                </div>
+              ` : ''}
+
+              ${cvData.education && cvData.education.length > 0 ? `
+                <div class="cv-sidebar-right-section">
+                  <div class="cv-sidebar-right-title">Éducation</div>
+                  ${eduHTML}
+                </div>
+              ` : ''}
+
+              ${(cvData.certifications && cvData.certifications.length > 0) || (cvData.activities && cvData.activities.length > 0) ? `
+                <div class="cv-sidebar-right-section">
+                  <div class="cv-sidebar-right-title">Certifications & Activités</div>
+                  ${cvData.certifications && cvData.certifications.length > 0 ? `<ul class="cv-sidebar-bullets" style="margin-bottom:0.4rem;">${certsHTML}</ul>` : ''}
+                  ${cvData.activities && cvData.activities.length > 0 ? `
+                    <div style="border-top:1px solid #e2e8f0; padding-top:0.35rem; margin-top:0.4rem;">
+                      ${actHTML}
+                    </div>
+                  ` : ''}
+                </div>
+              ` : ''}
             </div>
           </div>
         </div>
@@ -1746,12 +1914,12 @@
       }
 
       let contactItems = [];
-      if (cvData.contact.email) contactItems.push(`<div><a href="${formatEmailHref(cvData.contact.email)}" target="_blank" style="color:inherit; text-decoration:underline;">${cvData.contact.email}</a></div>`);
-      if (cvData.contact.phone) contactItems.push(`<div><a href="tel:${cvData.contact.phone}" style="color:inherit; text-decoration:underline;">${cvData.contact.phone}</a></div>`);
+      if (cvData.contact.email) contactItems.push(`<div><a href="${formatEmailHref(cvData.contact.email)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.email}</a></div>`);
+      if (cvData.contact.phone) contactItems.push(`<div><a href="tel:${cvData.contact.phone}" style="color:inherit; text-decoration:none;">${cvData.contact.phone}</a></div>`);
       if (cvData.contact.location) contactItems.push(`<div>${cvData.contact.location}</div>`);
-      if (cvData.contact.linkedin) contactItems.push(`<div><a href="${formatLinkedinHref(cvData.contact.linkedin)}" target="_blank" style="color:inherit; text-decoration:underline;">LinkedIn</a></div>`);
-      if (cvData.contact.github) contactItems.push(`<div><a href="${formatGithubHref(cvData.contact.github)}" target="_blank" style="color:inherit; text-decoration:underline;">GitHub</a></div>`);
-      if (cvData.contact.website) contactItems.push(`<div><a href="${formatHref(cvData.contact.website)}" target="_blank" style="color:inherit; text-decoration:underline;">Site Web</a></div>`);
+      if (cvData.contact.linkedin) contactItems.push(`<div><a href="${formatLinkedinHref(cvData.contact.linkedin)}" target="_blank" style="color:inherit; text-decoration:none;">LinkedIn</a></div>`);
+      if (cvData.contact.github) contactItems.push(`<div><a href="${formatGithubHref(cvData.contact.github)}" target="_blank" style="color:inherit; text-decoration:none;">GitHub</a></div>`);
+      if (cvData.contact.website) contactItems.push(`<div><a href="${formatHref(cvData.contact.website)}" target="_blank" style="color:inherit; text-decoration:none;">Site Web</a></div>`);
       if (cvData.contact.driver) contactItems.push(`<div>${cvData.contact.driver}</div>`);
 
       let contactHTML = "";
@@ -1785,6 +1953,7 @@
       let langHTML = cvData.languages.map(l => `<div style="font-size:0.72rem; margin-bottom:0.25rem; color:#3f3f46;"><strong>${l.name}</strong>: ${l.level}</div>`).join('');
       let certsHTML = cvData.certifications.map(c => `<li>${c}</li>`).join('');
 
+      // Experiences HTML
       let expHTML = "";
       cvData.experiences.forEach(exp => {
         let bulletsHTML = exp.bullets.map(b => `<li>${b}</li>`).join('');
@@ -1798,6 +1967,29 @@
             <ul class="cv-mini-bullets">${bulletsHTML}</ul>
           </div>`;
       });
+
+      // Formations HTML
+      let formHTML = "";
+      if (cvData.formations && cvData.formations.length > 0) {
+        let formItemsHTML = "";
+        cvData.formations.forEach(f => {
+          let bulletsHTML = f.bullets ? f.bullets.map(b => `<li>${b}</li>`).join('') : "";
+          formItemsHTML += `
+            <div class="cv-mini-item">
+              <div class="cv-mini-itemhead">
+                <span>${f.title}</span>
+                <span class="cv-mini-itemdate">${f.period}</span>
+              </div>
+              <div class="cv-mini-itemorg">${f.company} — <span style="font-size:0.7rem; font-style:normal;">${f.location}</span></div>
+              <ul class="cv-mini-bullets">${bulletsHTML}</ul>
+            </div>`;
+        });
+        formHTML = `
+          <div>
+            <div class="cv-mini-sectitle">Stages & Formations</div>
+            ${formItemsHTML}
+          </div>`;
+      }
 
       let projHTML = "";
       cvData.projects.forEach(proj => {
@@ -1828,43 +2020,62 @@
           
           <div class="cv-mini-grid">
             <div class="cv-mini-left-col">
-              <div>
-                <div class="cv-mini-sectitle">Compétences</div>
-                ${skillsHTML}
-              </div>
-              <div>
-                <div class="cv-mini-sectitle">Formation</div>
-                ${eduHTML}
-              </div>
-              <div>
-                <div class="cv-mini-sectitle">Langues</div>
-                ${langHTML}
-              </div>
-              <div>
-                <div class="cv-mini-sectitle">Intérêts</div>
-                <div style="font-size:0.7rem; color:#52525b; line-height:1.45;">${cvData.interests.join(', ')}</div>
-              </div>
+              ${cvData.skills && cvData.skills.length > 0 ? `
+                <div>
+                  <div class="cv-mini-sectitle">Compétences</div>
+                  ${skillsHTML}
+                </div>
+              ` : ''}
+              ${cvData.education && cvData.education.length > 0 ? `
+                <div>
+                  <div class="cv-mini-sectitle">Éducation</div>
+                  ${eduHTML}
+                </div>
+              ` : ''}
+              ${cvData.languages && cvData.languages.length > 0 ? `
+                <div>
+                  <div class="cv-mini-sectitle">Langues</div>
+                  ${langHTML}
+                </div>
+              ` : ''}
+              ${cvData.interests && cvData.interests.length > 0 ? `
+                <div>
+                  <div class="cv-mini-sectitle">Intérêts</div>
+                  <div style="font-size:0.7rem; color:#52525b; line-height:1.45;">${cvData.interests.join(', ')}</div>
+                </div>
+              ` : ''}
             </div>
             <div class="cv-mini-right-col">
-              <div>
-                <div class="cv-mini-sectitle">Profil</div>
-                <p style="font-size:0.74rem; color:#3f3f46; line-height:1.5; text-align:justify; margin-bottom:0.4rem;">${cvData.profile}</p>
-              </div>
-              <div>
-                <div class="cv-mini-sectitle">Expériences Professionnelles</div>
-                ${expHTML}
-              </div>
-              <div>
-                <div class="cv-mini-sectitle">Projets Clés</div>
-                ${projHTML}
-              </div>
-              <div>
-                <div class="cv-mini-sectitle">Certifications & Activités</div>
-                <ul class="cv-mini-bullets" style="margin-bottom:0.5rem;">${certsHTML}</ul>
-                <div style="border-top:1px solid #f4f4f5; padding-top:0.4rem; margin-top:0.4rem;">
-                  ${actHTML}
+              ${cvData.profile && cvData.profile.trim() ? `
+                <div>
+                  <div class="cv-mini-sectitle">Profil</div>
+                  <p style="font-size:0.74rem; color:#3f3f46; line-height:1.5; text-align:justify; margin-bottom:0.4rem;">${cvData.profile}</p>
                 </div>
-              </div>
+              ` : ''}
+              ${cvData.experiences && cvData.experiences.length > 0 ? `
+                <div>
+                  <div class="cv-mini-sectitle">Expériences Professionnelles</div>
+                  ${expHTML}
+                </div>
+              ` : ''}
+              ${formHTML}
+              ${cvData.projects && cvData.projects.length > 0 ? `
+                <div>
+                  <div class="cv-mini-sectitle">Projets Clés</div>
+                  ${projHTML}
+                </div>
+              ` : ''}
+              ${(cvData.certifications && cvData.certifications.length > 0) || (cvData.activities && cvData.activities.length > 0) ? `
+                <div>
+                  <div class="cv-mini-sectitle">Certifications & Activités</div>
+                  ${cvData.certifications && cvData.certifications.length > 0 ? `<ul class="cv-mini-bullets" style="margin-bottom:0.5rem;">${certsHTML}</ul>` : ''}
+                  ${cvData.activities && cvData.activities.length > 0 ? `
+                    <div style="border-top:1px solid #f4f4f5; padding-top:0.4rem; margin-top:0.4rem;">
+                      ${actHTML}
+                    </div>
+                  ` : ''}
+                </div>
+              ` : ''}
             </div>
           </div>
         </div>
@@ -1891,6 +2102,31 @@
             <ul class="cv-euro-bullets">${bulletsHTML}</ul>
           </div>`;
       });
+
+      // Formations HTML
+      let formHTML = "";
+      if (cvData.formations && cvData.formations.length > 0) {
+        let formItemsHTML = "";
+        cvData.formations.forEach(f => {
+          let bulletsHTML = f.bullets ? f.bullets.map(b => `<li>${b}</li>`).join('') : "";
+          formItemsHTML += `
+            <div class="cv-euro-item">
+              <div class="cv-euro-itemhead">
+                <span>${f.title}</span>
+                <span class="cv-euro-itemdate">${f.period}</span>
+              </div>
+              <div class="cv-euro-itemorg">${f.company} | ${f.location}</div>
+              <ul class="cv-euro-bullets">${bulletsHTML}</ul>
+            </div>`;
+        });
+        formHTML = `
+          <div class="cv-euro-row">
+            <div class="cv-euro-left">Stages & Formations</div>
+            <div class="cv-euro-right">
+              ${formItemsHTML}
+            </div>
+          </div>`;
+      }
 
       let projHTML = "";
       cvData.projects.forEach(proj => {
@@ -1926,12 +2162,12 @@
       let actHTML = cvData.activities.map(a => `<li>${a}</li>`).join('');
       let langHTML = cvData.languages.map(l => `<li><strong>${l.name}</strong>: ${l.level}</li>`).join('');
       let contactItems = [];
-      if (cvData.contact.email) contactItems.push(`<div class="cv-euro-contact-item">${ICONS.email} Email : <a href="${formatEmailHref(cvData.contact.email)}" target="_blank" style="color:inherit; text-decoration:underline;">${cvData.contact.email}</a></div>`);
-      if (cvData.contact.phone) contactItems.push(`<div class="cv-euro-contact-item">${ICONS.phone} Téléphone : <a href="tel:${cvData.contact.phone}" style="color:inherit; text-decoration:underline;">${cvData.contact.phone}</a></div>`);
+      if (cvData.contact.email) contactItems.push(`<div class="cv-euro-contact-item">${ICONS.email} Email : <a href="${formatEmailHref(cvData.contact.email)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.email}</a></div>`);
+      if (cvData.contact.phone) contactItems.push(`<div class="cv-euro-contact-item">${ICONS.phone} Téléphone : <a href="tel:${cvData.contact.phone}" style="color:inherit; text-decoration:none;">${cvData.contact.phone}</a></div>`);
       if (cvData.contact.location) contactItems.push(`<div class="cv-euro-contact-item">${ICONS.location} Adresse : ${cvData.contact.location}</div>`);
-      if (cvData.contact.linkedin) contactItems.push(`<div class="cv-euro-contact-item">${ICONS.linkedin} LinkedIn : <a href="${formatLinkedinHref(cvData.contact.linkedin)}" target="_blank" style="color:inherit; text-decoration:underline;">${cvData.contact.linkedin}</a></div>`);
-      if (cvData.contact.github) contactItems.push(`<div class="cv-euro-contact-item">${ICONS.github} GitHub : <a href="${formatGithubHref(cvData.contact.github)}" target="_blank" style="color:inherit; text-decoration:underline;">${cvData.contact.github}</a></div>`);
-      if (cvData.contact.website) contactItems.push(`<div class="cv-euro-contact-item">${ICONS.website} Site Web : <a href="${formatHref(cvData.contact.website)}" target="_blank" style="color:inherit; text-decoration:underline;">${cvData.contact.website}</a></div>`);
+      if (cvData.contact.linkedin) contactItems.push(`<div class="cv-euro-contact-item">${ICONS.linkedin} LinkedIn : <a href="${formatLinkedinHref(cvData.contact.linkedin)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.linkedin}</a></div>`);
+      if (cvData.contact.github) contactItems.push(`<div class="cv-euro-contact-item">${ICONS.github} GitHub : <a href="${formatGithubHref(cvData.contact.github)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.github}</a></div>`);
+      if (cvData.contact.website) contactItems.push(`<div class="cv-euro-contact-item">${ICONS.website} Site Web : <a href="${formatHref(cvData.contact.website)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.website}</a></div>`);
       if (cvData.contact.driver) contactItems.push(`<div class="cv-euro-contact-item">${ICONS.driver} Permis : ${cvData.contact.driver}</div>`);
 
       let contactHTML = "";
@@ -1963,59 +2199,81 @@
 
           ${contactHTML}
 
-          <div class="cv-euro-row">
-            <div class="cv-euro-left">Profil</div>
-            <div class="cv-euro-right">
-              <p style="line-height:1.45; text-align:justify;">${cvData.profile}</p>
+          ${cvData.profile && cvData.profile.trim() ? `
+            <div class="cv-euro-row">
+              <div class="cv-euro-left">Profil</div>
+              <div class="cv-euro-right">
+                <p style="line-height:1.45; text-align:justify;">${cvData.profile}</p>
+              </div>
             </div>
-          </div>
+          ` : ''}
 
-          <div class="cv-euro-row">
-            <div class="cv-euro-left">Expériences</div>
-            <div class="cv-euro-right">
-              ${expHTML}
+          ${cvData.experiences && cvData.experiences.length > 0 ? `
+            <div class="cv-euro-row">
+              <div class="cv-euro-left">Expériences</div>
+              <div class="cv-euro-right">
+                ${expHTML}
+              </div>
             </div>
-          </div>
+          ` : ''}
 
-          <div class="cv-euro-row">
-            <div class="cv-euro-left">Projets</div>
-            <div class="cv-euro-right">
-              ${projHTML}
-            </div>
-          </div>
+          ${formHTML}
 
-          <div class="cv-euro-row">
-            <div class="cv-euro-left">Compétences</div>
-            <div class="cv-euro-right">
-              ${skillsHTML}
+          ${cvData.projects && cvData.projects.length > 0 ? `
+            <div class="cv-euro-row">
+              <div class="cv-euro-left">Projets</div>
+              <div class="cv-euro-right">
+                ${projHTML}
+              </div>
             </div>
-          </div>
+          ` : ''}
 
-          <div class="cv-euro-row">
-            <div class="cv-euro-left">Formation</div>
-            <div class="cv-euro-right">
-              ${eduHTML}
+          ${cvData.skills && cvData.skills.length > 0 ? `
+            <div class="cv-euro-row">
+              <div class="cv-euro-left">Compétences</div>
+              <div class="cv-euro-right">
+                ${skillsHTML}
+              </div>
             </div>
-          </div>
+          ` : ''}
 
-          <div class="cv-euro-row">
-            <div class="cv-euro-left">Langues</div>
-            <div class="cv-euro-right">
-              <ul class="cv-euro-bullets" style="list-style-type:none; padding-left:0; margin:0;">${langHTML}</ul>
+          ${cvData.education && cvData.education.length > 0 ? `
+            <div class="cv-euro-row">
+              <div class="cv-euro-left">Éducation</div>
+              <div class="cv-euro-right">
+                ${eduHTML}
+              </div>
             </div>
-          </div>
+          ` : ''}
 
-          <div class="cv-euro-row">
-            <div class="cv-euro-left">Divers</div>
-            <div class="cv-euro-right">
-              <div style="font-weight:700; color:#0055a5; margin-bottom:0.25rem;">Certifications</div>
-              <ul class="cv-euro-bullets" style="margin-bottom:0.5rem;">${certsHTML}</ul>
-              <div style="font-weight:700; color:#0055a5; margin-bottom:0.25rem; margin-top:0.4rem;">Activités</div>
-              <ul class="cv-euro-bullets" style="margin-bottom:0.5rem;">${actHTML}</ul>
-              <div style="font-weight:700; color:#0055a5; margin-bottom:0.25rem; margin-top:0.4rem;">Intérêts</div>
-              <div style="font-size:0.72rem; color:#444444;">${cvData.interests.join(', ')}</div>
+          ${cvData.languages && cvData.languages.length > 0 ? `
+            <div class="cv-euro-row">
+              <div class="cv-euro-left">Langues</div>
+              <div class="cv-euro-right">
+                <ul class="cv-euro-bullets" style="list-style-type:none; padding-left:0; margin:0;">${langHTML}</ul>
+              </div>
             </div>
-          </div>
+          ` : ''}
+
+          ${(cvData.certifications && cvData.certifications.length > 0) || (cvData.activities && cvData.activities.length > 0) || (cvData.interests && cvData.interests.length > 0) ? `
+            <div class="cv-euro-row">
+              <div class="cv-euro-left">Divers</div>
+              <div class="cv-euro-right">
+                ${cvData.certifications && cvData.certifications.length > 0 ? `
+                  <div style="font-weight:700; color:#0055a5; margin-bottom:0.25rem;">Certifications</div>
+                  <ul class="cv-euro-bullets" style="margin-bottom:0.5rem;">${certsHTML}</ul>
+                ` : ''}
+                ${cvData.activities && cvData.activities.length > 0 ? `
+                  <div style="font-weight:700; color:#0055a5; margin-bottom:0.25rem; margin-top:0.4rem;">Activités</div>
+                  <ul class="cv-euro-bullets" style="margin-bottom:0.5rem;">${actHTML}</ul>
+                ` : ''}
+                ${cvData.interests && cvData.interests.length > 0 ? `
+                  <div style="font-weight:700; color:#0055a5; margin-bottom:0.25rem; margin-top:0.4rem;">Intérêts</div>
+                  <div style="font-size:0.72rem; color:#444444;">${cvData.interests.join(', ')}</div>
+                ` : ''}
+              </div>
+            </div>
+          ` : ''}
         </div>
       `;
     }
@@ -2230,6 +2488,7 @@
       updatePfpPreview();
 
       renderList('experiences');
+      renderList('formations');
       renderList('projects');
       renderList('education');
       renderList('languages');
@@ -2294,16 +2553,16 @@
         let subtitleText = "";
         let fields = "";
 
-        if (key === 'experiences') {
-          titleText = item.title || "Poste sans titre";
-          subtitleText = `${item.company || 'Entreprise'} | ${item.period || 'Période'}`;
+        if (key === 'experiences' || key === 'formations') {
+          titleText = key === 'experiences' ? (item.title || "Poste sans titre") : (item.title || "Stage / Formation sans titre");
+          subtitleText = `${item.company || (key === 'experiences' ? 'Entreprise' : 'Organisme')} | ${item.period || 'Période'}`;
           fields = `
             <div class="form-group">
-              <label>Intitulé du Poste</label>
+              <label>${key === 'experiences' ? 'Intitulé du Poste' : 'Intitulé du Stage / Formation'}</label>
               <input type="text" value="${item.title}" oninput="updateListItem('${key}', ${index}, 'title', this.value)">
             </div>
             <div class="form-group">
-              <label>Entreprise</label>
+              <label>${key === 'experiences' ? 'Entreprise' : 'Organisme / Établissement'}</label>
               <input type="text" value="${item.company}" oninput="updateListItem('${key}', ${index}, 'company', this.value)">
             </div>
             <div class="form-row">
@@ -2317,7 +2576,7 @@
               </div>
             </div>
             <div class="form-group">
-              <label>Missions (Une mission par ligne)</label>
+              <label>${key === 'experiences' ? 'Missions (Une mission par ligne)' : 'Détails / Missions (Un par ligne)'}</label>
               <textarea rows="4" oninput="updateListBullets('${key}', ${index}, this.value)">${item.bullets.join('\n')}</textarea>
             </div>`;
         } else if (key === 'projects') {
@@ -2436,6 +2695,8 @@
       let newItem = {};
       if (key === 'experiences') {
         newItem = { "title": "Nouveau Poste", "company": "Entreprise", "location": "Lieu", "period": "Période", "bullets": ["Nouvelle mission"] };
+      } else if (key === 'formations') {
+        newItem = { "title": "Nouveau Stage / Formation", "company": "Organisme", "location": "Lieu", "period": "Période", "bullets": ["Nouveau détail"] };
       } else if (key === 'projects') {
         newItem = { "title": "Nouveau Projet", "stack": "Technologies", "description": "Description du projet." };
       } else if (key === 'education') {
@@ -2475,6 +2736,8 @@
       document.getElementById('color-designed-group').style.display = (layout === 'designed') ? 'flex' : 'none';
       document.getElementById('color-prof-group').style.display = (layout === 'professional') ? 'flex' : 'none';
       document.getElementById('color-sidebar-group').style.display = (layout === 'sidebar') ? 'flex' : 'none';
+      document.getElementById('btn-random-theme').style.display = 
+        (layout === 'designed' || layout === 'professional' || layout === 'sidebar') ? 'inline-flex' : 'none';
       
       renderPreview();
     }
@@ -2493,18 +2756,107 @@
     function updateThemeColor(type, hex) {
       if (type === 'bg') {
         cvData.themes.designed.bg_color = hex;
+        document.documentElement.style.setProperty('--design-bg', hex);
       } else if (type === 'gold') {
         cvData.themes.designed.gold_primary = hex;
-        cvData.themes.designed.gold_dark = darkenColor(hex, 15);
+        const dark = darkenColor(hex, 15);
+        cvData.themes.designed.gold_dark = dark;
+        document.documentElement.style.setProperty('--design-gold', hex);
+        document.documentElement.style.setProperty('--design-gold-dark', dark);
       } else if (type === 'navy') {
         cvData.themes.professional.navy_primary = hex;
+        document.documentElement.style.setProperty('--prof-navy', hex);
       } else if (type === 'sidebar-bg') {
         if (!cvData.themes.sidebar) cvData.themes.sidebar = {};
         cvData.themes.sidebar.sidebar_bg = hex;
+        document.documentElement.style.setProperty('--sidebar-bg', hex);
       } else if (type === 'sidebar-accent') {
         if (!cvData.themes.sidebar) cvData.themes.sidebar = {};
         cvData.themes.sidebar.sidebar_accent = hex;
+        document.documentElement.style.setProperty('--sidebar-accent', hex);
       }
+    }
+
+    const PRESETS = {
+      designed: [
+        { bg: "#0b0f19", gold: "#f59e0b" }, // Midnight & Amber
+        { bg: "#0f172a", gold: "#38bdf8" }, // Slate & Cyan
+        { bg: "#18181b", gold: "#f43f5e" }, // Zinc & Rose
+        { bg: "#064e3b", gold: "#fbbf24" }, // Forest Green & Gold
+        { bg: "#1e1b4b", gold: "#a855f7" }, // Indigo & Purple
+        { bg: "#1c1917", gold: "#2dd4bf" }  // Stone & Teal
+      ],
+      professional: [
+        { navy: "#1e3a8a" }, // Corporate Navy
+        { navy: "#0f766e" }, // Teal
+        { navy: "#1c1917" }, // Graphite
+        { navy: "#881337" }, // Maroon Rose
+        { navy: "#312e81" }  // Indigo
+      ],
+      sidebar: [
+        { bg: "#1e293b", accent: "#3b82f6" }, // Slate & Blue
+        { bg: "#0f172a", accent: "#f43f5e" }, // Navy & Rose
+        { bg: "#1c1917", accent: "#f97316" }, // Charcoal & Orange
+        { bg: "#14532d", accent: "#eab308" }, // Forest & Gold
+        { bg: "#3b0764", accent: "#14b8a6" }  // Eggplant & Teal
+      ]
+    };
+
+    function applyRandomPalette() {
+      if (currentLayout === 'designed') {
+        const list = PRESETS.designed;
+        const currentBg = cvData.themes.designed.bg_color;
+        let choice = list[Math.floor(Math.random() * list.length)];
+        for (let i = 0; i < 5; i++) {
+          if (choice.bg === currentBg) {
+            choice = list[Math.floor(Math.random() * list.length)];
+          }
+        }
+        cvData.themes.designed.bg_color = choice.bg;
+        cvData.themes.designed.gold_primary = choice.gold;
+        cvData.themes.designed.gold_dark = darkenColor(choice.gold, 15);
+        
+        document.getElementById('picker-design-bg').value = choice.bg;
+        document.getElementById('picker-design-gold').value = choice.gold;
+      } else if (currentLayout === 'professional') {
+        const list = PRESETS.professional;
+        const currentNavy = cvData.themes.professional.navy_primary;
+        let choice = list[Math.floor(Math.random() * list.length)];
+        for (let i = 0; i < 5; i++) {
+          if (choice.navy === currentNavy) {
+            choice = list[Math.floor(Math.random() * list.length)];
+          }
+        }
+        cvData.themes.professional.navy_primary = choice.navy;
+        document.getElementById('picker-prof-navy').value = choice.navy;
+      } else if (currentLayout === 'sidebar') {
+        const list = PRESETS.sidebar;
+        if (!cvData.themes.sidebar) cvData.themes.sidebar = {};
+        const currentBg = cvData.themes.sidebar.sidebar_bg || "";
+        let choice = list[Math.floor(Math.random() * list.length)];
+        for (let i = 0; i < 5; i++) {
+          if (choice.bg === currentBg) {
+            choice = list[Math.floor(Math.random() * list.length)];
+          }
+        }
+        cvData.themes.sidebar.sidebar_bg = choice.bg;
+        cvData.themes.sidebar.sidebar_accent = choice.accent;
+        
+        document.getElementById('picker-sidebar-bg').value = choice.bg;
+        document.getElementById('picker-sidebar-accent').value = choice.accent;
+      }
+      
+      if (currentLayout === 'designed') {
+        document.documentElement.style.setProperty('--design-bg', cvData.themes.designed.bg_color);
+        document.documentElement.style.setProperty('--design-gold', cvData.themes.designed.gold_primary);
+        document.documentElement.style.setProperty('--design-gold-dark', cvData.themes.designed.gold_dark);
+      } else if (currentLayout === 'professional') {
+        document.documentElement.style.setProperty('--prof-navy', cvData.themes.professional.navy_primary);
+      } else if (currentLayout === 'sidebar') {
+        document.documentElement.style.setProperty('--sidebar-bg', cvData.themes.sidebar.sidebar_bg);
+        document.documentElement.style.setProperty('--sidebar-accent', cvData.themes.sidebar.sidebar_accent);
+      }
+      
       saveAndSync();
     }
 

@@ -1,0 +1,206 @@
+{
+  "contact": {
+    "name": "Sonia SAYEHI",
+    "title_sub": "Ingénieure en Cybersécurité",
+    "email": "sonya.sayahi@gmail.com",
+    "phone": "+216 58 991 281",
+    "location": "Tunisie",
+    "linkedin": "linkedin.com/in/sonia-sayahi",
+    "github": "",
+    "website": "",
+    "driver": "Permis B",
+    "image": "",
+    "image_size": 80
+  },
+  "profile": "Ingénieure en Cybersécurité dynamique et passionnée, spécialisée dans la sécurité des réseaux, l'administration système et l'audit de sécurité (ISO/IEC 27001). Dotée d'une solide expérience pratique en gestion de parcs informatiques, intégration de solutions IAM et de sécurité (SIEM, pare-feu, IDS/IPS), et en mise en place d'infrastructures sécurisées.",
+  "experiences": [
+    {
+      "title": "Consultante Cybersécurité",
+      "company": "PGH",
+      "period": "2025 – 2026",
+      "location": "Tunis",
+      "bullets": [
+        "Assurer la supervision de la sécurité du système d'information à l'aide de Wazuh (collecte et analyse des journaux, détection des menaces, surveillance des terminaux et gestion des alertes de sécurité).",
+        "Mettre en place et administrer Checkmk pour le suivi de la disponibilité, des performances et de l'état de santé des serveurs, équipements réseau et services critiques.",
+        "Participer à la sécurisation et à l'automatisation des pipelines CI/CD à l'aide de Jenkins.",
+        "Analyser les événements de sécurité, investiguer les alertes et contribuer aux activités de détection et de réponse aux incidents."
+      ]
+    },
+    {
+      "title": "Responsable Parc Informatique",
+      "company": "Centre Commercial Africa-Mall",
+      "period": "Janvier 2021 - Présent",
+      "location": "Tunis",
+      "bullets": [
+        "Installer, configurer et assurer la maintenance des logiciels sur l'ensemble des appareils du parc informatique et la gestion de leur migration.",
+        "Superviser l'infrastructure informatique, incluant les serveurs, les réseaux, les postes de travail et les périphériques.",
+        "Mettre en place et gérer les mesures de sécurité informatique (pare-feu, antivirus, protection des données, vidéosurveillance).",
+        "Mettre en œuvre des stratégies d'achat et de renouvellement des équipements en fonction des besoins de l'entreprise."
+      ]
+    },
+    {
+      "title": "Consultant IT",
+      "company": "Next Step-IT",
+      "period": "Janvier 2018 - Octobre 2019",
+      "location": "Tunis",
+      "bullets": [
+        "Intégration et mise en place des solutions de sécurité informatique chez les clients, avec résolution des pannes et support technique.",
+        "Configuration, reconfiguration et maintenance des équipements informatiques (switchs, routeurs, pare-feu, serveurs, IP phones Cisco).",
+        "Mise en place des solutions de sécurité avancées : protection périmétrique, sécurité des applications web, pare-feu, IPS, VPN, antivirus, SIEM."
+      ]
+    }
+  ],
+  "formations": [
+    {
+      "title": "Stage PFE en Audit et Sécurité d'un SI",
+      "company": "PROMAG Mabrouka",
+      "period": "Mai 2025 - Octobre 2025",
+      "location": "Tunis",
+      "bullets": [
+        "Audit de sécurité du SI selon ISO/IEC 27001 (PROMAG) : Réalisation d'un audit de sécurité organisationnel, technique et physique.",
+        "Utilisation des outils Nessus, OpenVAS et SOCRadar pour l'analyse des vulnérabilités et la surveillance des menaces.",
+        "Élaboration d'un plan d'action correctif et d'un plan de continuité d'activité (PCA) pour renforcer la résilience et la conformité du SI."
+      ]
+    },
+    {
+      "title": "Stage d'été en gestion d'identité IAM",
+      "company": "ADACTIM",
+      "period": "Juillet 2024 - Septembre 2024",
+      "location": "Tunis",
+      "bullets": [
+        "Étude comparative entre solutions IAM open source (Keycloak, WSO2...) et Microsoft/Azure/AWS/AD.",
+        "Déploiement et configuration d'une solution IAM.",
+        "Gestion des identités, des rôles et des accès (SSO, MFA et politiques de sécurité)."
+      ]
+    },
+    {
+      "title": "Stage PFE en Sécurité d'un SI",
+      "company": "Agence Tunisienne d'Internet",
+      "period": "Février 2017 - Septembre 2017",
+      "location": "Tunis",
+      "bullets": [
+        "Étude et mise en place d'une plateforme de sécurité en ligne pour analyser et auditer la sécurité des applications web.",
+        "Utilisation d'environnements et d'outils de sécurité : Centos, Windows, CMS, Netfort, Eve, Nessus, Wireshark, Zenmap, Pfsense."
+      ]
+    },
+    {
+      "title": "Stage PFE Licence RT",
+      "company": "CERT-Technopole",
+      "period": "Janvier 2015 - Mai 2015",
+      "location": "Tunis",
+      "bullets": [
+        "Élaboration d'un projet en réseau d'accès à très haut débit FTTH (fiber to home) à l'aide d'un outil SIG."
+      ]
+    },
+    {
+      "title": "Stage d'été Support IT",
+      "company": "Centrale Hached TT",
+      "period": "Juillet 2014",
+      "location": "Tunis",
+      "bullets": [
+        "Câblage, gestion des lignes téléphoniques et ADSL, résolution des dérangements, création et résiliation d'abonnés."
+      ]
+    },
+    {
+      "title": "Stage d'été Unité de gestion d'abonnés",
+      "company": "Centrale Hached TT",
+      "period": "Août 2013",
+      "location": "Tunis",
+      "bullets": [
+        "Maintenance des réseaux locaux, réparation des dérangements téléphoniques et mise à jour des bases de données des abonnés."
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "title": "Mise en place d'un environnement de Lab SIEM",
+      "stack": "Splunk",
+      "description": "Conception et déploiement d'un laboratoire de gestion des informations et des événements de sécurité (SIEM) avec Splunk."
+    },
+    {
+      "title": "Conception et déploiement d'un environnement Honeypot",
+      "stack": "T-Pot",
+      "description": "Mise en œuvre d'un système de pots de miel multi-honeypots pour capturer et analyser les cyberattaques en temps réel."
+    },
+    {
+      "title": "Test de pénétration complet d'une application web",
+      "stack": "Kali Linux",
+      "description": "Planification et réalisation de tests d'intrusion méthodologiques et exhaustifs sur des plateformes web."
+    },
+    {
+      "title": "Audit de sécurité complet d'un SI",
+      "stack": "ISO 27001",
+      "description": "Réalisation d'une évaluation complète et structurée de la sécurité physique, organisationnelle et technique d'un système d'information."
+    }
+  ],
+  "skills": [
+    {
+      "category": "Sécurité & Audit",
+      "value": "Wazuh, SIEM, SOAR, IPS, IDS, SOC, NOC, EDR/EDX, Nessus, Risk Management, ISO 27001, ISO 27005 / ISO 27002, PAM, SURICATA, OpenVAS, Shodan, Firewalls, Analyse de journaux, Détection d'incidents"
+    },
+    {
+      "category": "Systèmes & Réseaux",
+      "value": "Active Directory (AD), Checkmk, Linux, Windows Server, VOIP, ZABBIX, Vidéosurveillance, UNIFI-WIFI, VPN, ELK Stack, Supervision des infrastructures"
+    },
+    {
+      "category": "Virtualisation & Outils",
+      "value": "Jenkins, CI/CD, Docker et conteneurisations, Keycloak / WSO2, Virtualisation"
+    }
+  ],
+  "education": [
+    {
+      "degree": "Diplôme d'Ingénieur en Sécurité des Systèmes Informatiques et des Réseaux",
+      "school": "TEK-UP UNIVERSITY",
+      "period": "2023 - 2025"
+    },
+    {
+      "degree": "Diplôme d'un Mastère Professionnel en Systèmes et Réseaux de Télécommunications",
+      "school": "ISSATMateur Bizerte",
+      "period": "2015 - 2017"
+    },
+    {
+      "degree": "Baccalauréat en Sciences Informatiques",
+      "school": "Lycée Taher Hadded Tunis",
+      "period": "2008 - 2012"
+    }
+  ],
+  "certifications": [
+    "ISO 27001 Lead Implementer : en cours"
+  ],
+  "activities": [],
+  "languages": [
+    {
+      "name": "Arabe",
+      "level": "Maternelle"
+    },
+    {
+      "name": "Français",
+      "level": "C1"
+    },
+    {
+      "name": "Anglais",
+      "level": "B1"
+    }
+  ],
+  "interests": [
+    "Cybersécurité",
+    "Sécurité Réseau",
+    "Nouvelles technologies",
+    "Veille technologique"
+  ],
+  "themes": {
+    "designed": {
+      "bg_color": "#0b0f19",
+      "gold_primary": "#f59e0b",
+      "gold_dark": "#d97706"
+    },
+    "professional": {
+      "navy_primary": "#1e3a8a",
+      "navy_light": "#eff6ff"
+    },
+    "sidebar": {
+      "sidebar_bg": "#1e293b",
+      "sidebar_accent": "#5a80bf"
+    }
+  }
+}
