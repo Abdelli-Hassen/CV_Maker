@@ -18,7 +18,7 @@ const emptyCVData = {
 };
 
 let cvData = JSON.parse(localStorage.getItem('cv_data')) || (typeof window.defaultCVData !== 'undefined' ? window.defaultCVData : JSON.parse(JSON.stringify(emptyCVData)));
-let currentLayout = localStorage.getItem('cv_layout') || 'designed';
+let currentLayout = localStorage.getItem('cv_layout') || 'professional';
 let openCollapseKeys = {}; // Collapsed items status tracking
 
 /* ----------------------------------------------------
