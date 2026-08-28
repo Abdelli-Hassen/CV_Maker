@@ -1583,7 +1583,6 @@ body {
         background: #ffffff !important;
         border: 1px solid #e5e7eb !important;
         box-shadow: none !important;
-        page-break-inside: avoid;
     }
 
     .cv-designed-cardtitle {

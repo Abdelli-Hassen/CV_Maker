@@ -1318,17 +1318,17 @@ function renderPreview() {
     // 4. Run spacer insertion algorithm to prevent element splitting
     const items = printContainer.querySelectorAll(`
     p, li, h1, h2, h3, h4, h5, h6,
-    .cv-designed-card,
-    .cv-prof-item,
-    .cv-ats-item,
-    .cv-sidebar-item,
-    .cv-mini-item,
-    .cv-euro-row,
-    .cv-euro-item,
+    .cv-designed-cardtitle,
+    .cv-prof-itemhead,
+    .cv-ats-itemhead,
+    .cv-sidebar-itemhead,
+    .cv-mini-itemhead,
+    .cv-euro-itemhead,
     .cv-designed-sectitle,
     .cv-prof-sectitle,
     .cv-ats-sectitle,
     .cv-sidebar-right-title,
+    .cv-sidebar-left-title,
     .cv-mini-sectitle,
     .cv-euro-sectitle,
     .skill-cat,
@@ -1360,28 +1360,70 @@ function renderPreview() {
         // Push element to next page if it crosses the boundary and can fit on the next page
         if (itemTop < boundary && itemBottom > boundary && itemHeight <= pageContentHeightPx) {
             let targetElement = item;
-            let prev = item.previousElementSibling;
 
-            // Prevent orphan section titles (push the preceding title instead if it's on the same page)
-            if (prev && (
-                prev.classList.contains('cv-designed-sectitle') ||
-                prev.classList.contains('cv-prof-sectitle') ||
-                prev.classList.contains('cv-ats-sectitle') ||
-                prev.classList.contains('cv-sidebar-right-title') ||
-                prev.classList.contains('cv-mini-sectitle') ||
-                prev.classList.contains('cv-euro-sectitle') ||
-                prev.tagName.match(/^H[1-6]$/)
-            )) {
-                let titleTop = 0;
-                let pTitle = prev;
-                while (pTitle && pTitle !== printContainer) {
-                    titleTop += pTitle.offsetTop;
-                    pTitle = pTitle.offsetParent;
+            const getElemTop = (el) => {
+                let top = 0;
+                let p = el;
+                while (p && p !== printContainer) {
+                    top += p.offsetTop;
+                    p = p.offsetParent;
                 }
-                const titlePageIndex = Math.floor(titleTop / pageContentHeightPx);
-                if (titlePageIndex === pageIndex) {
-                    targetElement = prev;
-                    itemTop = titleTop;
+                return top;
+            };
+
+            const isTitleOrHeader = (el) => {
+                if (!el) return false;
+                return el.classList.contains('cv-designed-sectitle') ||
+                    el.classList.contains('cv-prof-sectitle') ||
+                    el.classList.contains('cv-ats-sectitle') ||
+                    el.classList.contains('cv-sidebar-right-title') ||
+                    el.classList.contains('cv-sidebar-left-title') ||
+                    el.classList.contains('cv-mini-sectitle') ||
+                    el.classList.contains('cv-euro-sectitle') ||
+                    el.classList.contains('cv-designed-cardtitle') ||
+                    el.classList.contains('cv-prof-itemhead') ||
+                    el.classList.contains('cv-ats-itemhead') ||
+                    el.classList.contains('cv-sidebar-itemhead') ||
+                    el.classList.contains('cv-mini-itemhead') ||
+                    el.classList.contains('cv-euro-itemhead') ||
+                    el.tagName.match(/^H[1-6]$/i);
+            };
+
+            const isSectionTitle = (el) => {
+                if (!el) return false;
+                return el.classList.contains('cv-designed-sectitle') ||
+                    el.classList.contains('cv-prof-sectitle') ||
+                    el.classList.contains('cv-ats-sectitle') ||
+                    el.classList.contains('cv-sidebar-right-title') ||
+                    el.classList.contains('cv-sidebar-left-title') ||
+                    el.classList.contains('cv-mini-sectitle') ||
+                    el.classList.contains('cv-euro-sectitle') ||
+                    el.tagName.match(/^H[1-6]$/i);
+            };
+
+            let prevCandidate = targetElement.previousElementSibling;
+            if (!prevCandidate && targetElement.parentElement) {
+                if (targetElement.parentElement.tagName.toLowerCase() === 'ul' || targetElement.parentElement.tagName.toLowerCase() === 'ol') {
+                    prevCandidate = targetElement.parentElement.previousElementSibling;
+                }
+            }
+
+            if (prevCandidate && isTitleOrHeader(prevCandidate)) {
+                const prevTop = getElemTop(prevCandidate);
+                const prevPageIndex = Math.floor(prevTop / pageContentHeightPx);
+                if (prevPageIndex === pageIndex) {
+                    targetElement = prevCandidate;
+                    itemTop = prevTop;
+
+                    let prevSecCandidate = targetElement.previousElementSibling;
+                    if (prevSecCandidate && isSectionTitle(prevSecCandidate)) {
+                        const secTop = getElemTop(prevSecCandidate);
+                        const secPageIndex = Math.floor(secTop / pageContentHeightPx);
+                        if (secPageIndex === pageIndex) {
+                            targetElement = prevSecCandidate;
+                            itemTop = secTop;
+                        }
+                    }
                 }
             }
 
