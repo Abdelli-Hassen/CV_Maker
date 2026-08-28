@@ -54,7 +54,7 @@ function runMigrations(data) {
             "page_margin": 15,
             "section_spacing": 1.2,
             "show_pfp": true,
-            "show_page_number": true,
+            "show_page_number": false,
             "pfp_shape": "circle",
             "pfp_border_width": 2,
             "pfp_border_color": "#d4af37",
@@ -75,6 +75,12 @@ function runMigrations(data) {
     if (data.design && data.design.pfp_offset_x === undefined) {
         data.design.pfp_offset_x = 0;
         data.design.pfp_offset_y = 0;
+    }
+    if (data.design) {
+        data.design.show_page_number = false;
+    }
+    if (!data.hidden_sections) {
+        data.hidden_sections = {};
     }
 }
 
@@ -194,21 +200,21 @@ function renderDesignedLayout() {
     let pfpHTML = "";
     if (cvData.contact.image && (!cvData.design || cvData.design.show_pfp)) {
         const sz = cvData.contact.image_size || 80;
-        pfpHTML = `<img src="${cvData.contact.image}" class="cv-designed-pfp" style="width:${sz}px; height:${sz}px;" alt="PFP">`;
+        pfpHTML = `<img src="${cvData.contact.image}" class="cv-designed-pfp" style="width:${sz}px; height:${sz}px;" alt="PFP" data-editor-tab="tab-profile">`;
     }
 
     // Experiences HTML
     let expHTML = "";
-    cvData.experiences.forEach(exp => {
-        let bulletsHTML = exp.bullets.map(b => `<li>${b}</li>`).join('');
+    cvData.experiences.forEach((exp, index) => {
+        let bulletsHTML = exp.bullets.map(b => `<li data-editor-field="bullets">${b}</li>`).join('');
         expHTML += `
-        <div class="cv-designed-card">
+        <div class="cv-designed-card" data-editor-tab="tab-experiences" data-editor-target="experiences" data-editor-index="${index}">
         <div class="cv-designed-cardtitle">
-            <span style="font-weight:700; color:#fff;">${exp.title}</span>
-            <span class="cv-designed-carddate">${exp.period}</span>
+            <span style="font-weight:700; color:#fff;" data-editor-field="title">${exp.title}</span>
+            <span class="cv-designed-carddate" data-editor-field="period">${exp.period}</span>
         </div>
-        <div class="cv-designed-cardorg">${exp.company} | ${exp.location}</div>
-        <ul class="cv-designed-bullets">${bulletsHTML}</ul>
+        <div class="cv-designed-cardorg"><span data-editor-field="company">${exp.company}</span> | <span data-editor-field="location">${exp.location}</span></div>
+        <ul class="cv-designed-bullets" data-editor-field="bullets">${bulletsHTML}</ul>
         </div>`;
     });
 
@@ -216,101 +222,101 @@ function renderDesignedLayout() {
     let formHTML = "";
     if (cvData.formations && cvData.formations.length > 0) {
         let formItemsHTML = "";
-        cvData.formations.forEach(f => {
-            let bulletsHTML = f.bullets ? f.bullets.map(b => `<li>${b}</li>`).join('') : "";
+        cvData.formations.forEach((f, index) => {
+            let bulletsHTML = f.bullets ? f.bullets.map(b => `<li data-editor-field="bullets">${b}</li>`).join('') : "";
             formItemsHTML += `
-        <div class="cv-designed-card">
+        <div class="cv-designed-card" data-editor-tab="tab-experiences" data-editor-target="formations" data-editor-index="${index}">
             <div class="cv-designed-cardtitle">
-            <span style="font-weight:700; color:#fff;">${f.title}</span>
-            <span class="cv-designed-carddate">${f.period}</span>
+            <span style="font-weight:700; color:#fff;" data-editor-field="title">${f.title}</span>
+            <span class="cv-designed-carddate" data-editor-field="period">${f.period}</span>
             </div>
-            <div class="cv-designed-cardorg">${f.company} | ${f.location}</div>
-            <ul class="cv-designed-bullets">${bulletsHTML}</ul>
+            <div class="cv-designed-cardorg"><span data-editor-field="company">${f.company}</span> | <span data-editor-field="location">${f.location}</span></div>
+            <ul class="cv-designed-bullets" data-editor-field="bullets">${bulletsHTML}</ul>
         </div>`;
         });
         formHTML = `
         <section>
-        <div class="cv-designed-sectitle">Stages & Formations</div>
+        <div class="cv-designed-sectitle" data-editor-tab="tab-experiences">Stages & Formations</div>
         ${formItemsHTML}
         </section>`;
     }
 
     // Projects HTML
     let projHTML = "";
-    cvData.projects.forEach(proj => {
+    cvData.projects.forEach((proj, index) => {
         projHTML += `
-        <div class="cv-designed-card">
+        <div class="cv-designed-card" data-editor-tab="tab-projects" data-editor-target="projects" data-editor-index="${index}">
         <div class="cv-designed-cardtitle">
-            <span style="font-weight:700; color:#fff;">${proj.title}</span>
-            <span class="cv-designed-carddate" style="background:rgba(255,255,255,0.05); color:#fff; border:1px solid rgba(255,255,255,0.1);">${proj.stack}</span>
+            <span style="font-weight:700; color:#fff;" data-editor-field="title">${proj.title}</span>
+            <span class="cv-designed-carddate" style="background:rgba(255,255,255,0.05); color:#fff; border:1px solid rgba(255,255,255,0.1);" data-editor-field="stack">${proj.stack}</span>
         </div>
-        <p style="font-size:0.75rem; color:#9ca3af; margin-top:0.4rem; line-height:1.4;">${proj.description}</p>
+        <p style="font-size:0.75rem; color:#9ca3af; margin-top:0.4rem; line-height:1.4;" data-editor-field="description">${proj.description}</p>
         </div>`;
     });
 
     // Education HTML
     let eduHTML = "";
-    cvData.education.forEach(edu => {
+    cvData.education.forEach((edu, index) => {
         eduHTML += `
-        <div class="cv-designed-card" style="padding: 0.6rem 0.75rem;">
-        <div style="font-size:0.78rem; font-weight:700; color:#fff;">${edu.degree}</div>
-        <div style="font-size:0.72rem; color:#9ca3af; margin-top:0.1rem;">${edu.school}</div>
-        <div style="font-size:0.7rem; color:var(--design-gold); font-weight:600; margin-top:0.2rem;">${edu.period}</div>
+        <div class="cv-designed-card" style="padding: 0.6rem 0.75rem;" data-editor-tab="tab-education" data-editor-target="education" data-editor-index="${index}">
+        <div style="font-size:0.78rem; font-weight:700; color:#fff;" data-editor-field="degree">${edu.degree}</div>
+        <div style="font-size:0.72rem; color:#9ca3af; margin-top:0.1rem;" data-editor-field="school">${edu.school}</div>
+        <div style="font-size:0.7rem; color:var(--design-gold); font-weight:600; margin-top:0.2rem;" data-editor-field="period">${edu.period}</div>
         </div>`;
     });
 
     // Certifications HTML
     let certsHTML = "";
-    cvData.certifications.forEach(c => {
+    cvData.certifications.forEach((c, index) => {
         const parts = c.includes(" – ") ? c.split(" – ") : c.split(" - ");
         certsHTML += `
-        <div class="cv-designed-simpleitem">
-        <span class="list-label">${parts[0]}</span>
-        <span class="list-val" style="color:var(--design-gold);">${parts[1] || 'Certifié'}</span>
+        <div class="cv-designed-simpleitem" data-editor-tab="tab-education" data-editor-target="certifications" data-editor-index="${index}" data-editor-field="value">
+        <span class="list-label" data-editor-field="value">${parts[0]}</span>
+        <span class="list-val" style="color:var(--design-gold);" data-editor-field="value">${parts[1] || 'Certifié'}</span>
         </div>`;
     });
 
     // Languages HTML
     let langHTML = "";
-    cvData.languages.forEach(l => {
+    cvData.languages.forEach((l, index) => {
         langHTML += `
-        <div class="cv-designed-simpleitem">
-        <span class="list-label">${l.name}</span>
-        <span class="list-val">${l.level}</span>
+        <div class="cv-designed-simpleitem" data-editor-tab="tab-education" data-editor-target="languages" data-editor-index="${index}">
+        <span class="list-label" data-editor-field="name">${l.name}</span>
+        <span class="list-val" data-editor-field="level">${l.level}</span>
         </div>`;
     });
 
     // Activities HTML
-    let actHTML = cvData.activities.map(a => `<div style="margin-bottom:0.3rem;">▪ ${a}</div>`).join('');
+    let actHTML = cvData.activities.map((a, index) => `<div style="margin-bottom:0.3rem;" data-editor-tab="tab-education" data-editor-target="activities" data-editor-index="${index}" data-editor-field="value">▪ ${a}</div>`).join('');
 
     // Skill categories rendering loop
     const getTags = (str) => {
-        return str.split(',').map(s => s.trim()).filter(s => s).map(s => `<span class="cv-designed-tag">${s}</span>`).join('');
+        return str.split(',').map(s => s.trim()).filter(s => s).map(s => `<span class="cv-designed-tag" data-editor-field="value">${s}</span>`).join('');
     };
 
     let skillsHTML = "";
-    cvData.skills.forEach(s => {
+    cvData.skills.forEach((s, index) => {
         skillsHTML += `
-        <div class="skill-cat" style="margin-bottom:0.85rem;">
-        <div style="font-weight:700; color:#fff; margin-bottom:0.25rem; font-size:0.78rem;">${s.category}</div>
-        <div class="cv-designed-tags">${getTags(s.value)}</div>
+        <div class="skill-cat" style="margin-bottom:0.85rem;" data-editor-tab="tab-skills" data-editor-target="skills" data-editor-index="${index}">
+        <div style="font-weight:700; color:#fff; margin-bottom:0.25rem; font-size:0.78rem;" data-editor-field="category">${s.category}</div>
+        <div class="cv-designed-tags" data-editor-field="value">${getTags(s.value)}</div>
         </div>`;
     });
 
     return `
     <div class="cv-designed-body">
-        <header class="cv-designed-header">
+        <header class="cv-designed-header" data-editor-tab="tab-profile">
         <div class="cv-designed-header-text">
-            <h1 class="cv-designed-name">${cvData.contact.name}</h1>
-            <p class="cv-designed-title">${cvData.contact.title_sub}</p>
-            <div class="cv-designed-contacts">
-            ${cvData.contact.email ? `<span>${ICONS.email}<a href="${formatEmailHref(cvData.contact.email)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.email}</a></span>` : ''}
-            ${cvData.contact.phone ? `<span>${ICONS.phone}<a href="tel:${cvData.contact.phone}" style="color:inherit; text-decoration:none;">${cvData.contact.phone}</a></span>` : ''}
-            ${cvData.contact.location ? `<span>${ICONS.location}${cvData.contact.location}</span>` : ''}
-            ${cvData.contact.linkedin ? `<span>${ICONS.linkedin}<a href="${formatLinkedinHref(cvData.contact.linkedin)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.linkedin}</a></span>` : ''}
-            ${cvData.contact.github ? `<span>${ICONS.github}<a href="${formatGithubHref(cvData.contact.github)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.github}</a></span>` : ''}
-            ${cvData.contact.website ? `<span>${ICONS.website}<a href="${formatHref(cvData.contact.website)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.website}</a></span>` : ''}
-            ${cvData.contact.driver ? `<span>${ICONS.driver}${cvData.contact.driver}</span>` : ''}
+            <h1 class="cv-designed-name" data-editor-tab="tab-profile" data-editor-focus="input-name">${cvData.contact.name}</h1>
+            <p class="cv-designed-title" data-editor-tab="tab-profile" data-editor-focus="input-title-sub">${cvData.contact.title_sub}</p>
+            <div class="cv-designed-contacts" data-editor-tab="tab-profile">
+            ${cvData.contact.email ? `<span data-editor-tab="tab-profile" data-editor-focus="input-email">${ICONS.email}<a href="${formatEmailHref(cvData.contact.email)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.email}</a></span>` : ''}
+            ${cvData.contact.phone ? `<span data-editor-tab="tab-profile" data-editor-focus="input-phone">${ICONS.phone}<a href="tel:${cvData.contact.phone}" style="color:inherit; text-decoration:none;">${cvData.contact.phone}</a></span>` : ''}
+            ${cvData.contact.location ? `<span data-editor-tab="tab-profile" data-editor-focus="input-location">${ICONS.location}${cvData.contact.location}</span>` : ''}
+            ${cvData.contact.linkedin ? `<span data-editor-tab="tab-profile" data-editor-focus="input-linkedin">${ICONS.linkedin}<a href="${formatLinkedinHref(cvData.contact.linkedin)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.linkedin}</a></span>` : ''}
+            ${cvData.contact.github ? `<span data-editor-tab="tab-profile" data-editor-focus="input-github">${ICONS.github}<a href="${formatGithubHref(cvData.contact.github)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.github}</a></span>` : ''}
+            ${cvData.contact.website ? `<span data-editor-tab="tab-profile" data-editor-focus="input-website">${ICONS.website}<a href="${formatHref(cvData.contact.website)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.website}</a></span>` : ''}
+            ${cvData.contact.driver ? `<span data-editor-tab="tab-profile" data-editor-focus="input-driver">${ICONS.driver}${cvData.contact.driver}</span>` : ''}
             </div>
         </div>
         ${pfpHTML}
@@ -318,56 +324,62 @@ function renderDesignedLayout() {
         
         <div class="cv-designed-grid">
         <div class="cv-designed-sidebar">
-            ${cvData.profile && cvData.profile.trim() ? `
+            ${cvData.profile && cvData.profile.trim() && !cvData.hidden_sections?.profile ? `
             <section>
-                <div class="cv-designed-sectitle">Profil</div>
-                <p style="font-size:0.73rem; color:#9ca3af; line-height:1.45; text-align:justify;">${cvData.profile}</p>
+                <div class="cv-designed-sectitle" data-editor-tab="tab-profile">Profil</div>
+                <p style="font-size:0.73rem; color:#9ca3af; line-height:1.45; text-align:justify;" data-editor-tab="tab-profile" data-editor-focus="input-profile">${cvData.profile}</p>
             </section>
             ` : ''}
-            ${cvData.skills && cvData.skills.length > 0 ? `
+            ${cvData.skills && cvData.skills.length > 0 && !cvData.hidden_sections?.skills ? `
             <section>
-                <div class="cv-designed-sectitle">Compétences</div>
+                <div class="cv-designed-sectitle" data-editor-tab="tab-skills">Compétences</div>
                 <div class="skills-group">
                 ${skillsHTML}
                 </div>
             </section>
             ` : ''}
-            ${cvData.education && cvData.education.length > 0 ? `
+            ${cvData.education && cvData.education.length > 0 && !cvData.hidden_sections?.education ? `
             <section>
-                <div class="cv-designed-sectitle">Éducation</div>
+                <div class="cv-designed-sectitle" data-editor-tab="tab-education">Éducation</div>
                 ${eduHTML}
             </section>
             ` : ''}
-            ${cvData.certifications && cvData.certifications.length > 0 ? `
+            ${cvData.certifications && cvData.certifications.length > 0 && !cvData.hidden_sections?.certifications ? `
             <section>
-                <div class="cv-designed-sectitle">Certifications</div>
+                <div class="cv-designed-sectitle" data-editor-tab="tab-education">Certifications</div>
                 <div class="cv-designed-simplelist">${certsHTML}</div>
             </section>
             ` : ''}
-            ${cvData.languages && cvData.languages.length > 0 ? `
+            ${cvData.languages && cvData.languages.length > 0 && !cvData.hidden_sections?.languages ? `
             <section>
-                <div class="cv-designed-sectitle">Langues</div>
+                <div class="cv-designed-sectitle" data-editor-tab="tab-education">Langues</div>
                 <div class="cv-designed-simplelist">${langHTML}</div>
+            </section>
+            ` : ''}
+            ${cvData.interests && cvData.interests.length > 0 && !cvData.hidden_sections?.interests ? `
+            <section>
+                <div class="cv-designed-sectitle" data-editor-tab="tab-education">Centres d'intérêt</div>
+                <div style="font-size:0.72rem; color:#9ca3af; line-height:1.4;">${cvData.interests.map((item, idx) => `<span data-editor-tab="tab-education" data-editor-target="interests" data-editor-index="${idx}" data-editor-field="value">${item}</span>`).join(', ')}</div>
             </section>
             ` : ''}
         </div>
         <div class="cv-designed-main">
-            ${cvData.experiences && cvData.experiences.length > 0 ? `
+            ${cvData.experiences && cvData.experiences.length > 0 && !cvData.hidden_sections?.experiences ? `
             <section>
-                <div class="cv-designed-sectitle">Expériences Professionnelles</div>
+                <div class="cv-designed-sectitle" data-editor-tab="tab-experiences">Expériences Professionnelles</div>
                 ${expHTML}
             </section>
             ` : ''}
-            ${formHTML}
-            ${cvData.projects && cvData.projects.length > 0 ? `
+            ${cvData.hidden_sections?.formations ? '' : formHTML}
+            ${cvData.projects && cvData.projects.length > 0 && !cvData.hidden_sections?.projects ? `
             <section>
-                <div class="cv-designed-sectitle">Projets Clés</div>
+                <div class="cv-designed-sectitle" data-editor-tab="tab-projects">Projets Clés</div>
                 ${projHTML}
             </section>
             ` : ''}
-            ${cvData.activities && cvData.activities.length > 0 ? `
+            ${cvData.activities && cvData.activities.length > 0 && !cvData.hidden_sections?.activities ? `
             <section>
-                <div class="cv-designed-sectitle">Engagements</div>
+                <div class="cv-designed-sectitle" data-editor-tab="tab-education">Engagements</div>
                 <div class="cv-designed-card" style="font-size:0.72rem; color:#9ca3af; line-height:1.4;">
                 ${actHTML}
                 </div>
@@ -386,21 +398,21 @@ function renderProfessionalLayout() {
     let pfpHTML = "";
     if (cvData.contact.image && (!cvData.design || cvData.design.show_pfp)) {
         const sz = cvData.contact.image_size || 80;
-        pfpHTML = `<img src="${cvData.contact.image}" class="cv-prof-pfp" style="width:${sz}px; height:${sz}px;" alt="PFP">`;
+        pfpHTML = `<img src="${cvData.contact.image}" class="cv-prof-pfp" style="width:${sz}px; height:${sz}px;" alt="PFP" data-editor-tab="tab-profile">`;
     }
 
     // Experiences HTML
     let expHTML = "";
-    cvData.experiences.forEach(exp => {
-        let bulletsHTML = exp.bullets.map(b => `<li>${b}</li>`).join('');
+    cvData.experiences.forEach((exp, index) => {
+        let bulletsHTML = exp.bullets.map(b => `<li data-editor-field="bullets">${b}</li>`).join('');
         expHTML += `
-        <div class="cv-prof-item">
+        <div class="cv-prof-item" data-editor-tab="tab-experiences" data-editor-target="experiences" data-editor-index="${index}">
         <div class="cv-prof-itemhead">
-            <span>${exp.title} — <span class="cv-prof-itemorg">${exp.company}</span></span>
-            <span class="cv-prof-itemdate">${exp.period}</span>
+            <span><span data-editor-field="title">${exp.title}</span> — <span class="cv-prof-itemorg" data-editor-field="company">${exp.company}</span></span>
+            <span class="cv-prof-itemdate" data-editor-field="period">${exp.period}</span>
         </div>
-        <div style="font-size: 0.78rem; color:#6b7280; margin-bottom:0.2rem;">${exp.location}</div>
-        <ul class="cv-prof-bullets">${bulletsHTML}</ul>
+        <div style="font-size: 0.78rem; color:#6b7280; margin-bottom:0.2rem;" data-editor-field="location">${exp.location}</div>
+        <ul class="cv-prof-bullets" data-editor-field="bullets">${bulletsHTML}</ul>
         </div>`;
     });
 
@@ -408,133 +420,138 @@ function renderProfessionalLayout() {
     let formHTML = "";
     if (cvData.formations && cvData.formations.length > 0) {
         let formItemsHTML = "";
-        cvData.formations.forEach(f => {
-            let bulletsHTML = f.bullets ? f.bullets.map(b => `<li>${b}</li>`).join('') : "";
+        cvData.formations.forEach((f, index) => {
+            let bulletsHTML = f.bullets ? f.bullets.map(b => `<li data-editor-field="bullets">${b}</li>`).join('') : "";
             formItemsHTML += `
-        <div class="cv-prof-item">
+        <div class="cv-prof-item" data-editor-tab="tab-experiences" data-editor-target="formations" data-editor-index="${index}">
             <div class="cv-prof-itemhead">
-            <span>${f.title} — <span class="cv-prof-itemorg">${f.company}</span></span>
-            <span class="cv-prof-itemdate">${f.period}</span>
+            <span><span data-editor-field="title">${f.title}</span> — <span class="cv-prof-itemorg" data-editor-field="company">${f.company}</span></span>
+            <span class="cv-prof-itemdate" data-editor-field="period">${f.period}</span>
             </div>
-            <div style="font-size: 0.78rem; color:#6b7280; margin-bottom:0.2rem;">${f.location}</div>
-            <ul class="cv-prof-bullets">${bulletsHTML}</ul>
+            <div style="font-size: 0.78rem; color:#6b7280; margin-bottom:0.2rem;" data-editor-field="location">${f.location}</div>
+            <ul class="cv-prof-bullets" data-editor-field="bullets">${bulletsHTML}</ul>
         </div>`;
         });
         formHTML = `
         <section class="section">
-        <div class="cv-prof-sectitle">Stages & Formations</div>
+        <div class="cv-prof-sectitle" data-editor-tab="tab-experiences">Stages & Formations</div>
         ${formItemsHTML}
         </section>`;
     }
 
     // Projects HTML
     let projHTML = "";
-    cvData.projects.forEach(proj => {
+    cvData.projects.forEach((proj, index) => {
         projHTML += `
-        <div class="cv-prof-item">
+        <div class="cv-prof-item" data-editor-tab="tab-projects" data-editor-target="projects" data-editor-index="${index}">
         <div class="cv-prof-itemhead">
-            <span>${proj.title}</span>
-            <span class="cv-prof-itemdate" style="font-weight:600;">${proj.stack}</span>
+            <span data-editor-field="title">${proj.title}</span>
+            <span class="cv-prof-itemdate" style="font-weight:600;" data-editor-field="stack">${proj.stack}</span>
         </div>
-        <p style="font-size:0.78rem; color:#374151; margin-top:0.2rem; line-height:1.45;">${proj.description}</p>
+        <p style="font-size:0.78rem; color:#374151; margin-top:0.2rem; line-height:1.45;" data-editor-field="description">${proj.description}</p>
         </div>`;
     });
 
     // Education HTML
     let eduHTML = "";
-    cvData.education.forEach(edu => {
+    cvData.education.forEach((edu, index) => {
         eduHTML += `
-        <div class="cv-prof-item" style="margin-bottom:0.4rem;">
-        <div style="font-size:0.8rem; font-weight:700;">${edu.degree}</div>
-        <div style="font-size:0.75rem; color:#4b5563;">${edu.school} | ${edu.period}</div>
+        <div class="cv-prof-item" style="margin-bottom:0.4rem;" data-editor-tab="tab-education" data-editor-target="education" data-editor-index="${index}">
+        <div style="font-size:0.8rem; font-weight:700;" data-editor-field="degree">${edu.degree}</div>
+        <div style="font-size:0.75rem; color:#4b5563;"><span data-editor-field="school">${edu.school}</span> | <span data-editor-field="period">${edu.period}</span></div>
         </div>`;
     });
 
     // Skill categories list Professional
     let skillsHTML = "";
-    cvData.skills.forEach(s => {
+    cvData.skills.forEach((s, index) => {
         skillsHTML += `
-        <div class="cv-prof-skillrow">
-        <strong>${s.category} :</strong> ${s.value}
+        <div class="cv-prof-skillrow" data-editor-tab="tab-skills" data-editor-target="skills" data-editor-index="${index}">
+        <strong data-editor-field="category">${s.category} :</strong> <span data-editor-field="value">${s.value}</span>
         </div>`;
     });
 
-    let certsHTML = cvData.certifications.map(c => `<li>${c}</li>`).join('');
-    let actHTML = cvData.activities.map(a => `<li>${a}</li>`).join('');
-    let langHTML = cvData.languages.map(l => `${l.name} (${l.level})`).join(', ');
+    let certsHTML = cvData.certifications.map((c, index) => `<li data-editor-tab="tab-education" data-editor-target="certifications" data-editor-index="${index}" data-editor-field="value">${c}</li>`).join('');
+    let actHTML = cvData.activities.map((a, index) => `<li data-editor-tab="tab-education" data-editor-target="activities" data-editor-index="${index}" data-editor-field="value">${a}</li>`).join('');
+    let langHTML = cvData.languages.map((l, index) => `<span data-editor-tab="tab-education" data-editor-target="languages" data-editor-index="${index}"><strong data-editor-field="name">${l.name}</strong> (<span data-editor-field="level">${l.level}</span>)</span>`).join(', ');
 
     return `
     <div class="cv-prof-body">
-        <header class="cv-prof-header">
+        <header class="cv-prof-header" data-editor-tab="tab-profile">
         <div class="cv-prof-header-text">
-            <h1 class="cv-prof-name">${cvData.contact.name}</h1>
-            <p class="cv-prof-title">${cvData.contact.title_sub}</p>
-            <div class="cv-prof-contacts">
-            ${cvData.contact.email ? `<span>${ICONS.email}<a href="${formatEmailHref(cvData.contact.email)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.email}</a></span>` : ''}
-            ${cvData.contact.phone ? `<span>${ICONS.phone}<a href="tel:${cvData.contact.phone}" style="color:inherit; text-decoration:none;">${cvData.contact.phone}</a></span>` : ''}
-            ${cvData.contact.location ? `<span>${ICONS.location}${cvData.contact.location}</span>` : ''}
-            ${cvData.contact.driver ? `<span>${ICONS.driver}${cvData.contact.driver}</span>` : ''}
+            <h1 class="cv-prof-name" data-editor-tab="tab-profile" data-editor-focus="input-name">${cvData.contact.name}</h1>
+            <p class="cv-prof-title" data-editor-tab="tab-profile" data-editor-focus="input-title-sub">${cvData.contact.title_sub}</p>
+            <div class="cv-prof-contacts" data-editor-tab="tab-profile">
+            ${cvData.contact.email ? `<span data-editor-tab="tab-profile" data-editor-focus="input-email">${ICONS.email}<a href="${formatEmailHref(cvData.contact.email)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.email}</a></span>` : ''}
+            ${cvData.contact.phone ? `<span data-editor-tab="tab-profile" data-editor-focus="input-phone">${ICONS.phone}<a href="tel:${cvData.contact.phone}" style="color:inherit; text-decoration:none;">${cvData.contact.phone}</a></span>` : ''}
+            ${cvData.contact.location ? `<span data-editor-tab="tab-profile" data-editor-focus="input-location">${ICONS.location}${cvData.contact.location}</span>` : ''}
+            ${cvData.contact.driver ? `<span data-editor-tab="tab-profile" data-editor-focus="input-driver">${ICONS.driver}${cvData.contact.driver}</span>` : ''}
             ${(cvData.contact.email || cvData.contact.phone || cvData.contact.location || cvData.contact.driver) && (cvData.contact.linkedin || cvData.contact.github || cvData.contact.website) ? '<br>' : ''}
-            ${cvData.contact.linkedin ? `<span>${ICONS.linkedin}<a href="${formatLinkedinHref(cvData.contact.linkedin)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.linkedin}</a></span>` : ''}
-            ${cvData.contact.github ? `<span>${ICONS.github}<a href="${formatGithubHref(cvData.contact.github)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.github}</a></span>` : ''}
-            ${cvData.contact.website ? `<span>${ICONS.website}<a href="${formatHref(cvData.contact.website)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.website}</a></span>` : ''}
+            ${cvData.contact.linkedin ? `<span data-editor-tab="tab-profile" data-editor-focus="input-linkedin">${ICONS.linkedin}<a href="${formatLinkedinHref(cvData.contact.linkedin)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.linkedin}</a></span>` : ''}
+            ${cvData.contact.github ? `<span data-editor-tab="tab-profile" data-editor-focus="input-github">${ICONS.github}<a href="${formatGithubHref(cvData.contact.github)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.github}</a></span>` : ''}
+            ${cvData.contact.website ? `<span data-editor-tab="tab-profile" data-editor-focus="input-website">${ICONS.website}<a href="${formatHref(cvData.contact.website)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.website}</a></span>` : ''}
             </div>
         </div>
         ${pfpHTML}
         </header>
         
-        ${cvData.profile && cvData.profile.trim() ? `
+        ${cvData.profile && cvData.profile.trim() && !cvData.hidden_sections?.profile ? `
         <section class="section">
-            <div class="cv-prof-sectitle">Profil Professionnel</div>
-            <p style="font-size:0.8rem; color:#374151; text-align:justify; line-height:1.45;">${cvData.profile}</p>
+            <div class="cv-prof-sectitle" data-editor-tab="tab-profile">Profil Professionnel</div>
+            <p style="font-size:0.8rem; color:#374151; text-align:justify; line-height:1.45;" data-editor-tab="tab-profile" data-editor-focus="input-profile">${cvData.profile}</p>
         </section>
         ` : ''}
 
-        ${cvData.experiences && cvData.experiences.length > 0 ? `
+        ${cvData.experiences && cvData.experiences.length > 0 && !cvData.hidden_sections?.experiences ? `
         <section class="section">
-            <div class="cv-prof-sectitle">Expériences Professionnelles</div>
+            <div class="cv-prof-sectitle" data-editor-tab="tab-experiences">Expériences Professionnelles</div>
             ${expHTML}
         </section>
         ` : ''}
 
-        ${formHTML}
+        ${cvData.hidden_sections?.formations ? '' : formHTML}
 
-        ${cvData.projects && cvData.projects.length > 0 ? `
+        ${cvData.projects && cvData.projects.length > 0 && !cvData.hidden_sections?.projects ? `
         <section class="section">
-            <div class="cv-prof-sectitle">Projets Clés</div>
+            <div class="cv-prof-sectitle" data-editor-tab="tab-projects">Projets Clés</div>
             ${projHTML}
         </section>
         ` : ''}
 
         <div class="cv-prof-grid">
         <div>
-            ${cvData.skills && cvData.skills.length > 0 ? `
+            ${cvData.skills && cvData.skills.length > 0 && !cvData.hidden_sections?.skills ? `
             <section class="section">
-                <div class="cv-prof-sectitle">Compétences Techniques</div>
+                <div class="cv-prof-sectitle" data-editor-tab="tab-skills">Compétences Techniques</div>
                 ${skillsHTML}
             </section>
             ` : ''}
-            ${cvData.education && cvData.education.length > 0 ? `
+            ${cvData.education && cvData.education.length > 0 && !cvData.hidden_sections?.education ? `
             <section class="section">
-                <div class="cv-prof-sectitle">Éducation</div>
+                <div class="cv-prof-sectitle" data-editor-tab="tab-education">Éducation</div>
                 ${eduHTML}
             </section>
             ` : ''}
         </div>
         <div>
-            ${cvData.certifications && cvData.certifications.length > 0 ? `
+            ${cvData.certifications && cvData.certifications.length > 0 && !cvData.hidden_sections?.certifications ? `
             <section class="section">
-                <div class="cv-prof-sectitle">Certifications</div>
+                <div class="cv-prof-sectitle" data-editor-tab="tab-education">Certifications</div>
                 <ul class="cv-prof-bullets">${certsHTML}</ul>
             </section>
             ` : ''}
-            ${(cvData.activities && cvData.activities.length > 0) || (cvData.languages && cvData.languages.length > 0) ? `
+            ${(cvData.activities && cvData.activities.length > 0 && !cvData.hidden_sections?.activities) || (cvData.languages && cvData.languages.length > 0 && !cvData.hidden_sections?.languages) || (cvData.interests && cvData.interests.length > 0 && !cvData.hidden_sections?.interests) ? `
             <section class="section">
-                <div class="cv-prof-sectitle">Engagements & Langues</div>
-                ${cvData.activities && cvData.activities.length > 0 ? `<ul class="cv-prof-bullets" style="margin-bottom:0.5rem;">${actHTML}</ul>` : ''}
-                ${cvData.languages && cvData.languages.length > 0 ? `
-                <div style="font-size:0.78rem; border-top:1px solid #d1d5db; padding-top:0.4rem; color:#374151;">
+                <div class="cv-prof-sectitle" data-editor-tab="tab-education">Divers & Langues</div>
+                ${cvData.activities && cvData.activities.length > 0 && !cvData.hidden_sections?.activities ? `<ul class="cv-prof-bullets" style="margin-bottom:0.5rem;">${actHTML}</ul>` : ''}
+                ${cvData.languages && cvData.languages.length > 0 && !cvData.hidden_sections?.languages ? `
+                <div style="font-size:0.78rem; border-top:1px solid #d1d5db; padding-top:0.4rem; color:#374151;" data-editor-tab="tab-education">
                     🗣️ <strong>Langues :</strong> ${langHTML}
+                </div>
+                ` : ''}
+                ${cvData.interests && cvData.interests.length > 0 && !cvData.hidden_sections?.interests ? `
+                <div style="font-size:0.75rem; border-top:1px solid #d1d5db; margin-top:0.4rem; padding-top:0.4rem; color:#374151;" data-editor-tab="tab-education">
+                    🎯 <strong>Intérêts :</strong> ${cvData.interests.map((item, idx) => `<span data-editor-tab="tab-education" data-editor-target="interests" data-editor-index="${idx}" data-editor-field="value">${item}</span>`).join(', ')}
                 </div>
                 ` : ''}
             </section>
@@ -547,16 +564,16 @@ function renderProfessionalLayout() {
 function renderATSLayout() {
     // PFP is automatically hidden for parser safety in ATS layout
     let expHTML = "";
-    cvData.experiences.forEach(exp => {
-        let bulletsHTML = exp.bullets.map(b => `<li>${b}</li>`).join('');
+    cvData.experiences.forEach((exp, index) => {
+        let bulletsHTML = exp.bullets.map(b => `<li data-editor-field="bullets">${b}</li>`).join('');
         expHTML += `
-        <div class="cv-ats-item">
+        <div class="cv-ats-item" data-editor-tab="tab-experiences" data-editor-target="experiences" data-editor-index="${index}">
         <div class="cv-ats-itemhead">
-            <span>${exp.title}</span>
-            <span>${exp.period}</span>
+            <span data-editor-field="title">${exp.title}</span>
+            <span data-editor-field="period">${exp.period}</span>
         </div>
-        <div class="cv-ats-itemsub">${exp.company} — ${exp.location}</div>
-        <ul class="cv-ats-bullets">${bulletsHTML}</ul>
+        <div class="cv-ats-itemsub"><span data-editor-field="company">${exp.company}</span> — <span data-editor-field="location">${exp.location}</span></div>
+        <ul class="cv-ats-bullets" data-editor-field="bullets">${bulletsHTML}</ul>
         </div>`;
     });
 
@@ -564,74 +581,74 @@ function renderATSLayout() {
     let formHTML = "";
     if (cvData.formations && cvData.formations.length > 0) {
         let formItemsHTML = "";
-        cvData.formations.forEach(f => {
-            let bulletsHTML = f.bullets ? f.bullets.map(b => `<li>${b}</li>`).join('') : "";
+        cvData.formations.forEach((f, index) => {
+            let bulletsHTML = f.bullets ? f.bullets.map(b => `<li data-editor-field="bullets">${b}</li>`).join('') : "";
             formItemsHTML += `
-        <div class="cv-ats-item">
+        <div class="cv-ats-item" data-editor-tab="tab-experiences" data-editor-target="formations" data-editor-index="${index}">
             <div class="cv-ats-itemhead">
-            <span>${f.title}</span>
-            <span>${f.period}</span>
+            <span data-editor-field="title">${f.title}</span>
+            <span data-editor-field="period">${f.period}</span>
             </div>
-            <div class="cv-ats-itemsub">${f.company} — ${f.location}</div>
-            <ul class="cv-ats-bullets">${bulletsHTML}</ul>
+            <div class="cv-ats-itemsub"><span data-editor-field="company">${f.company}</span> — <span data-editor-field="location">${f.location}</span></div>
+            <ul class="cv-ats-bullets" data-editor-field="bullets">${bulletsHTML}</ul>
         </div>`;
         });
         formHTML = `
-        <div class="cv-ats-sectitle">Stages & Formations</div>
+        <div class="cv-ats-sectitle" data-editor-tab="tab-experiences">Stages & Formations</div>
         ${formItemsHTML}`;
     }
 
     let projHTML = "";
-    cvData.projects.forEach(proj => {
+    cvData.projects.forEach((proj, index) => {
         projHTML += `
-        <div class="cv-ats-item">
+        <div class="cv-ats-item" data-editor-tab="tab-projects" data-editor-target="projects" data-editor-index="${index}">
         <div class="cv-ats-itemhead">
-            <span>${proj.title}</span>
-            <span style="font-weight:normal; font-size:10pt;">${proj.stack}</span>
+            <span data-editor-field="title">${proj.title}</span>
+            <span style="font-weight:normal; font-size:10pt;" data-editor-field="stack">${proj.stack}</span>
         </div>
         <ul class="cv-ats-bullets">
-            <li>${proj.description}</li>
+            <li data-editor-field="description">${proj.description}</li>
         </ul>
         </div>`;
     });
 
     let eduHTML = "";
-    cvData.education.forEach(edu => {
+    cvData.education.forEach((edu, index) => {
         eduHTML += `
-        <div class="cv-ats-item">
+        <div class="cv-ats-item" data-editor-tab="tab-education" data-editor-target="education" data-editor-index="${index}">
         <div class="cv-ats-itemhead">
-            <span>${edu.degree}</span>
-            <span>${edu.period}</span>
+            <span data-editor-field="degree">${edu.degree}</span>
+            <span data-editor-field="period">${edu.period}</span>
         </div>
-        <div class="cv-ats-itemsub">${edu.school}</div>
+        <div class="cv-ats-itemsub" data-editor-field="school">${edu.school}</div>
         </div>`;
     });
 
     let skillsHTML = "";
-    cvData.skills.forEach(s => {
-        skillsHTML += `<p><strong>${s.category} :</strong> ${s.value}</p>`;
+    cvData.skills.forEach((s, index) => {
+        skillsHTML += `<p data-editor-tab="tab-skills" data-editor-target="skills" data-editor-index="${index}"><strong data-editor-field="category">${s.category} :</strong> <span data-editor-field="value">${s.value}</span></p>`;
     });
 
-    let certsHTML = cvData.certifications.map(c => `<li>${c}</li>`).join('');
-    let actHTML = cvData.activities.map(a => `<li>${a}</li>`).join('');
-    let langHTML = cvData.languages.map(l => `<li><strong>${l.name} :</strong> ${l.level}</li>`).join('');
+    let certsHTML = cvData.certifications.map((c, index) => `<li data-editor-tab="tab-education" data-editor-target="certifications" data-editor-index="${index}" data-editor-field="value">${c}</li>`).join('');
+    let actHTML = cvData.activities.map((a, index) => `<li data-editor-tab="tab-education" data-editor-target="activities" data-editor-index="${index}" data-editor-field="value">${a}</li>`).join('');
+    let langHTML = cvData.languages.map((l, index) => `<li data-editor-tab="tab-education" data-editor-target="languages" data-editor-index="${index}"><strong data-editor-field="name">${l.name} :</strong> <span data-editor-field="level">${l.level}</span></li>`).join('');
 
     let pfpHTML = "";
     if (cvData.contact.image && (!cvData.design || cvData.design.show_pfp)) {
         const sz = cvData.contact.image_size || 80;
-        pfpHTML = `<img src="${cvData.contact.image}" style="width:${sz}px; height:${sz}px; border-radius:50%; object-fit:cover; border:1px solid #cccccc; display:block; margin:0 auto 0.5rem auto;" alt="Photo">`;
+        pfpHTML = `<img src="${cvData.contact.image}" style="width:${sz}px; height:${sz}px; border-radius:50%; object-fit:cover; border:1px solid #cccccc; display:block; margin:0 auto 0.5rem auto;" alt="Photo" data-editor-tab="tab-profile">`;
     }
 
     const atsContacts1 = [];
-    if (cvData.contact.location) atsContacts1.push(cvData.contact.location);
-    if (cvData.contact.phone) atsContacts1.push(`Tél : <a href="tel:${cvData.contact.phone}" style="color:inherit; text-decoration:none;">${cvData.contact.phone}</a>`);
-    if (cvData.contact.email) atsContacts1.push(`Email : <a href="${formatEmailHref(cvData.contact.email)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.email}</a>`);
-    if (cvData.contact.driver) atsContacts1.push(cvData.contact.driver);
+    if (cvData.contact.location) atsContacts1.push(`<span data-editor-tab="tab-profile" data-editor-focus="input-location">${cvData.contact.location}</span>`);
+    if (cvData.contact.phone) atsContacts1.push(`<span data-editor-tab="tab-profile" data-editor-focus="input-phone">Tél : <a href="tel:${cvData.contact.phone}" style="color:inherit; text-decoration:none;">${cvData.contact.phone}</a></span>`);
+    if (cvData.contact.email) atsContacts1.push(`<span data-editor-tab="tab-profile" data-editor-focus="input-email">Email : <a href="${formatEmailHref(cvData.contact.email)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.email}</a></span>`);
+    if (cvData.contact.driver) atsContacts1.push(`<span data-editor-tab="tab-profile" data-editor-focus="input-driver">${cvData.contact.driver}</span>`);
 
     const atsContacts2 = [];
-    if (cvData.contact.linkedin) atsContacts2.push(`LinkedIn : <a href="${formatLinkedinHref(cvData.contact.linkedin)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.linkedin}</a>`);
-    if (cvData.contact.github) atsContacts2.push(`GitHub : <a href="${formatGithubHref(cvData.contact.github)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.github}</a>`);
-    if (cvData.contact.website) atsContacts2.push(`Portfolio : <a href="${formatHref(cvData.contact.website)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.website}</a>`);
+    if (cvData.contact.linkedin) atsContacts2.push(`<span data-editor-tab="tab-profile" data-editor-focus="input-linkedin">LinkedIn : <a href="${formatLinkedinHref(cvData.contact.linkedin)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.linkedin}</a></span>`);
+    if (cvData.contact.github) atsContacts2.push(`<span data-editor-tab="tab-profile" data-editor-focus="input-github">GitHub : <a href="${formatGithubHref(cvData.contact.github)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.github}</a></span>`);
+    if (cvData.contact.website) atsContacts2.push(`<span data-editor-tab="tab-profile" data-editor-focus="input-website">Portfolio : <a href="${formatHref(cvData.contact.website)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.website}</a></span>`);
 
     let atsContactsHTML = "";
     if (atsContacts1.length > 0) atsContactsHTML += atsContacts1.join(' | ');
@@ -640,61 +657,83 @@ function renderATSLayout() {
 
     return `
     <div class="cv-ats-body">
-        <header class="cv-ats-header">
+        <header class="cv-ats-header" data-editor-tab="tab-profile">
         ${pfpHTML}
-        <div class="cv-ats-name">${cvData.contact.name}</div>
-        <div class="cv-ats-contacts">
+        <div class="cv-ats-name" data-editor-tab="tab-profile" data-editor-focus="input-name">${cvData.contact.name}</div>
+        <div class="cv-ats-contacts" data-editor-tab="tab-profile">
             ${atsContactsHTML}
         </div>
         </header>
         
-        ${cvData.profile && cvData.profile.trim() ? `
-        <div class="cv-ats-sectitle">Profil Professionnel</div>
-        <p style="font-size:10pt; margin-bottom:0.75rem; text-align:justify;">${cvData.profile}</p>
-        ` : ''}
-
-        ${cvData.experiences && cvData.experiences.length > 0 ? `
-        <div class="cv-ats-sectitle">Expérience Professionnelle</div>
-        ${expHTML}
-        ` : ''}
-
-        ${formHTML}
-
-        ${cvData.projects && cvData.projects.length > 0 ? `
-        <div class="cv-ats-sectitle">Projets Réalisés</div>
-        ${projHTML}
-        ` : ''}
-
-        ${cvData.skills && cvData.skills.length > 0 ? `
-        <div class="cv-ats-sectitle">Compétences Techniques</div>
-        <div style="font-size:10pt; margin-bottom:0.5rem;">
-            ${skillsHTML}
+        ${cvData.profile && cvData.profile.trim() && !cvData.hidden_sections?.profile ? `
+        <div class="cv-ats-section">
+            <div class="cv-ats-sectitle" data-editor-tab="tab-profile">Profil Professionnel</div>
+            <p style="font-size:10pt; margin-bottom:0.75rem; text-align:justify;" data-editor-tab="tab-profile" data-editor-focus="input-profile">${cvData.profile}</p>
         </div>
         ` : ''}
 
-        ${cvData.education && cvData.education.length > 0 ? `
-        <div class="cv-ats-sectitle">Éducation</div>
-        ${eduHTML}
+        ${cvData.experiences && cvData.experiences.length > 0 && !cvData.hidden_sections?.experiences ? `
+        <div class="cv-ats-section">
+            <div class="cv-ats-sectitle" data-editor-tab="tab-experiences">Expérience Professionnelle</div>
+            ${expHTML}
+        </div>
         ` : ''}
 
-        ${cvData.certifications && cvData.certifications.length > 0 ? `
-        <div class="cv-ats-sectitle">Certifications</div>
-        <ul class="cv-ats-bullets">${certsHTML}</ul>
+        ${cvData.hidden_sections?.formations ? '' : (cvData.formations && cvData.formations.length > 0 ? `
+        <div class="cv-ats-section">
+            ${formHTML}
+        </div>
+        ` : '')}
+
+        ${cvData.projects && cvData.projects.length > 0 && !cvData.hidden_sections?.projects ? `
+        <div class="cv-ats-section">
+            <div class="cv-ats-sectitle" data-editor-tab="tab-projects">Projets Réalisés</div>
+            ${projHTML}
+        </div>
         ` : ''}
 
-        ${cvData.activities && cvData.activities.length > 0 ? `
-        <div class="cv-ats-sectitle">Engagements & Activités</div>
-        <ul class="cv-ats-bullets">${actHTML}</ul>
+        ${cvData.skills && cvData.skills.length > 0 && !cvData.hidden_sections?.skills ? `
+        <div class="cv-ats-section">
+            <div class="cv-ats-sectitle" data-editor-tab="tab-skills">Compétences Techniques</div>
+            <div style="font-size:10pt; margin-bottom:0.5rem;">
+                ${skillsHTML}
+            </div>
+        </div>
         ` : ''}
 
-        ${cvData.languages && cvData.languages.length > 0 ? `
-        <div class="cv-ats-sectitle">Langues</div>
-        <ul class="cv-ats-bullets">${langHTML}</ul>
+        ${cvData.education && cvData.education.length > 0 && !cvData.hidden_sections?.education ? `
+        <div class="cv-ats-section">
+            <div class="cv-ats-sectitle" data-editor-tab="tab-education">Éducation</div>
+            ${eduHTML}
+        </div>
         ` : ''}
 
-        ${cvData.interests && cvData.interests.length > 0 ? `
-        <div class="cv-ats-sectitle">Centres d'Intérêt</div>
-        <p style="font-size:10pt;">${cvData.interests.join(', ')}</p>
+        ${cvData.certifications && cvData.certifications.length > 0 && !cvData.hidden_sections?.certifications ? `
+        <div class="cv-ats-section">
+            <div class="cv-ats-sectitle" data-editor-tab="tab-education">Certifications</div>
+            <ul class="cv-ats-bullets">${certsHTML}</ul>
+        </div>
+        ` : ''}
+
+        ${cvData.activities && cvData.activities.length > 0 && !cvData.hidden_sections?.activities ? `
+        <div class="cv-ats-section">
+            <div class="cv-ats-sectitle" data-editor-tab="tab-education">Engagements & Activités</div>
+            <ul class="cv-ats-bullets">${actHTML}</ul>
+        </div>
+        ` : ''}
+
+        ${cvData.languages && cvData.languages.length > 0 && !cvData.hidden_sections?.languages ? `
+        <div class="cv-ats-section">
+            <div class="cv-ats-sectitle" data-editor-tab="tab-education">Langues</div>
+            <ul class="cv-ats-bullets">${langHTML}</ul>
+        </div>
+        ` : ''}
+
+        ${cvData.interests && cvData.interests.length > 0 && !cvData.hidden_sections?.interests ? `
+        <div class="cv-ats-section">
+            <div class="cv-ats-sectitle" data-editor-tab="tab-education">Centres d'Intérêt</div>
+            <p style="font-size:10pt;">${cvData.interests.map((item, idx) => `<span data-editor-tab="tab-education" data-editor-target="interests" data-editor-index="${idx}" data-editor-field="value">${item}</span>`).join(', ')}</p>
+        </div>
         ` : ''}
     </div>`;
 }
@@ -715,23 +754,23 @@ function renderSidebarLayout() {
     let pfpHTML = "";
     if (cvData.contact.image && (!cvData.design || cvData.design.show_pfp)) {
         const sz = cvData.contact.image_size || 80;
-        pfpHTML = `<img src="${cvData.contact.image}" class="cv-sidebar-pfp" style="width:${sz}px; height:${sz}px;" alt="PFP">`;
+        pfpHTML = `<img src="${cvData.contact.image}" class="cv-sidebar-pfp" style="width:${sz}px; height:${sz}px;" alt="PFP" data-editor-tab="tab-profile">`;
     }
 
     let contactItems = [];
-    if (cvData.contact.email) contactItems.push(`<div style="margin-bottom: 0.35rem;">${ICONS.email}<a href="${formatEmailHref(cvData.contact.email)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.email}</a></div>`);
-    if (cvData.contact.phone) contactItems.push(`<div style="margin-bottom: 0.35rem;">${ICONS.phone}<a href="tel:${cvData.contact.phone}" style="color:inherit; text-decoration:none;">${cvData.contact.phone}</a></div>`);
-    if (cvData.contact.location) contactItems.push(`<div style="margin-bottom: 0.35rem;">${ICONS.location}${cvData.contact.location}</div>`);
-    if (cvData.contact.linkedin) contactItems.push(`<div style="margin-bottom: 0.35rem;">${ICONS.linkedin}<a href="${formatLinkedinHref(cvData.contact.linkedin)}" target="_blank" style="color:var(--sidebar-accent); font-weight:600; text-decoration:none;">LinkedIn</a></div>`);
-    if (cvData.contact.github) contactItems.push(`<div style="margin-bottom: 0.35rem;">${ICONS.github}<a href="${formatGithubHref(cvData.contact.github)}" target="_blank" style="color:var(--sidebar-accent); font-weight:600; text-decoration:none;">GitHub</a></div>`);
-    if (cvData.contact.website) contactItems.push(`<div style="margin-bottom: 0.35rem;">${ICONS.website}<a href="${formatHref(cvData.contact.website)}" target="_blank" style="color:var(--sidebar-accent); font-weight:600; text-decoration:none;">Site Web</a></div>`);
-    if (cvData.contact.driver) contactItems.push(`<div style="margin-bottom: 0.35rem;">${ICONS.driver}${cvData.contact.driver}</div>`);
+    if (cvData.contact.email) contactItems.push(`<div style="margin-bottom: 0.35rem;" data-editor-tab="tab-profile" data-editor-focus="input-email">${ICONS.email}<a href="${formatEmailHref(cvData.contact.email)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.email}</a></div>`);
+    if (cvData.contact.phone) contactItems.push(`<div style="margin-bottom: 0.35rem;" data-editor-tab="tab-profile" data-editor-focus="input-phone">${ICONS.phone}<a href="tel:${cvData.contact.phone}" style="color:inherit; text-decoration:none;">${cvData.contact.phone}</a></div>`);
+    if (cvData.contact.location) contactItems.push(`<div style="margin-bottom: 0.35rem;" data-editor-tab="tab-profile" data-editor-focus="input-location">${ICONS.location}${cvData.contact.location}</div>`);
+    if (cvData.contact.linkedin) contactItems.push(`<div style="margin-bottom: 0.35rem;" data-editor-tab="tab-profile" data-editor-focus="input-linkedin">${ICONS.linkedin}<a href="${formatLinkedinHref(cvData.contact.linkedin)}" target="_blank" style="color:var(--sidebar-accent); font-weight:600; text-decoration:none;">LinkedIn</a></div>`);
+    if (cvData.contact.github) contactItems.push(`<div style="margin-bottom: 0.35rem;" data-editor-tab="tab-profile" data-editor-focus="input-github">${ICONS.github}<a href="${formatGithubHref(cvData.contact.github)}" target="_blank" style="color:var(--sidebar-accent); font-weight:600; text-decoration:none;">GitHub</a></div>`);
+    if (cvData.contact.website) contactItems.push(`<div style="margin-bottom: 0.35rem;" data-editor-tab="tab-profile" data-editor-focus="input-website">${ICONS.website}<a href="${formatHref(cvData.contact.website)}" target="_blank" style="color:var(--sidebar-accent); font-weight:600; text-decoration:none;">Site Web</a></div>`);
+    if (cvData.contact.driver) contactItems.push(`<div style="margin-bottom: 0.35rem;" data-editor-tab="tab-profile" data-editor-focus="input-driver">${ICONS.driver}${cvData.contact.driver}</div>`);
 
     let contactHTML = "";
     if (contactItems.length > 0) {
         contactHTML = `
-        <div class="cv-sidebar-left-section">
-        <div class="cv-sidebar-left-title">Contact</div>
+        <div class="cv-sidebar-left-section" data-editor-tab="tab-profile">
+        <div class="cv-sidebar-left-title" data-editor-tab="tab-profile">Contact</div>
         <div class="cv-sidebar-left-content">
             ${contactItems.join('')}
         </div>
@@ -740,29 +779,29 @@ function renderSidebarLayout() {
     }
 
     let skillsHTML = "";
-    cvData.skills.forEach(s => {
+    cvData.skills.forEach((s, index) => {
         skillsHTML += `
-        <div style="margin-bottom:0.5rem;">
-        <div style="font-weight:700; font-size:0.74rem; color:var(--sidebar-accent); margin-bottom:0.2rem;">${s.category}</div>
-        <div style="font-size:0.68rem; opacity:0.9; line-height:1.35;">${s.value}</div>
+        <div style="margin-bottom:0.5rem;" data-editor-tab="tab-skills" data-editor-target="skills" data-editor-index="${index}">
+        <div style="font-weight:700; font-size:0.74rem; color:var(--sidebar-accent); margin-bottom:0.2rem;" data-editor-field="category">${s.category}</div>
+        <div style="font-size:0.68rem; opacity:0.9; line-height:1.35;" data-editor-field="value">${s.value}</div>
         </div>`;
     });
 
-    let langHTML = cvData.languages.map(l => `<li><strong>${l.name}</strong>: ${l.level}</li>`).join('');
-    let certsHTML = cvData.certifications.map(c => `<li>${c}</li>`).join('');
+    let langHTML = cvData.languages.map((l, index) => `<li data-editor-tab="tab-education" data-editor-target="languages" data-editor-index="${index}"><strong data-editor-field="name">${l.name}</strong>: <span data-editor-field="level">${l.level}</span></li>`).join('');
+    let certsHTML = cvData.certifications.map((c, index) => `<li data-editor-tab="tab-education" data-editor-target="certifications" data-editor-index="${index}" data-editor-field="value">${c}</li>`).join('');
 
     // Experiences HTML
     let expHTML = "";
-    cvData.experiences.forEach(exp => {
-        let bulletsHTML = exp.bullets.map(b => `<li>${b}</li>`).join('');
+    cvData.experiences.forEach((exp, index) => {
+        let bulletsHTML = exp.bullets.map(b => `<li data-editor-field="bullets">${b}</li>`).join('');
         expHTML += `
-        <div class="cv-sidebar-item">
+        <div class="cv-sidebar-item" data-editor-tab="tab-experiences" data-editor-target="experiences" data-editor-index="${index}">
         <div class="cv-sidebar-itemhead">
-            <span>${exp.title} — <span class="cv-sidebar-itemorg">${exp.company}</span></span>
-            <span class="cv-sidebar-itemdate">${exp.period}</span>
+            <span><span data-editor-field="title">${exp.title}</span> — <span class="cv-sidebar-itemorg" data-editor-field="company">${exp.company}</span></span>
+            <span class="cv-sidebar-itemdate" data-editor-field="period">${exp.period}</span>
         </div>
-        <div style="font-size: 0.72rem; color:#64748b; margin-bottom:0.15rem;">${exp.location}</div>
-        <ul class="cv-sidebar-bullets">${bulletsHTML}</ul>
+        <div style="font-size: 0.72rem; color:#64748b; margin-bottom:0.15rem;" data-editor-field="location">${exp.location}</div>
+        <ul class="cv-sidebar-bullets" data-editor-field="bullets">${bulletsHTML}</ul>
         </div>`;
     });
 
@@ -770,47 +809,47 @@ function renderSidebarLayout() {
     let formHTML = "";
     if (cvData.formations && cvData.formations.length > 0) {
         let formItemsHTML = "";
-        cvData.formations.forEach(f => {
-            let bulletsHTML = f.bullets ? f.bullets.map(b => `<li>${b}</li>`).join('') : "";
+        cvData.formations.forEach((f, index) => {
+            let bulletsHTML = f.bullets ? f.bullets.map(b => `<li data-editor-field="bullets">${b}</li>`).join('') : "";
             formItemsHTML += `
-        <div class="cv-sidebar-item">
+        <div class="cv-sidebar-item" data-editor-tab="tab-experiences" data-editor-target="formations" data-editor-index="${index}">
             <div class="cv-sidebar-itemhead">
-            <span>${f.title} — <span class="cv-sidebar-itemorg">${f.company}</span></span>
-            <span class="cv-sidebar-itemdate">${f.period}</span>
+            <span><span data-editor-field="title">${f.title}</span> — <span class="cv-sidebar-itemorg" data-editor-field="company">${f.company}</span></span>
+            <span class="cv-sidebar-itemdate" data-editor-field="period">${f.period}</span>
             </div>
-            <div style="font-size: 0.72rem; color:#64748b; margin-bottom:0.15rem;">${f.location}</div>
-            <ul class="cv-sidebar-bullets">${bulletsHTML}</ul>
+            <div style="font-size: 0.72rem; color:#64748b; margin-bottom:0.15rem;" data-editor-field="location">${f.location}</div>
+            <ul class="cv-sidebar-bullets" data-editor-field="bullets">${bulletsHTML}</ul>
         </div>`;
         });
         formHTML = `
         <div class="cv-sidebar-right-section">
-        <div class="cv-sidebar-right-title">Stages & Formations</div>
+        <div class="cv-sidebar-right-title" data-editor-tab="tab-experiences">Stages & Formations</div>
         ${formItemsHTML}
         </div>`;
     }
 
     let projHTML = "";
-    cvData.projects.forEach(proj => {
+    cvData.projects.forEach((proj, index) => {
         projHTML += `
-        <div class="cv-sidebar-item">
+        <div class="cv-sidebar-item" data-editor-tab="tab-projects" data-editor-target="projects" data-editor-index="${index}">
         <div class="cv-sidebar-itemhead">
-            <span>${proj.title}</span>
-            <span class="cv-sidebar-itemdate" style="font-weight:600; color:var(--sidebar-accent);">${proj.stack}</span>
+            <span data-editor-field="title">${proj.title}</span>
+            <span class="cv-sidebar-itemdate" style="font-weight:600; color:var(--sidebar-accent);" data-editor-field="stack">${proj.stack}</span>
         </div>
-        <p style="font-size:0.72rem; color:#475569; margin-top:0.25rem; line-height:1.4;">${proj.description}</p>
+        <p style="font-size:0.72rem; color:#475569; margin-top:0.25rem; line-height:1.4;" data-editor-field="description">${proj.description}</p>
         </div>`;
     });
 
     let eduHTML = "";
-    cvData.education.forEach(edu => {
+    cvData.education.forEach((edu, index) => {
         eduHTML += `
-        <div style="margin-bottom:0.5rem; font-size:0.74rem;">
-        <div style="font-weight:700; color:#0f172a;">${edu.degree}</div>
-        <div style="color:#475569;">${edu.school} | <span style="font-weight:600; color:var(--sidebar-accent);">${edu.period}</span></div>
+        <div style="margin-bottom:0.5rem; font-size:0.74rem;" data-editor-tab="tab-education" data-editor-target="education" data-editor-index="${index}">
+        <div style="font-weight:700; color:#0f172a;" data-editor-field="degree">${edu.degree}</div>
+        <div style="color:#475569;"><span data-editor-field="school">${edu.school}</span> | <span style="font-weight:600; color:var(--sidebar-accent);" data-editor-field="period">${edu.period}</span></div>
         </div>`;
     });
 
-    let actHTML = cvData.activities.map(a => `<div style="font-size:0.72rem; color:#334155; margin-bottom:0.25rem;">▪ ${a}</div>`).join('');
+    let actHTML = cvData.activities.map((a, index) => `<div style="font-size:0.72rem; color:#334155; margin-bottom:0.25rem;" data-editor-tab="tab-education" data-editor-target="activities" data-editor-index="${index}" data-editor-field="value">▪ ${a}</div>`).join('');
 
     return `
     <div class="cv-sidebar-body">
@@ -818,66 +857,66 @@ function renderSidebarLayout() {
         <div class="cv-sidebar-left">
             ${pfpHTML}
             ${contactHTML}
-            ${cvData.skills && cvData.skills.length > 0 ? `
+            ${cvData.skills && cvData.skills.length > 0 && !cvData.hidden_sections?.skills ? `
             <div class="cv-sidebar-left-section">
-                <div class="cv-sidebar-left-title">Compétences</div>
+                <div class="cv-sidebar-left-title" data-editor-tab="tab-skills">Compétences</div>
                 <div class="cv-sidebar-left-content">${skillsHTML}</div>
             </div>
             ` : ''}
-            ${cvData.languages && cvData.languages.length > 0 ? `
+            ${cvData.languages && cvData.languages.length > 0 && !cvData.hidden_sections?.languages ? `
             <div class="cv-sidebar-left-section">
-                <div class="cv-sidebar-left-title">Langues</div>
+                <div class="cv-sidebar-left-title" data-editor-tab="tab-education">Langues</div>
                 <ul class="cv-sidebar-left-bullets" style="color:var(--sidebar-text);">${langHTML}</ul>
             </div>
             ` : ''}
-            ${cvData.interests && cvData.interests.length > 0 ? `
+            ${cvData.interests && cvData.interests.length > 0 && !cvData.hidden_sections?.interests ? `
             <div class="cv-sidebar-left-section">
-                <div class="cv-sidebar-left-title">Intérêts</div>
-                <div class="cv-sidebar-left-content" style="font-size:0.7rem; opacity:0.85;">${cvData.interests.join(', ')}</div>
+                <div class="cv-sidebar-left-title" data-editor-tab="tab-education">Intérêts</div>
+                <div class="cv-sidebar-left-content" style="font-size:0.7rem; opacity:0.85;">${cvData.interests.map((item, idx) => `<span data-editor-tab="tab-education" data-editor-target="interests" data-editor-index="${idx}" data-editor-field="value">${item}</span>`).join(', ')}</div>
             </div>
             ` : ''}
         </div>
         <div class="cv-sidebar-right">
-            <header style="margin-bottom:0.5rem;">
-            <h1 style="font-family:'Plus Jakarta Sans', sans-serif; font-size:1.8rem; font-weight:800; color:#0f172a; line-height:1.15;">${cvData.contact.name}</h1>
-            <p style="font-size:0.85rem; font-weight:700; color:var(--sidebar-accent); text-transform:uppercase; letter-spacing:0.04em; margin-top:0.25rem;">${cvData.contact.title_sub}</p>
+            <header style="margin-bottom:0.5rem;" data-editor-tab="tab-profile">
+            <h1 style="font-family:'Plus Jakarta Sans', sans-serif; font-size:1.8rem; font-weight:800; color:#0f172a; line-height:1.15;" data-editor-tab="tab-profile" data-editor-focus="input-name">${cvData.contact.name}</h1>
+            <p style="font-size:0.85rem; font-weight:700; color:var(--sidebar-accent); text-transform:uppercase; letter-spacing:0.04em; margin-top:0.25rem;" data-editor-tab="tab-profile" data-editor-focus="input-title-sub">${cvData.contact.title_sub}</p>
             </header>
             
-            ${cvData.profile && cvData.profile.trim() ? `
+            ${cvData.profile && cvData.profile.trim() && !cvData.hidden_sections?.profile ? `
             <div class="cv-sidebar-right-section">
-                <div class="cv-sidebar-right-title">Profil</div>
-                <p style="font-size:0.74rem; color:#334155; line-height:1.45; text-align:justify;">${cvData.profile}</p>
+                <div class="cv-sidebar-right-title" data-editor-tab="tab-profile">Profil</div>
+                <p style="font-size:0.74rem; color:#334155; line-height:1.45; text-align:justify;" data-editor-tab="tab-profile" data-editor-focus="input-profile">${cvData.profile}</p>
             </div>
             ` : ''}
 
-            ${cvData.experiences && cvData.experiences.length > 0 ? `
+            ${cvData.experiences && cvData.experiences.length > 0 && !cvData.hidden_sections?.experiences ? `
             <div class="cv-sidebar-right-section">
-                <div class="cv-sidebar-right-title">Expériences Professionnelles</div>
+                <div class="cv-sidebar-right-title" data-editor-tab="tab-experiences">Expériences Professionnelles</div>
                 ${expHTML}
             </div>
             ` : ''}
 
-            ${formHTML}
+            ${cvData.hidden_sections?.formations ? '' : formHTML}
 
-            ${cvData.projects && cvData.projects.length > 0 ? `
+            ${cvData.projects && cvData.projects.length > 0 && !cvData.hidden_sections?.projects ? `
             <div class="cv-sidebar-right-section">
-                <div class="cv-sidebar-right-title">Projets Clés</div>
+                <div class="cv-sidebar-right-title" data-editor-tab="tab-projects">Projets Clés</div>
                 ${projHTML}
             </div>
             ` : ''}
 
-            ${cvData.education && cvData.education.length > 0 ? `
+            ${cvData.education && cvData.education.length > 0 && !cvData.hidden_sections?.education ? `
             <div class="cv-sidebar-right-section">
-                <div class="cv-sidebar-right-title">Éducation</div>
+                <div class="cv-sidebar-right-title" data-editor-tab="tab-education">Éducation</div>
                 ${eduHTML}
             </div>
             ` : ''}
 
-            ${(cvData.certifications && cvData.certifications.length > 0) || (cvData.activities && cvData.activities.length > 0) ? `
+            ${(cvData.certifications && cvData.certifications.length > 0 && !cvData.hidden_sections?.certifications) || (cvData.activities && cvData.activities.length > 0 && !cvData.hidden_sections?.activities) ? `
             <div class="cv-sidebar-right-section">
-                <div class="cv-sidebar-right-title">Certifications & Activités</div>
-                ${cvData.certifications && cvData.certifications.length > 0 ? `<ul class="cv-sidebar-bullets" style="margin-bottom:0.4rem;">${certsHTML}</ul>` : ''}
-                ${cvData.activities && cvData.activities.length > 0 ? `
+                <div class="cv-sidebar-right-title" data-editor-tab="tab-education">Certifications & Activités</div>
+                ${cvData.certifications && cvData.certifications.length > 0 && !cvData.hidden_sections?.certifications ? `<ul class="cv-sidebar-bullets" style="margin-bottom:0.4rem;">${certsHTML}</ul>` : ''}
+                ${cvData.activities && cvData.activities.length > 0 && !cvData.hidden_sections?.activities ? `
                 <div style="border-top:1px solid #e2e8f0; padding-top:0.35rem; margin-top:0.4rem;">
                     ${actHTML}
                 </div>
@@ -894,61 +933,61 @@ function renderMinimalistLayout() {
     let pfpHTML = "";
     if (cvData.contact.image && (!cvData.design || cvData.design.show_pfp)) {
         const sz = cvData.contact.image_size || 80;
-        pfpHTML = `<img src="${cvData.contact.image}" class="cv-mini-pfp" style="width:${sz}px; height:${sz}px;" alt="PFP">`;
+        pfpHTML = `<img src="${cvData.contact.image}" class="cv-mini-pfp" style="width:${sz}px; height:${sz}px;" alt="PFP" data-editor-tab="tab-profile">`;
     }
 
     let contactItems = [];
-    if (cvData.contact.email) contactItems.push(`<div><a href="${formatEmailHref(cvData.contact.email)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.email}</a></div>`);
-    if (cvData.contact.phone) contactItems.push(`<div><a href="tel:${cvData.contact.phone}" style="color:inherit; text-decoration:none;">${cvData.contact.phone}</a></div>`);
-    if (cvData.contact.location) contactItems.push(`<div>${cvData.contact.location}</div>`);
-    if (cvData.contact.linkedin) contactItems.push(`<div><a href="${formatLinkedinHref(cvData.contact.linkedin)}" target="_blank" style="color:inherit; text-decoration:none;">LinkedIn</a></div>`);
-    if (cvData.contact.github) contactItems.push(`<div><a href="${formatGithubHref(cvData.contact.github)}" target="_blank" style="color:inherit; text-decoration:none;">GitHub</a></div>`);
-    if (cvData.contact.website) contactItems.push(`<div><a href="${formatHref(cvData.contact.website)}" target="_blank" style="color:inherit; text-decoration:none;">Site Web</a></div>`);
-    if (cvData.contact.driver) contactItems.push(`<div>${cvData.contact.driver}</div>`);
+    if (cvData.contact.email) contactItems.push(`<div data-editor-tab="tab-profile" data-editor-focus="input-email"><a href="${formatEmailHref(cvData.contact.email)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.email}</a></div>`);
+    if (cvData.contact.phone) contactItems.push(`<div data-editor-tab="tab-profile" data-editor-focus="input-phone"><a href="tel:${cvData.contact.phone}" style="color:inherit; text-decoration:none;">${cvData.contact.phone}</a></div>`);
+    if (cvData.contact.location) contactItems.push(`<div data-editor-tab="tab-profile" data-editor-focus="input-location">${cvData.contact.location}</div>`);
+    if (cvData.contact.linkedin) contactItems.push(`<div data-editor-tab="tab-profile" data-editor-focus="input-linkedin"><a href="${formatLinkedinHref(cvData.contact.linkedin)}" target="_blank" style="color:inherit; text-decoration:none;">LinkedIn</a></div>`);
+    if (cvData.contact.github) contactItems.push(`<div data-editor-tab="tab-profile" data-editor-focus="input-github"><a href="${formatGithubHref(cvData.contact.github)}" target="_blank" style="color:inherit; text-decoration:none;">GitHub</a></div>`);
+    if (cvData.contact.website) contactItems.push(`<div data-editor-tab="tab-profile" data-editor-focus="input-website"><a href="${formatHref(cvData.contact.website)}" target="_blank" style="color:inherit; text-decoration:none;">Site Web</a></div>`);
+    if (cvData.contact.driver) contactItems.push(`<div data-editor-tab="tab-profile" data-editor-focus="input-driver">${cvData.contact.driver}</div>`);
 
     let contactHTML = "";
     if (contactItems.length > 0) {
         contactHTML = `
-        <div class="cv-mini-contacts">
+        <div class="cv-mini-contacts" data-editor-tab="tab-profile">
         ${contactItems.join('')}
         </div>
     `;
     }
 
     let skillsHTML = "";
-    cvData.skills.forEach(s => {
+    cvData.skills.forEach((s, index) => {
         skillsHTML += `
-        <div class="cv-mini-skillcat">
-        <strong>${s.category}</strong>
-        ${s.value}
+        <div class="cv-mini-skillcat" data-editor-tab="tab-skills" data-editor-target="skills" data-editor-index="${index}">
+        <strong data-editor-field="category">${s.category}</strong>
+        <span data-editor-field="value">${s.value}</span>
         </div>`;
     });
 
     let eduHTML = "";
-    cvData.education.forEach(edu => {
+    cvData.education.forEach((edu, index) => {
         eduHTML += `
-        <div style="margin-bottom: 0.6rem; font-size: 0.72rem; color:#3f3f46;">
-        <div style="font-weight:700; color:#09090b;">${edu.degree}</div>
-        <div>${edu.school}</div>
-        <div style="font-style:italic; font-size:0.68rem; color:#71717a; margin-top:0.1rem;">${edu.period}</div>
+        <div style="margin-bottom: 0.6rem; font-size: 0.72rem; color:#3f3f46;" data-editor-tab="tab-education" data-editor-target="education" data-editor-index="${index}">
+        <div style="font-weight:700; color:#09090b;" data-editor-field="degree">${edu.degree}</div>
+        <div data-editor-field="school">${edu.school}</div>
+        <div style="font-style:italic; font-size:0.68rem; color:#71717a; margin-top:0.1rem;" data-editor-field="period">${edu.period}</div>
         </div>`;
     });
 
-    let langHTML = cvData.languages.map(l => `<div style="font-size:0.72rem; margin-bottom:0.25rem; color:#3f3f46;"><strong>${l.name}</strong>: ${l.level}</div>`).join('');
-    let certsHTML = cvData.certifications.map(c => `<li>${c}</li>`).join('');
+    let langHTML = cvData.languages.map((l, index) => `<div style="font-size:0.72rem; margin-bottom:0.25rem; color:#3f3f46;" data-editor-tab="tab-education" data-editor-target="languages" data-editor-index="${index}"><strong data-editor-field="name">${l.name}</strong>: <span data-editor-field="level">${l.level}</span></div>`).join('');
+    let certsHTML = cvData.certifications.map((c, index) => `<li data-editor-tab="tab-education" data-editor-target="certifications" data-editor-index="${index}" data-editor-field="value">${c}</li>`).join('');
 
     // Experiences HTML
     let expHTML = "";
-    cvData.experiences.forEach(exp => {
-        let bulletsHTML = exp.bullets.map(b => `<li>${b}</li>`).join('');
+    cvData.experiences.forEach((exp, index) => {
+        let bulletsHTML = exp.bullets.map(b => `<li data-editor-field="bullets">${b}</li>`).join('');
         expHTML += `
-        <div class="cv-mini-item">
+        <div class="cv-mini-item" data-editor-tab="tab-experiences" data-editor-target="experiences" data-editor-index="${index}">
         <div class="cv-mini-itemhead">
-            <span>${exp.title}</span>
-            <span class="cv-mini-itemdate">${exp.period}</span>
+            <span data-editor-field="title">${exp.title}</span>
+            <span class="cv-mini-itemdate" data-editor-field="period">${exp.period}</span>
         </div>
-        <div class="cv-mini-itemorg">${exp.company} — <span style="font-size:0.7rem; font-style:normal;">${exp.location}</span></div>
-        <ul class="cv-mini-bullets">${bulletsHTML}</ul>
+        <div class="cv-mini-itemorg"><span data-editor-field="company">${exp.company}</span> — <span style="font-size:0.7rem; font-style:normal;" data-editor-field="location">${exp.location}</span></div>
+        <ul class="cv-mini-bullets" data-editor-field="bullets">${bulletsHTML}</ul>
         </div>`;
     });
 
@@ -956,47 +995,47 @@ function renderMinimalistLayout() {
     let formHTML = "";
     if (cvData.formations && cvData.formations.length > 0) {
         let formItemsHTML = "";
-        cvData.formations.forEach(f => {
-            let bulletsHTML = f.bullets ? f.bullets.map(b => `<li>${b}</li>`).join('') : "";
+        cvData.formations.forEach((f, index) => {
+            let bulletsHTML = f.bullets ? f.bullets.map(b => `<li data-editor-field="bullets">${b}</li>`).join('') : "";
             formItemsHTML += `
-        <div class="cv-mini-item">
+        <div class="cv-mini-item" data-editor-tab="tab-experiences" data-editor-target="formations" data-editor-index="${index}">
             <div class="cv-mini-itemhead">
-            <span>${f.title}</span>
-            <span class="cv-mini-itemdate">${f.period}</span>
+            <span data-editor-field="title">${f.title}</span>
+            <span class="cv-mini-itemdate" data-editor-field="period">${f.period}</span>
             </div>
-            <div class="cv-mini-itemorg">${f.company} — <span style="font-size:0.7rem; font-style:normal;">${f.location}</span></div>
-            <ul class="cv-mini-bullets">${bulletsHTML}</ul>
+            <div class="cv-mini-itemorg"><span data-editor-field="company">${f.company}</span> — <span style="font-size:0.7rem; font-style:normal;" data-editor-field="location">${f.location}</span></div>
+            <ul class="cv-mini-bullets" data-editor-field="bullets">${bulletsHTML}</ul>
         </div>`;
         });
         formHTML = `
         <div>
-        <div class="cv-mini-sectitle">Stages & Formations</div>
+        <div class="cv-mini-sectitle" data-editor-tab="tab-experiences">Stages & Formations</div>
         ${formItemsHTML}
         </div>`;
     }
 
     let projHTML = "";
-    cvData.projects.forEach(proj => {
+    cvData.projects.forEach((proj, index) => {
         projHTML += `
-        <div class="cv-mini-item">
+        <div class="cv-mini-item" data-editor-tab="tab-projects" data-editor-target="projects" data-editor-index="${index}">
         <div class="cv-mini-itemhead">
-            <span>${proj.title}</span>
-            <span class="cv-mini-itemdate" style="font-weight:500; font-family:'Inter', sans-serif;">${proj.stack}</span>
+            <span data-editor-field="title">${proj.title}</span>
+            <span class="cv-mini-itemdate" style="font-weight:500; font-family:'Inter', sans-serif;" data-editor-field="stack">${proj.stack}</span>
         </div>
-        <p style="font-size:0.74rem; color:#52525b; margin-top:0.25rem; line-height:1.4;">${proj.description}</p>
+        <p style="font-size:0.74rem; color:#52525b; margin-top:0.25rem; line-height:1.4;" data-editor-field="description">${proj.description}</p>
         </div>`;
     });
 
-    let actHTML = cvData.activities.map(a => `<div style="font-size:0.72rem; color:#52525b; margin-bottom:0.25rem;">— ${a}</div>`).join('');
+    let actHTML = cvData.activities.map((a, index) => `<div style="font-size:0.72rem; color:#52525b; margin-bottom:0.25rem;" data-editor-tab="tab-education" data-editor-target="activities" data-editor-index="${index}" data-editor-field="value">— ${a}</div>`).join('');
 
     return `
     <div class="cv-mini-body">
-        <header class="cv-mini-header">
-        <div style="flex:1;">
-            <h1 class="cv-mini-name">${cvData.contact.name}</h1>
-            <p class="cv-mini-title">${cvData.contact.title_sub}</p>
+        <header class="cv-mini-header" data-editor-tab="tab-profile">
+        <div style="flex:1;" data-editor-tab="tab-profile">
+            <h1 class="cv-mini-name" data-editor-tab="tab-profile" data-editor-focus="input-name">${cvData.contact.name}</h1>
+            <p class="cv-mini-title" data-editor-tab="tab-profile" data-editor-focus="input-title-sub">${cvData.contact.title_sub}</p>
         </div>
-        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:0.5rem;">
+        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:0.5rem;" data-editor-tab="tab-profile">
             ${pfpHTML}
             ${contactHTML}
         </div>
@@ -1004,56 +1043,56 @@ function renderMinimalistLayout() {
         
         <div class="cv-mini-grid">
         <div class="cv-mini-left-col">
-            ${cvData.skills && cvData.skills.length > 0 ? `
+            ${cvData.skills && cvData.skills.length > 0 && !cvData.hidden_sections?.skills ? `
             <div>
-                <div class="cv-mini-sectitle">Compétences</div>
+                <div class="cv-mini-sectitle" data-editor-tab="tab-skills">Compétences</div>
                 ${skillsHTML}
             </div>
             ` : ''}
-            ${cvData.education && cvData.education.length > 0 ? `
+            ${cvData.education && cvData.education.length > 0 && !cvData.hidden_sections?.education ? `
             <div>
-                <div class="cv-mini-sectitle">Éducation</div>
+                <div class="cv-mini-sectitle" data-editor-tab="tab-education">Éducation</div>
                 ${eduHTML}
             </div>
             ` : ''}
-            ${cvData.languages && cvData.languages.length > 0 ? `
+            ${cvData.languages && cvData.languages.length > 0 && !cvData.hidden_sections?.languages ? `
             <div>
-                <div class="cv-mini-sectitle">Langues</div>
+                <div class="cv-mini-sectitle" data-editor-tab="tab-education">Langues</div>
                 ${langHTML}
             </div>
             ` : ''}
-            ${cvData.interests && cvData.interests.length > 0 ? `
+            ${cvData.interests && cvData.interests.length > 0 && !cvData.hidden_sections?.interests ? `
             <div>
-                <div class="cv-mini-sectitle">Intérêts</div>
-                <div style="font-size:0.7rem; color:#52525b; line-height:1.45;">${cvData.interests.join(', ')}</div>
+                <div class="cv-mini-sectitle" data-editor-tab="tab-education">Intérêts</div>
+                <div style="font-size:0.7rem; color:#52525b; line-height:1.45;">${cvData.interests.map((item, idx) => `<span data-editor-tab="tab-education" data-editor-target="interests" data-editor-index="${idx}" data-editor-field="value">${item}</span>`).join(', ')}</div>
             </div>
             ` : ''}
         </div>
         <div class="cv-mini-right-col">
-            ${cvData.profile && cvData.profile.trim() ? `
+            ${cvData.profile && cvData.profile.trim() && !cvData.hidden_sections?.profile ? `
             <div>
-                <div class="cv-mini-sectitle">Profil</div>
-                <p style="font-size:0.74rem; color:#3f3f46; line-height:1.5; text-align:justify; margin-bottom:0.4rem;">${cvData.profile}</p>
+                <div class="cv-mini-sectitle" data-editor-tab="tab-profile">Profil</div>
+                <p style="font-size:0.74rem; color:#3f3f46; line-height:1.5; text-align:justify; margin-bottom:0.4rem;" data-editor-tab="tab-profile" data-editor-focus="input-profile">${cvData.profile}</p>
             </div>
             ` : ''}
-            ${cvData.experiences && cvData.experiences.length > 0 ? `
+            ${cvData.experiences && cvData.experiences.length > 0 && !cvData.hidden_sections?.experiences ? `
             <div>
-                <div class="cv-mini-sectitle">Expériences Professionnelles</div>
+                <div class="cv-mini-sectitle" data-editor-tab="tab-experiences">Expériences Professionnelles</div>
                 ${expHTML}
             </div>
             ` : ''}
-            ${formHTML}
-            ${cvData.projects && cvData.projects.length > 0 ? `
+            ${cvData.hidden_sections?.formations ? '' : formHTML}
+            ${cvData.projects && cvData.projects.length > 0 && !cvData.hidden_sections?.projects ? `
             <div>
-                <div class="cv-mini-sectitle">Projets Clés</div>
+                <div class="cv-mini-sectitle" data-editor-tab="tab-projects">Projets Clés</div>
                 ${projHTML}
             </div>
             ` : ''}
-            ${(cvData.certifications && cvData.certifications.length > 0) || (cvData.activities && cvData.activities.length > 0) ? `
+            ${(cvData.certifications && cvData.certifications.length > 0 && !cvData.hidden_sections?.certifications) || (cvData.activities && cvData.activities.length > 0 && !cvData.hidden_sections?.activities) ? `
             <div>
-                <div class="cv-mini-sectitle">Certifications & Activités</div>
-                ${cvData.certifications && cvData.certifications.length > 0 ? `<ul class="cv-mini-bullets" style="margin-bottom:0.5rem;">${certsHTML}</ul>` : ''}
-                ${cvData.activities && cvData.activities.length > 0 ? `
+                <div class="cv-mini-sectitle" data-editor-tab="tab-education">Certifications & Activités</div>
+                ${cvData.certifications && cvData.certifications.length > 0 && !cvData.hidden_sections?.certifications ? `<ul class="cv-mini-bullets" style="margin-bottom:0.5rem;">${certsHTML}</ul>` : ''}
+                ${cvData.activities && cvData.activities.length > 0 && !cvData.hidden_sections?.activities ? `
                 <div style="border-top:1px solid #f4f4f5; padding-top:0.4rem; margin-top:0.4rem;">
                     ${actHTML}
                 </div>
@@ -1070,20 +1109,20 @@ function renderEuropassLayout() {
     let pfpHTML = "";
     if (cvData.contact.image && (!cvData.design || cvData.design.show_pfp)) {
         const sz = cvData.contact.image_size || 80;
-        pfpHTML = `<img src="${cvData.contact.image}" class="cv-euro-pfp" style="width:${sz}px; height:${sz}px;" alt="PFP">`;
+        pfpHTML = `<img src="${cvData.contact.image}" class="cv-euro-pfp" style="width:${sz}px; height:${sz}px;" alt="PFP" data-editor-tab="tab-profile">`;
     }
 
     let expHTML = "";
-    cvData.experiences.forEach(exp => {
-        let bulletsHTML = exp.bullets.map(b => `<li>${b}</li>`).join('');
+    cvData.experiences.forEach((exp, index) => {
+        let bulletsHTML = exp.bullets.map(b => `<li data-editor-field="bullets">${b}</li>`).join('');
         expHTML += `
-        <div class="cv-euro-item">
+        <div class="cv-euro-item" data-editor-tab="tab-experiences" data-editor-target="experiences" data-editor-index="${index}">
         <div class="cv-euro-itemhead">
-            <span>${exp.title}</span>
-            <span class="cv-euro-itemdate">${exp.period}</span>
+            <span data-editor-field="title">${exp.title}</span>
+            <span class="cv-euro-itemdate" data-editor-field="period">${exp.period}</span>
         </div>
-        <div class="cv-euro-itemorg">${exp.company} | ${exp.location}</div>
-        <ul class="cv-euro-bullets">${bulletsHTML}</ul>
+        <div class="cv-euro-itemorg"><span data-editor-field="company">${exp.company}</span> | <span data-editor-field="location">${exp.location}</span></div>
+        <ul class="cv-euro-bullets" data-editor-field="bullets">${bulletsHTML}</ul>
         </div>`;
     });
 
@@ -1091,21 +1130,21 @@ function renderEuropassLayout() {
     let formHTML = "";
     if (cvData.formations && cvData.formations.length > 0) {
         let formItemsHTML = "";
-        cvData.formations.forEach(f => {
-            let bulletsHTML = f.bullets ? f.bullets.map(b => `<li>${b}</li>`).join('') : "";
+        cvData.formations.forEach((f, index) => {
+            let bulletsHTML = f.bullets ? f.bullets.map(b => `<li data-editor-field="bullets">${b}</li>`).join('') : "";
             formItemsHTML += `
-        <div class="cv-euro-item">
+        <div class="cv-euro-item" data-editor-tab="tab-experiences" data-editor-target="formations" data-editor-index="${index}">
             <div class="cv-euro-itemhead">
-            <span>${f.title}</span>
-            <span class="cv-euro-itemdate">${f.period}</span>
+            <span data-editor-field="title">${f.title}</span>
+            <span class="cv-euro-itemdate" data-editor-field="period">${f.period}</span>
             </div>
-            <div class="cv-euro-itemorg">${f.company} | ${f.location}</div>
-            <ul class="cv-euro-bullets">${bulletsHTML}</ul>
+            <div class="cv-euro-itemorg"><span data-editor-field="company">${f.company}</span> | <span data-editor-field="location">${f.location}</span></div>
+            <ul class="cv-euro-bullets" data-editor-field="bullets">${bulletsHTML}</ul>
         </div>`;
         });
         formHTML = `
         <div class="cv-euro-row">
-        <div class="cv-euro-left">Stages & Formations</div>
+        <div class="cv-euro-left" data-editor-tab="tab-experiences">Stages & Formations</div>
         <div class="cv-euro-right">
             ${formItemsHTML}
         </div>
@@ -1113,52 +1152,52 @@ function renderEuropassLayout() {
     }
 
     let projHTML = "";
-    cvData.projects.forEach(proj => {
+    cvData.projects.forEach((proj, index) => {
         projHTML += `
-        <div class="cv-euro-item">
+        <div class="cv-euro-item" data-editor-tab="tab-projects" data-editor-target="projects" data-editor-index="${index}">
         <div class="cv-euro-itemhead">
-            <span>${proj.title}</span>
-            <span class="cv-euro-itemdate" style="font-weight:600; color:#0055a5;">${proj.stack}</span>
+            <span data-editor-field="title">${proj.title}</span>
+            <span class="cv-euro-itemdate" style="font-weight:600; color:#0055a5;" data-editor-field="stack">${proj.stack}</span>
         </div>
-        <p style="font-size:0.74rem; color:#444444; margin-top:0.25rem; line-height:1.4;">${proj.description}</p>
+        <p style="font-size:0.74rem; color:#444444; margin-top:0.25rem; line-height:1.4;" data-editor-field="description">${proj.description}</p>
         </div>`;
     });
 
     let eduHTML = "";
-    cvData.education.forEach(edu => {
+    cvData.education.forEach((edu, index) => {
         eduHTML += `
-        <div style="margin-bottom:0.5rem; font-size:0.74rem;">
-        <div style="font-weight:700; color:#333333;">${edu.degree}</div>
-        <div style="color:#666666;">${edu.school} | <span style="font-weight:600; color:#0055a5;">${edu.period}</span></div>
+        <div style="margin-bottom:0.5rem; font-size:0.74rem;" data-editor-tab="tab-education" data-editor-target="education" data-editor-index="${index}">
+        <div style="font-weight:700; color:#333333;" data-editor-field="degree">${edu.degree}</div>
+        <div style="color:#666666;"><span data-editor-field="school">${edu.school}</span> | <span style="font-weight:600; color:#0055a5;" data-editor-field="period">${edu.period}</span></div>
         </div>`;
     });
 
     let skillsHTML = "";
-    cvData.skills.forEach(s => {
+    cvData.skills.forEach((s, index) => {
         skillsHTML += `
-        <div style="margin-bottom: 0.5rem;">
-        <div style="font-weight:700; font-size:0.74rem; color:#0055a5; margin-bottom:0.15rem;">${s.category}</div>
-        <div style="font-size:0.7rem; color:#444444; line-height:1.4;">${s.value}</div>
+        <div style="margin-bottom: 0.5rem;" data-editor-tab="tab-skills" data-editor-target="skills" data-editor-index="${index}">
+        <div style="font-weight:700; font-size:0.74rem; color:#0055a5; margin-bottom:0.15rem;" data-editor-field="category">${s.category}</div>
+        <div style="font-size:0.7rem; color:#444444; line-height:1.4;" data-editor-field="value">${s.value}</div>
         </div>`;
     });
 
-    let certsHTML = cvData.certifications.map(c => `<li>${c}</li>`).join('');
-    let actHTML = cvData.activities.map(a => `<li>${a}</li>`).join('');
-    let langHTML = cvData.languages.map(l => `<li><strong>${l.name}</strong>: ${l.level}</li>`).join('');
+    let certsHTML = cvData.certifications.map((c, index) => `<li data-editor-tab="tab-education" data-editor-target="certifications" data-editor-index="${index}" data-editor-field="value">${c}</li>`).join('');
+    let actHTML = cvData.activities.map((a, index) => `<li data-editor-tab="tab-education" data-editor-target="activities" data-editor-index="${index}" data-editor-field="value">${a}</li>`).join('');
+    let langHTML = cvData.languages.map((l, index) => `<li data-editor-tab="tab-education" data-editor-target="languages" data-editor-index="${index}"><strong data-editor-field="name">${l.name}</strong>: <span data-editor-field="level">${l.level}</span></li>`).join('');
     let contactItems = [];
-    if (cvData.contact.email) contactItems.push(`<div class="cv-euro-contact-item">${ICONS.email} Email : <a href="${formatEmailHref(cvData.contact.email)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.email}</a></div>`);
-    if (cvData.contact.phone) contactItems.push(`<div class="cv-euro-contact-item">${ICONS.phone} Téléphone : <a href="tel:${cvData.contact.phone}" style="color:inherit; text-decoration:none;">${cvData.contact.phone}</a></div>`);
-    if (cvData.contact.location) contactItems.push(`<div class="cv-euro-contact-item">${ICONS.location} Adresse : ${cvData.contact.location}</div>`);
-    if (cvData.contact.linkedin) contactItems.push(`<div class="cv-euro-contact-item">${ICONS.linkedin} LinkedIn : <a href="${formatLinkedinHref(cvData.contact.linkedin)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.linkedin}</a></div>`);
-    if (cvData.contact.github) contactItems.push(`<div class="cv-euro-contact-item">${ICONS.github} GitHub : <a href="${formatGithubHref(cvData.contact.github)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.github}</a></div>`);
-    if (cvData.contact.website) contactItems.push(`<div class="cv-euro-contact-item">${ICONS.website} Site Web : <a href="${formatHref(cvData.contact.website)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.website}</a></div>`);
-    if (cvData.contact.driver) contactItems.push(`<div class="cv-euro-contact-item">${ICONS.driver} Permis : ${cvData.contact.driver}</div>`);
+    if (cvData.contact.email) contactItems.push(`<div class="cv-euro-contact-item" data-editor-tab="tab-profile" data-editor-focus="input-email">${ICONS.email} Email : <a href="${formatEmailHref(cvData.contact.email)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.email}</a></div>`);
+    if (cvData.contact.phone) contactItems.push(`<div class="cv-euro-contact-item" data-editor-tab="tab-profile" data-editor-focus="input-phone">${ICONS.phone} Téléphone : <a href="tel:${cvData.contact.phone}" style="color:inherit; text-decoration:none;">${cvData.contact.phone}</a></div>`);
+    if (cvData.contact.location) contactItems.push(`<div class="cv-euro-contact-item" data-editor-tab="tab-profile" data-editor-focus="input-location">${ICONS.location} Adresse : ${cvData.contact.location}</div>`);
+    if (cvData.contact.linkedin) contactItems.push(`<div class="cv-euro-contact-item" data-editor-tab="tab-profile" data-editor-focus="input-linkedin">${ICONS.linkedin} LinkedIn : <a href="${formatLinkedinHref(cvData.contact.linkedin)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.linkedin}</a></div>`);
+    if (cvData.contact.github) contactItems.push(`<div class="cv-euro-contact-item" data-editor-tab="tab-profile" data-editor-focus="input-github">${ICONS.github} GitHub : <a href="${formatGithubHref(cvData.contact.github)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.github}</a></div>`);
+    if (cvData.contact.website) contactItems.push(`<div class="cv-euro-contact-item" data-editor-tab="tab-profile" data-editor-focus="input-website">${ICONS.website} Site Web : <a href="${formatHref(cvData.contact.website)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.website}</a></div>`);
+    if (cvData.contact.driver) contactItems.push(`<div class="cv-euro-contact-item" data-editor-tab="tab-profile" data-editor-focus="input-driver">${ICONS.driver} Permis : ${cvData.contact.driver}</div>`);
 
     let contactHTML = "";
     if (contactItems.length > 0) {
         contactHTML = `
         <div class="cv-euro-row">
-        <div class="cv-euro-left">Coordonnées</div>
+        <div class="cv-euro-left" data-editor-tab="tab-profile">Coordonnées</div>
         <div class="cv-euro-right">
             ${contactItems.join('')}
         </div>
@@ -1168,14 +1207,14 @@ function renderEuropassLayout() {
 
     return `
     <div class="cv-euro-body">
-        <header class="cv-euro-header">
+        <header class="cv-euro-header" data-editor-tab="tab-profile">
         <div class="cv-euro-logo-container">
             europass<span>★</span>
         </div>
         <div class="cv-euro-header-text">
             <div>
-            <h1 class="cv-euro-name">${cvData.contact.name}</h1>
-            <p class="cv-euro-title">${cvData.contact.title_sub}</p>
+            <h1 class="cv-euro-name" data-editor-tab="tab-profile" data-editor-focus="input-name">${cvData.contact.name}</h1>
+            <p class="cv-euro-title" data-editor-tab="tab-profile" data-editor-focus="input-title-sub">${cvData.contact.title_sub}</p>
             </div>
             ${pfpHTML}
         </div>
@@ -1183,83 +1222,82 @@ function renderEuropassLayout() {
 
         ${contactHTML}
 
-        ${cvData.profile && cvData.profile.trim() ? `
+        ${cvData.profile && cvData.profile.trim() && !cvData.hidden_sections?.profile ? `
         <div class="cv-euro-row">
-            <div class="cv-euro-left">Profil</div>
+            <div class="cv-euro-left" data-editor-tab="tab-profile">Profil</div>
             <div class="cv-euro-right">
-            <p style="line-height:1.45; text-align:justify;">${cvData.profile}</p>
+            <p style="line-height:1.45; text-align:justify;" data-editor-tab="tab-profile" data-editor-focus="input-profile">${cvData.profile}</p>
             </div>
         </div>
         ` : ''}
 
-        ${cvData.experiences && cvData.experiences.length > 0 ? `
+        ${cvData.experiences && cvData.experiences.length > 0 && !cvData.hidden_sections?.experiences ? `
         <div class="cv-euro-row">
-            <div class="cv-euro-left">Expériences</div>
+            <div class="cv-euro-left" data-editor-tab="tab-experiences">Expériences</div>
             <div class="cv-euro-right">
             ${expHTML}
             </div>
         </div>
         ` : ''}
 
-        ${formHTML}
+        ${cvData.hidden_sections?.formations ? '' : formHTML}
 
-        ${cvData.projects && cvData.projects.length > 0 ? `
+        ${cvData.projects && cvData.projects.length > 0 && !cvData.hidden_sections?.projects ? `
         <div class="cv-euro-row">
-            <div class="cv-euro-left">Projets</div>
+            <div class="cv-euro-left" data-editor-tab="tab-projects">Projets</div>
             <div class="cv-euro-right">
             ${projHTML}
             </div>
         </div>
         ` : ''}
 
-        ${cvData.skills && cvData.skills.length > 0 ? `
+        ${cvData.skills && cvData.skills.length > 0 && !cvData.hidden_sections?.skills ? `
         <div class="cv-euro-row">
-            <div class="cv-euro-left">Compétences</div>
+            <div class="cv-euro-left" data-editor-tab="tab-skills">Compétences</div>
             <div class="cv-euro-right">
             ${skillsHTML}
             </div>
         </div>
         ` : ''}
 
-        ${cvData.education && cvData.education.length > 0 ? `
+        ${cvData.education && cvData.education.length > 0 && !cvData.hidden_sections?.education ? `
         <div class="cv-euro-row">
-            <div class="cv-euro-left">Éducation</div>
+            <div class="cv-euro-left" data-editor-tab="tab-education">Éducation</div>
             <div class="cv-euro-right">
             ${eduHTML}
             </div>
         </div>
         ` : ''}
 
-        ${cvData.languages && cvData.languages.length > 0 ? `
+        ${cvData.languages && cvData.languages.length > 0 && !cvData.hidden_sections?.languages ? `
         <div class="cv-euro-row">
-            <div class="cv-euro-left">Langues</div>
+            <div class="cv-euro-left" data-editor-tab="tab-education">Langues</div>
             <div class="cv-euro-right">
             <ul class="cv-euro-bullets" style="list-style-type:none; padding-left:0; margin:0;">${langHTML}</ul>
             </div>
         </div>
         ` : ''}
 
-        ${(cvData.certifications && cvData.certifications.length > 0) || (cvData.activities && cvData.activities.length > 0) || (cvData.interests && cvData.interests.length > 0) ? `
+        ${(cvData.certifications && cvData.certifications.length > 0 && !cvData.hidden_sections?.certifications) || (cvData.activities && cvData.activities.length > 0 && !cvData.hidden_sections?.activities) || (cvData.interests && cvData.interests.length > 0 && !cvData.hidden_sections?.interests) ? `
         <div class="cv-euro-row">
-            <div class="cv-euro-left">Divers</div>
+            <div class="cv-euro-left" data-editor-tab="tab-education">Divers</div>
             <div class="cv-euro-right">
-            ${cvData.certifications && cvData.certifications.length > 0 ? `
-                <div style="font-weight:700; color:#0055a5; margin-bottom:0.25rem;">Certifications</div>
+            ${cvData.certifications && cvData.certifications.length > 0 && !cvData.hidden_sections?.certifications ? `
+                <div style="font-weight:700; color:#0055a5; margin-bottom:0.25rem;" data-editor-tab="tab-education">Certifications</div>
                 <ul class="cv-euro-bullets" style="margin-bottom:0.5rem;">${certsHTML}</ul>
             ` : ''}
-            ${cvData.activities && cvData.activities.length > 0 ? `
-                <div style="font-weight:700; color:#0055a5; margin-bottom:0.25rem; margin-top:0.4rem;">Activités</div>
+            ${cvData.activities && cvData.activities.length > 0 && !cvData.hidden_sections?.activities ? `
+                <div style="font-weight:700; color:#0055a5; margin-bottom:0.25rem; margin-top:0.4rem;" data-editor-tab="tab-education">Activités</div>
                 <ul class="cv-euro-bullets" style="margin-bottom:0.5rem;">${actHTML}</ul>
             ` : ''}
-            ${cvData.interests && cvData.interests.length > 0 ? `
-                <div style="font-weight:700; color:#0055a5; margin-bottom:0.25rem; margin-top:0.4rem;">Intérêts</div>
-                <div style="font-size:0.72rem; color:#444444;">${cvData.interests.join(', ')}</div>
+            ${cvData.interests && cvData.interests.length > 0 && !cvData.hidden_sections?.interests ? `
+                <div style="font-weight:700; color:#0055a5; margin-bottom:0.25rem; margin-top:0.4rem;" data-editor-tab="tab-education">Intérêts</div>
+                <div style="font-size:0.7rem; color:#444444;">${cvData.interests.map((item, idx) => `<span data-editor-tab="tab-education" data-editor-target="interests" data-editor-index="${idx}" data-editor-field="value">${item}</span>`).join(', ')}</div>
             ` : ''}
             </div>
         </div>
         ` : ''}
-    </div>
-    `;
+    </div>`;
 }
 
 function renderPreview() {
@@ -1443,9 +1481,26 @@ function renderPreview() {
         }
     }
 
-    // 5. Measure total height with spacers included
-    const contentHeightPx = printContainer.offsetHeight;
-    const totalPages = Math.ceil(contentHeightPx / pageContentHeightPx) || 1;
+    // 5. Measure total height with spacers included based on actual content elements
+    let maxContentBottom = 0;
+    const contentNodes = printContainer.querySelectorAll('p, li, h1, h2, h3, h4, h5, h6, img, svg, a, span, .cv-designed-cardtitle, .cv-prof-itemhead, .cv-ats-itemhead, .cv-sidebar-itemhead, .cv-mini-itemhead, .cv-euro-itemhead, .cv-prof-sectitle, .cv-designed-sectitle, .cv-ats-sectitle, .cv-sidebar-right-title, .cv-sidebar-left-title, .cv-mini-sectitle, .cv-euro-sectitle');
+    contentNodes.forEach(el => {
+        if (el.offsetHeight > 0) {
+            let top = 0;
+            let p = el;
+            while (p && p !== printContainer) {
+                top += p.offsetTop;
+                p = p.offsetParent;
+            }
+            const bottom = top + el.offsetHeight;
+            if (bottom > maxContentBottom) {
+                maxContentBottom = bottom;
+            }
+        }
+    });
+
+    const effectiveHeight = maxContentBottom > 0 ? (maxContentBottom - 5) : printContainer.offsetHeight;
+    const totalPages = Math.max(1, Math.ceil(effectiveHeight / pageContentHeightPx));
 
     // 6. Clear screen container and populate A4 sliced pages
     screenContainer.innerHTML = '';
@@ -1476,7 +1531,7 @@ function renderPreview() {
         pageBadge.style.pointerEvents = 'none';
         pageBadge.innerText = `Page ${i + 1} / ${totalPages}`;
 
-        const showPageNum = !cvData.design || cvData.design.show_page_number !== false;
+        const showPageNum = cvData.design && cvData.design.show_page_number === true;
         pageBadge.style.display = showPageNum ? 'block' : 'none';
 
         pageSheet.appendChild(pageBadge);
@@ -1549,7 +1604,7 @@ function populateFormInputs() {
         document.getElementById('design-section-spacing').value = cvData.design.section_spacing || 1.2;
         document.getElementById('lbl-design-section-spacing').innerText = `Espacement des sections : ${cvData.design.section_spacing || 1.2}rem`;
         document.getElementById('design-show-pfp').checked = cvData.design.show_pfp !== false;
-        document.getElementById('design-show-page-number').checked = cvData.design.show_page_number !== false;
+        document.getElementById('design-show-page-number').checked = cvData.design.show_page_number === true;
 
         // Image design controls
         document.getElementById('design-pfp-shape').value = cvData.design.pfp_shape || 'circle';
@@ -1591,6 +1646,56 @@ function populateFormInputs() {
     renderSimpleList('certifications');
     renderSimpleList('activities');
     renderSimpleList('interests');
+
+    updateSectionVisibilityUI();
+}
+
+function toggleSectionVisibility(key) {
+    if (!cvData.hidden_sections) {
+        cvData.hidden_sections = {};
+    }
+    cvData.hidden_sections[key] = !cvData.hidden_sections[key];
+    saveAndSync();
+    updateSectionVisibilityUI();
+}
+
+function updateSectionVisibilityUI() {
+    if (!cvData.hidden_sections) cvData.hidden_sections = {};
+
+    const sections = ['profile', 'experiences', 'formations', 'projects', 'skills', 'education', 'certifications', 'activities', 'languages', 'interests'];
+
+    sections.forEach(key => {
+        const btn = document.getElementById(`btn-hide-${key}`);
+        const isHidden = !!cvData.hidden_sections[key];
+
+        if (btn) {
+            if (isHidden) {
+                btn.innerHTML = `👁️ Afficher`;
+                btn.classList.add('is-hidden');
+                btn.title = "Cliquez pour afficher cette section sur le CV";
+            } else {
+                btn.innerHTML = `👁️ Masquer`;
+                btn.classList.remove('is-hidden');
+                btn.title = "Cliquez pour masquer cette section du CV (les données sont conservées)";
+            }
+        }
+
+        let targetEl = null;
+        if (key === 'profile') {
+            const inputProf = document.getElementById('input-profile');
+            if (inputProf) targetEl = inputProf.closest('.form-card');
+        } else {
+            targetEl = document.getElementById(`list-${key}`);
+        }
+
+        if (targetEl) {
+            if (isHidden) {
+                targetEl.classList.add('section-hidden-dimmed');
+            } else {
+                targetEl.classList.remove('section-hidden-dimmed');
+            }
+        }
+    });
 }
 
 // Dynamic Skill Categories panel renderer
@@ -1606,11 +1711,11 @@ function renderSkillsList() {
         <button class="pfp-btn" style="position:absolute; top:0.75rem; right:0.75rem; color:#ef4444; border-color:transparent;" onclick="deleteSkillCategory(${index})">✕</button>
         <div class="form-group" style="margin-right:2rem; margin-bottom:0.5rem;">
         <label>Nom de Catégorie</label>
-        <input type="text" value="${s.category}" oninput="updateSkillCategory(${index}, 'category', this.value)">
+        <input type="text" data-field="category" value="${s.category}" oninput="updateSkillCategory(${index}, 'category', this.value)">
         </div>
         <div class="form-group">
         <label>Compétences (Séparez par virgules)</label>
-        <textarea rows="3" placeholder="HTML, CSS, JavaScript, ..." oninput="updateSkillCategory(${index}, 'value', this.value)">${s.value}</textarea>
+        <textarea rows="3" data-field="value" placeholder="HTML, CSS, JavaScript, ..." oninput="updateSkillCategory(${index}, 'value', this.value)">${s.value}</textarea>
         </div>
     `;
         container.appendChild(card);
@@ -1751,7 +1856,7 @@ function renderSimpleList(key) {
         div.style.gap = "0.5rem";
         div.style.marginBottom = "0.5rem";
         div.innerHTML = `
-        <input type="text" value="${item}" style="flex:1; background:var(--bg-input); border:1px solid var(--border-color); color:white; padding:0.4rem; font-size:0.8rem; border-radius:4px;" oninput="updateSimpleListItem('${key}', ${index}, this.value)">
+        <input type="text" data-field="value" data-index="${index}" value="${item}" style="flex:1; background:var(--bg-input); border:1px solid var(--border-color); color:white; padding:0.4rem; font-size:0.8rem; border-radius:4px;" oninput="updateSimpleListItem('${key}', ${index}, this.value)">
         <button class="pfp-btn" style="color:#ef4444; border-color:rgba(239,68,68,0.15);" onclick="deleteSimpleItem('${key}', ${index})">✕</button>
     `;
         container.appendChild(div);
@@ -2190,14 +2295,42 @@ function attachEditorBindings(container) {
             header.setAttribute('data-editor-target', match.key);
         }
 
-        let sectionContainer = header.closest('section, .section, .cv-sidebar-right-section, .cv-sidebar-left-section, .cv-mini-right-col > div, .cv-mini-left-col > div, .cv-euro-row');
-        if (!sectionContainer) {
-            sectionContainer = header.parentElement;
+        let sectionContainer = header.closest('section, .section, .cv-sidebar-right-section, .cv-sidebar-left-section, .cv-mini-right-col > div, .cv-mini-left-col > div, .cv-euro-row, .cv-ats-section');
+        
+        let isRootContainer = false;
+        if (!sectionContainer || sectionContainer === container ||
+            sectionContainer.classList.contains('cv-ats-body') ||
+            sectionContainer.classList.contains('cv-prof-body') ||
+            sectionContainer.classList.contains('cv-designed-body') ||
+            sectionContainer.classList.contains('cv-mini-body') ||
+            sectionContainer.classList.contains('cv-euro-body') ||
+            sectionContainer.classList.contains('cv-sidebar-body')) {
+            isRootContainer = true;
+        }
+
+        let sectionItems = [];
+        let sectionChildren = [];
+
+        if (!isRootContainer && sectionContainer) {
+            sectionChildren = Array.from(sectionContainer.querySelectorAll('h1, h2, h3, h4, h5, h6, p, li, span, div, a, .cv-designed-simpleitem'));
+            sectionItems = Array.from(sectionContainer.querySelectorAll('.cv-designed-card, .cv-prof-item, .cv-ats-item, .cv-sidebar-item, .cv-mini-item, .cv-euro-item, .skill-cat, .cv-prof-skillrow, .cv-designed-simpleitem, .cv-mini-skillcat, .cv-euro-item-row'));
+        } else {
+            let curr = header.nextElementSibling;
+            const headerSelectors = 'h2, h3, h4, .cv-designed-sectitle, .cv-prof-sectitle, .cv-ats-sectitle, .cv-sidebar-right-title, .cv-sidebar-left-title, .cv-mini-sectitle, .cv-euro-sectitle';
+            while (curr && !curr.matches(headerSelectors)) {
+                if (curr.matches('.cv-designed-card, .cv-prof-item, .cv-ats-item, .cv-sidebar-item, .cv-mini-item, .cv-euro-item, .skill-cat, .cv-prof-skillrow, .cv-designed-simpleitem, .cv-mini-skillcat, .cv-euro-item-row')) {
+                    sectionItems.push(curr);
+                }
+                curr.querySelectorAll('.cv-designed-card, .cv-prof-item, .cv-ats-item, .cv-sidebar-item, .cv-mini-item, .cv-euro-item, .skill-cat, .cv-prof-skillrow, .cv-designed-simpleitem, .cv-mini-skillcat, .cv-euro-item-row').forEach(it => sectionItems.push(it));
+                
+                sectionChildren.push(curr);
+                curr.querySelectorAll('h1, h2, h3, h4, h5, h6, p, li, span, div, a, .cv-designed-simpleitem').forEach(ch => sectionChildren.push(ch));
+                curr = curr.nextElementSibling;
+            }
         }
 
         // Set target on all general children in this section first
-        const allChildren = sectionContainer.querySelectorAll('h1, h2, h3, h4, h5, h6, p, li, span, div, a, .cv-designed-simpleitem');
-        allChildren.forEach(child => {
+        sectionChildren.forEach(child => {
             child.setAttribute('data-editor-tab', match.tab);
             if (match.key) {
                 child.setAttribute('data-editor-target', match.key);
@@ -2205,38 +2338,57 @@ function attachEditorBindings(container) {
         });
 
         // Set indexed targets on specific item cards
-        const items = sectionContainer.querySelectorAll('.cv-designed-card, .cv-prof-item, .cv-ats-item, .cv-sidebar-item, .cv-mini-item, .cv-euro-item, .skill-cat, .cv-prof-skillrow, .cv-designed-simpleitem, .cv-mini-skillcat, .cv-euro-item-row');
-
-        items.forEach((item, index) => {
+        sectionItems.forEach((item, index) => {
             item.setAttribute('data-editor-tab', match.tab);
             if (match.key) {
                 item.setAttribute('data-editor-target', match.key);
                 item.setAttribute('data-editor-index', index);
 
-                // Map title fields
-                item.querySelectorAll('.cv-designed-cardtitle, .cv-prof-cardtitle, .cv-ats-cardtitle, .cv-sidebar-cardtitle, .cv-mini-cardtitle, .cv-euro-cardtitle, h3, h4').forEach(el => {
-                    el.setAttribute('data-editor-field', match.key === 'education' ? 'degree' : (match.key === 'languages' ? 'name' : 'title'));
-                });
+                if (match.key === 'skills') {
+                    const catEl = item.querySelector('strong, .cv-designed-cardtitle, div:first-child');
+                    if (catEl) {
+                        catEl.setAttribute('data-editor-field', 'category');
+                        catEl.querySelectorAll('*').forEach(c => c.setAttribute('data-editor-field', 'category'));
+                    }
+                    item.querySelectorAll('.cv-designed-tags, span, p').forEach(el => {
+                        if (el !== catEl && !catEl?.contains(el)) {
+                            el.setAttribute('data-editor-field', 'value');
+                            el.querySelectorAll('*').forEach(c => c.setAttribute('data-editor-field', 'value'));
+                        }
+                    });
+                } else if (match.key === 'certifications' || match.key === 'activities' || match.key === 'interests') {
+                    item.setAttribute('data-editor-field', 'value');
+                    item.querySelectorAll('*').forEach(c => c.setAttribute('data-editor-field', 'value'));
+                } else {
+                    // Map title fields
+                    item.querySelectorAll('.cv-designed-cardtitle, .cv-prof-itemhead, .cv-ats-itemhead, .cv-sidebar-itemhead, .cv-mini-itemhead, .cv-euro-itemhead, h3, h4, .cv-designed-cardtitle > span:first-child, .cv-prof-itemhead > span:first-child, .cv-ats-itemhead > span:first-child, .cv-sidebar-itemhead > span:first-child, .cv-mini-itemhead > span:first-child, .cv-euro-itemhead > span:first-child').forEach(el => {
+                        el.setAttribute('data-editor-field', match.key === 'education' ? 'degree' : (match.key === 'languages' ? 'name' : 'title'));
+                    });
 
-                // Map company / school / level fields
-                item.querySelectorAll('.cv-designed-cardorg, .cv-prof-cardorg, .cv-ats-cardorg, .cv-sidebar-cardorg, .cv-mini-cardorg, .cv-euro-cardorg').forEach(el => {
-                    el.setAttribute('data-editor-field', match.key === 'education' ? 'school' : (match.key === 'languages' ? 'level' : 'company'));
-                });
+                    // Map company / school / level / stack fields
+                    item.querySelectorAll('.cv-designed-cardorg, .cv-prof-itemorg, .cv-ats-itemsub, .cv-sidebar-itemorg, .cv-mini-itemorg, .cv-euro-itemorg').forEach(el => {
+                        el.setAttribute('data-editor-field', match.key === 'education' ? 'school' : (match.key === 'languages' ? 'level' : 'company'));
+                    });
 
-                // Map period fields
-                item.querySelectorAll('.cv-designed-carddate, .cv-prof-carddate, .cv-ats-carddate, .cv-sidebar-carddate, .cv-mini-carddate, .cv-euro-carddate').forEach(el => {
-                    el.setAttribute('data-editor-field', 'period');
-                });
+                    // Map period fields
+                    item.querySelectorAll('.cv-designed-carddate, .cv-prof-itemdate, .cv-sidebar-itemdate, .cv-mini-itemdate, .cv-euro-itemdate').forEach(el => {
+                        if (match.key === 'projects') {
+                            el.setAttribute('data-editor-field', 'stack');
+                        } else {
+                            el.setAttribute('data-editor-field', 'period');
+                        }
+                    });
 
-                // Map location fields
-                item.querySelectorAll('.cv-designed-cardloc, .cv-prof-cardloc, .cv-ats-cardloc, .cv-sidebar-cardloc, .cv-mini-cardloc, .cv-euro-cardloc').forEach(el => {
-                    el.setAttribute('data-editor-field', 'location');
-                });
+                    // Map location fields
+                    item.querySelectorAll('.cv-designed-cardloc, .cv-prof-cardloc, .cv-ats-cardloc, .cv-sidebar-cardloc, .cv-mini-cardloc, .cv-euro-cardloc').forEach(el => {
+                        el.setAttribute('data-editor-field', 'location');
+                    });
 
-                // Map description / bullets fields
-                item.querySelectorAll('.cv-designed-bullets, .cv-prof-bullets, .cv-ats-bullets, .cv-sidebar-bullets, .cv-mini-bullets, .cv-euro-bullets, .cv-designed-bullets li, .cv-prof-bullets li, .cv-ats-bullets li, p').forEach(el => {
-                    el.setAttribute('data-editor-field', match.key === 'projects' ? 'description' : 'bullets');
-                });
+                    // Map description / bullets fields
+                    item.querySelectorAll('.cv-designed-bullets, .cv-prof-bullets, .cv-ats-bullets, .cv-sidebar-bullets, .cv-mini-bullets, .cv-euro-bullets, .cv-designed-bullets li, .cv-prof-bullets li, .cv-ats-bullets li, p').forEach(el => {
+                        el.setAttribute('data-editor-field', match.key === 'projects' ? 'description' : 'bullets');
+                    });
+                }
             }
         });
     });
@@ -2266,22 +2418,17 @@ function attachEditorBindings(container) {
         hdr.setAttribute('data-editor-tab', 'tab-profile');
         hdr.querySelectorAll('*').forEach(c => c.setAttribute('data-editor-tab', 'tab-profile'));
 
-        // Name is an h1 inside header
         const nameEl = hdr.querySelector('h1');
         if (nameEl) {
             nameEl.setAttribute('data-editor-focus', 'input-name');
             nameEl.querySelectorAll('*').forEach(c => c.setAttribute('data-editor-focus', 'input-name'));
         }
-        // Title is a p inside header
         const titleEl = hdr.querySelector('p');
         if (titleEl) {
             titleEl.setAttribute('data-editor-focus', 'input-title-sub');
             titleEl.querySelectorAll('*').forEach(c => c.setAttribute('data-editor-focus', 'input-title-sub'));
         }
     });
-
-    // For the sidebar layout, the profile section is a .cv-sidebar-right-section containing "Profil" title
-    // This is already handled by the keyword map + allChildren binding above.
 
     // Bind specific profile fields for direct input focusing
     const focusSelectors = {
@@ -2298,21 +2445,17 @@ function attachEditorBindings(container) {
     }
 
     // Map dynamic contact items based on text content / icons
-    // Include both named-class containers AND the sidebar-left-content (which wraps contact in sidebar layout)
     const contactContainerSels = [
         '.cv-designed-contacts', '.cv-prof-contacts', '.cv-ats-contacts',
         '.cv-sidebar-contacts', '.cv-mini-contacts', '.cv-euro-contacts'
     ];
 
-    // For the sidebar layout, find the contact section by its title text
     container.querySelectorAll('.cv-sidebar-left-section').forEach(section => {
         const title = section.querySelector('.cv-sidebar-left-title');
         if (title && title.textContent.toLowerCase().includes('contact')) {
             section.setAttribute('data-editor-tab', 'tab-profile');
             section.querySelectorAll('*').forEach(c => c.setAttribute('data-editor-tab', 'tab-profile'));
-            contactContainerSels.push(null); // marker — we handle it inline below
 
-            // Bind each contact row div inside the contact section
             section.querySelectorAll('.cv-sidebar-left-content > div').forEach(row => {
                 const text = row.textContent.toLowerCase();
                 const link = row.querySelector('a');
@@ -2347,7 +2490,6 @@ function attachEditorBindings(container) {
         }
     });
 
-    // Standard contact selectors for non-sidebar layouts
     container.querySelectorAll('.cv-designed-contacts span, .cv-prof-contacts span, .cv-ats-contacts span, .cv-sidebar-contacts span, .cv-mini-contacts span, .cv-euro-contacts span, .cv-designed-contacts a, .cv-prof-contacts a, .cv-ats-contacts a, .cv-sidebar-contacts a, .cv-mini-contacts a, .cv-euro-contacts a').forEach(el => {
         const text = el.textContent.toLowerCase();
         const href = el.getAttribute('href') || '';
@@ -2375,7 +2517,6 @@ function attachEditorBindings(container) {
         }
     });
 
-    // Bind sidebar-left profile photo to tab-profile
     container.querySelectorAll('.cv-sidebar-pfp').forEach(el => {
         el.setAttribute('data-editor-tab', 'tab-profile');
     });
@@ -2389,14 +2530,18 @@ document.getElementById('screen-preview-container').addEventListener('click', (e
         return; // Don't intercept — let the browser follow the link
     }
 
+    const focusTarget = e.target.closest('[data-editor-focus]');
     const indexedTarget = e.target.closest('[data-editor-index]');
-    const target = e.target.closest('[data-editor-target], [data-editor-tab], [data-editor-focus]');
-    if (!target) return;
+    const fieldTarget = e.target.closest('[data-editor-field]');
+    const tabTarget = e.target.closest('[data-editor-tab]');
 
-    const tabId = target.getAttribute('data-editor-tab');
-    const targetKey = indexedTarget ? indexedTarget.getAttribute('data-editor-target') : target.getAttribute('data-editor-target');
+    if (!tabTarget && !focusTarget && !indexedTarget) return;
+
+    const tabId = tabTarget ? tabTarget.getAttribute('data-editor-tab') : (focusTarget ? focusTarget.getAttribute('data-editor-tab') : null);
+    const targetKey = indexedTarget ? indexedTarget.getAttribute('data-editor-target') : (tabTarget ? tabTarget.getAttribute('data-editor-target') : null);
     const index = indexedTarget ? indexedTarget.getAttribute('data-editor-index') : null;
-    const focusId = target.getAttribute('data-editor-focus');
+    const focusId = focusTarget ? focusTarget.getAttribute('data-editor-focus') : null;
+    const field = fieldTarget ? fieldTarget.getAttribute('data-editor-field') : (e.target.getAttribute('data-editor-field') || null);
 
     setEditorMode('data');
     if (tabId) {
@@ -2436,9 +2581,15 @@ document.getElementById('screen-preview-container').addEventListener('click', (e
                     setTimeout(() => { card.style.animation = ''; }, 800);
 
                     // Focus the specific field if targeted
-                    const field = target.getAttribute('data-editor-field') || e.target.getAttribute('data-editor-field');
                     if (field) {
-                        const inputEl = card.querySelector(`[data-field="${field}"], textarea[data-field="${field}"]`);
+                        let inputEl = card.querySelector(`[data-field="${field}"], textarea[data-field="${field}"]`);
+                        if (!inputEl && targetKey === 'skills') {
+                            if (field === 'category') inputEl = card.querySelector('input[data-field="category"], input[type="text"]');
+                            if (field === 'value') inputEl = card.querySelector('textarea[data-field="value"], textarea');
+                        }
+                        if (!inputEl && (targetKey === 'certifications' || targetKey === 'activities' || targetKey === 'interests')) {
+                            inputEl = card.querySelector('input[data-field="value"], input[type="text"]');
+                        }
                         if (inputEl) {
                             inputEl.focus();
                             inputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });

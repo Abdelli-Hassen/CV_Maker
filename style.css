@@ -210,6 +210,45 @@ body {
     cursor: pointer;
 }
 
+.section-title-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.btn-toggle-section {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: var(--text-muted) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    padding: 0.2rem 0.55rem !important;
+    border-radius: 4px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: all 0.2s ease;
+}
+
+.btn-toggle-section:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+}
+
+.btn-toggle-section.is-hidden {
+    background: rgba(239, 68, 68, 0.2) !important;
+    color: #fca5a5 !important;
+    border-color: rgba(239, 68, 68, 0.4) !important;
+}
+
+.section-hidden-dimmed {
+    opacity: 0.4;
+    filter: grayscale(0.6);
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
 .form-card {
     background: var(--bg-card);
     border: 1px solid var(--border-color);

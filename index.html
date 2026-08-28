@@ -173,7 +173,10 @@
               </div>
             </div>
 
-            <div class="panel-section-title">Profil / Résumé</div>
+            <div class="panel-section-title">
+              <span>Profil / Résumé</span>
+              <button class="btn-toggle-section" id="btn-hide-profile" onclick="toggleSectionVisibility('profile')">👁️ Masquer</button>
+            </div>
             <div class="form-card">
               <div class="form-group">
                 <textarea id="input-profile" rows="6" placeholder="Décrivez votre parcours..."
@@ -186,14 +189,20 @@
           <!-- Tab 2: Expériences (Collapsible Cards) -->
           <div id="tab-experiences" class="tab-panel">
             <div class="panel-section-title">
-              Parcours Professionnel
-              <button onclick="addItem('experiences')">+ Ajouter</button>
+              <span>Parcours Professionnel</span>
+              <div class="section-title-actions">
+                <button class="btn-toggle-section" id="btn-hide-experiences" onclick="toggleSectionVisibility('experiences')">👁️ Masquer</button>
+                <button onclick="addItem('experiences')">+ Ajouter</button>
+              </div>
             </div>
             <div id="list-experiences"></div>
 
             <div class="panel-section-title" style="margin-top: 1.5rem;">
-              Stages / Formations
-              <button onclick="addItem('formations')">+ Ajouter</button>
+              <span>Stages / Formations</span>
+              <div class="section-title-actions">
+                <button class="btn-toggle-section" id="btn-hide-formations" onclick="toggleSectionVisibility('formations')">👁️ Masquer</button>
+                <button onclick="addItem('formations')">+ Ajouter</button>
+              </div>
             </div>
             <div id="list-formations"></div>
           </div>
@@ -201,8 +210,11 @@
           <!-- Tab 3: Projets (Collapsible Cards) -->
           <div id="tab-projects" class="tab-panel">
             <div class="panel-section-title">
-              Projets & Réalisations
-              <button onclick="addItem('projects')">+ Ajouter</button>
+              <span>Projets & Réalisations</span>
+              <div class="section-title-actions">
+                <button class="btn-toggle-section" id="btn-hide-projects" onclick="toggleSectionVisibility('projects')">👁️ Masquer</button>
+                <button onclick="addItem('projects')">+ Ajouter</button>
+              </div>
             </div>
             <div id="list-projects"></div>
           </div>
@@ -210,8 +222,11 @@
           <!-- Tab 4: Compétences (Refactored Dynamic List) -->
           <div id="tab-skills" class="tab-panel">
             <div class="panel-section-title">
-              Catégories de Compétences
-              <button onclick="addSkillCategory()">+ Catégorie</button>
+              <span>Catégories de Compétences</span>
+              <div class="section-title-actions">
+                <button class="btn-toggle-section" id="btn-hide-skills" onclick="toggleSectionVisibility('skills')">👁️ Masquer</button>
+                <button onclick="addSkillCategory()">+ Catégorie</button>
+              </div>
             </div>
             <div id="list-skills" style="display: flex; flex-direction: column; gap: 0.85rem;"></div>
           </div>
@@ -220,32 +235,47 @@
           <div id="tab-education" class="tab-panel">
 
             <div class="panel-section-title">
-              Formations / Études
-              <button onclick="addItem('education')">+ Ajouter</button>
+              <span>Formations / Études</span>
+              <div class="section-title-actions">
+                <button class="btn-toggle-section" id="btn-hide-education" onclick="toggleSectionVisibility('education')">👁️ Masquer</button>
+                <button onclick="addItem('education')">+ Ajouter</button>
+              </div>
             </div>
             <div id="list-education"></div>
 
             <div class="panel-section-title">
-              Certifications
-              <button onclick="addSimpleItem('certifications')">+ Ajouter</button>
+              <span>Certifications</span>
+              <div class="section-title-actions">
+                <button class="btn-toggle-section" id="btn-hide-certifications" onclick="toggleSectionVisibility('certifications')">👁️ Masquer</button>
+                <button onclick="addSimpleItem('certifications')">+ Ajouter</button>
+              </div>
             </div>
             <div id="list-certifications"></div>
 
             <div class="panel-section-title">
-              Engagements / Activités
-              <button onclick="addSimpleItem('activities')">+ Ajouter</button>
+              <span>Engagements / Activités</span>
+              <div class="section-title-actions">
+                <button class="btn-toggle-section" id="btn-hide-activities" onclick="toggleSectionVisibility('activities')">👁️ Masquer</button>
+                <button onclick="addSimpleItem('activities')">+ Ajouter</button>
+              </div>
             </div>
             <div id="list-activities"></div>
 
             <div class="panel-section-title">
-              Langues
-              <button onclick="addItem('languages')">+ Ajouter</button>
+              <span>Langues</span>
+              <div class="section-title-actions">
+                <button class="btn-toggle-section" id="btn-hide-languages" onclick="toggleSectionVisibility('languages')">👁️ Masquer</button>
+                <button onclick="addItem('languages')">+ Ajouter</button>
+              </div>
             </div>
             <div id="list-languages"></div>
 
             <div class="panel-section-title">
-              Centres d'intérêt
-              <button onclick="addSimpleItem('interests')">+ Ajouter</button>
+              <span>Centres d'intérêt</span>
+              <div class="section-title-actions">
+                <button class="btn-toggle-section" id="btn-hide-interests" onclick="toggleSectionVisibility('interests')">👁️ Masquer</button>
+                <button onclick="addSimpleItem('interests')">+ Ajouter</button>
+              </div>
             </div>
             <div id="list-interests"></div>
 
