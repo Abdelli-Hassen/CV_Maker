@@ -2522,7 +2522,48 @@ function attachEditorBindings(container) {
     });
 }
 
-// Attach click listener for redirecting preview clicks to the editor
+/* ----------------------------------------------------
+    MOBILE & RESPONSIVE VIEW ENGINE
+    ---------------------------------------------------- */
+function switchMobileView(view) {
+    const appContainer = document.getElementById('app-container');
+    const btnEditor = document.getElementById('btn-view-editor');
+    const btnPreview = document.getElementById('btn-view-preview');
+
+    if (!appContainer) return;
+
+    if (view === 'preview') {
+        appContainer.classList.remove('show-editor');
+        appContainer.classList.add('show-preview');
+        if (btnEditor) btnEditor.classList.remove('active');
+        if (btnPreview) btnPreview.classList.add('active');
+        autoFitMobileZoom();
+    } else {
+        appContainer.classList.remove('show-preview');
+        appContainer.classList.add('show-editor');
+        if (btnPreview) btnPreview.classList.remove('active');
+        if (btnEditor) btnEditor.classList.add('active');
+    }
+}
+
+function autoFitMobileZoom() {
+    if (window.innerWidth <= 900) {
+        // Calculate appropriate scale for 210mm (approx 794px at 96dpi) sheet on mobile screen
+        const screenWidth = window.innerWidth - 30; // accounting for padding
+        const targetWidth = 794;
+        const calculatedScale = Math.min(1.0, Math.max(0.35, screenWidth / targetWidth));
+        previewZoom = parseFloat(calculatedScale.toFixed(2));
+        applyZoom();
+    }
+}
+
+window.addEventListener('resize', () => {
+    if (window.innerWidth <= 900 && document.getElementById('app-container').classList.contains('show-preview')) {
+        autoFitMobileZoom();
+    }
+});
+
+// Update click-to-edit to auto switch back to editor on mobile when preview item clicked
 document.getElementById('screen-preview-container').addEventListener('click', (e) => {
     // Let real links (email, LinkedIn, etc.) open normally
     const clickedLink = e.target.closest('a[href]');
@@ -2536,6 +2577,10 @@ document.getElementById('screen-preview-container').addEventListener('click', (e
     const tabTarget = e.target.closest('[data-editor-tab]');
 
     if (!tabTarget && !focusTarget && !indexedTarget) return;
+
+    if (window.innerWidth <= 900) {
+        switchMobileView('editor');
+    }
 
     const tabId = tabTarget ? tabTarget.getAttribute('data-editor-tab') : (focusTarget ? focusTarget.getAttribute('data-editor-tab') : null);
     const targetKey = indexedTarget ? indexedTarget.getAttribute('data-editor-target') : (tabTarget ? tabTarget.getAttribute('data-editor-target') : null);
@@ -2606,15 +2651,19 @@ document.getElementById('screen-preview-container').addEventListener('click', (e
 let previewZoom = parseFloat(localStorage.getItem('preview_zoom')) || 1.0;
 
 function changeZoom(delta) {
-    previewZoom = Math.min(2.0, Math.max(0.5, previewZoom + delta));
+    previewZoom = Math.min(2.0, Math.max(0.3, previewZoom + delta));
     localStorage.setItem('preview_zoom', previewZoom.toFixed(2));
     applyZoom();
 }
 
 function resetZoom() {
-    previewZoom = 1.0;
-    localStorage.setItem('preview_zoom', previewZoom.toFixed(2));
-    applyZoom();
+    if (window.innerWidth <= 900) {
+        autoFitMobileZoom();
+    } else {
+        previewZoom = 1.0;
+        localStorage.setItem('preview_zoom', previewZoom.toFixed(2));
+        applyZoom();
+    }
 }
 
 function applyZoom() {
@@ -2641,6 +2690,10 @@ window.onload = async function () {
     }
     populateFormInputs();
     changeLayout(currentLayout);
-    applyZoom();
+    if (window.innerWidth <= 900) {
+        switchMobileView('editor');
+    } else {
+        applyZoom();
+    }
     setEditorMode('data');
 };

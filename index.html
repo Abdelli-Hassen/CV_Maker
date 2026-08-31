@@ -15,7 +15,15 @@
   <link rel="stylesheet" href="style.css">
 </head>
 
-<body>
+  <!-- MOBILE VIEW TOGGLE BAR (Visible on screens <= 900px) -->
+  <div id="mobile-nav-bar" class="mobile-nav-bar">
+    <button class="mobile-nav-btn active" id="btn-view-editor" onclick="switchMobileView('editor')">
+      ✍️ Éditeur
+    </button>
+    <button class="mobile-nav-btn" id="btn-view-preview" onclick="switchMobileView('preview')">
+      👁️ Aperçu CV
+    </button>
+  </div>
 
   <div id="app-container">
 
