@@ -2563,6 +2563,67 @@ window.addEventListener('resize', () => {
     }
 });
 
+/* ----------------------------------------------------
+    MOBILE TOUCH GESTURE ENGINE (Pinch-to-Zoom + Pan)
+    ---------------------------------------------------- */
+(function initTouchGestures() {
+    const previewWrap = document.querySelector('.preview-container');
+    if (!previewWrap) return;
+
+    let startTouchDist = null;       // Distance between two fingers at pinch start
+    let lastZoomAtStart = 1.0;       // Zoom level when pinch started
+    let isPinching = false;
+    let lastTapTime = 0;
+
+    function getTouchDist(touches) {
+        const dx = touches[0].clientX - touches[1].clientX;
+        const dy = touches[0].clientY - touches[1].clientY;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    previewWrap.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 2) {
+            // Two fingers down — start pinch
+            isPinching = true;
+            startTouchDist = getTouchDist(e.touches);
+            lastZoomAtStart = previewZoom;
+            e.preventDefault(); // prevent browser page zoom during pinch
+        } else if (e.touches.length === 1 && !isPinching) {
+            // Single finger — check for double-tap to reset zoom
+            const now = Date.now();
+            if (now - lastTapTime < 300) {
+                if (window.innerWidth <= 900) autoFitMobileZoom();
+                else resetZoom();
+                e.preventDefault();
+            }
+            lastTapTime = now;
+            // Do NOT call preventDefault() here — allows native scroll/pan
+        }
+    }, { passive: false });
+
+    previewWrap.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 2 && isPinching && startTouchDist !== null) {
+            // Compute scale relative to the distance at pinch start (not per-frame delta)
+            const currentDist = getTouchDist(e.touches);
+            const scale = currentDist / startTouchDist;
+            const newZoom = Math.min(3.0, Math.max(0.3, lastZoomAtStart * scale));
+            previewZoom = parseFloat(newZoom.toFixed(2));
+            applyZoom();
+            e.preventDefault(); // prevent scroll while pinching
+        }
+        // Single finger: no preventDefault — native scroll/pan works freely
+    }, { passive: false });
+
+    previewWrap.addEventListener('touchend', (e) => {
+        if (isPinching && e.touches.length < 2) {
+            // Pinch just ended — save zoom
+            localStorage.setItem('preview_zoom', previewZoom.toFixed(2));
+            isPinching = false;
+            startTouchDist = null;
+        }
+    }, { passive: true });
+})();
+
 // Update click-to-edit to auto switch back to editor on mobile when preview item clicked
 document.getElementById('screen-preview-container').addEventListener('click', (e) => {
     // Let real links (email, LinkedIn, etc.) open normally

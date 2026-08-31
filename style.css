@@ -82,7 +82,10 @@ body {
     1.1 MOBILE & TABLET RESPONSIVE MEDIA QUERIES
     ---------------------------------------------------- */
 @media screen and (max-width: 900px) {
+
+    /* --- Root layout --- */
     body {
+        overflow-x: hidden;
         overflow-y: auto !important;
         height: auto !important;
         min-height: 100vh;
@@ -96,19 +99,41 @@ body {
         display: flex;
         flex-direction: column;
         height: auto;
-        min-height: calc(100vh - 54px);
+        width: 100%;
     }
 
+    /* --- Sidebar Editor --- */
     .editor-sidebar {
         width: 100%;
+        max-width: 100vw;
         height: auto;
-        min-height: calc(100vh - 54px);
+        min-height: calc(100dvh - 56px);
         border-right: none;
-        overflow: visible;
+        overflow: hidden;
+        overflow-y: auto;
     }
 
+    /* Hide the branding header on mobile to save space */
+    .sidebar-brand {
+        display: none;
+    }
+
+    /* Mode Selector (Données / Design) */
+    .mode-selector {
+        padding: 0.5rem 0.75rem;
+        gap: 0.5rem;
+        border-radius: 0;
+    }
+
+    .mode-btn {
+        padding: 0.6rem 0.5rem;
+        font-size: 0.8rem;
+        min-height: 44px;
+    }
+
+    /* Tab Navigation */
     .tabs-nav {
-        padding: 0.25rem;
+        padding: 0;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
     }
@@ -118,59 +143,157 @@ body {
     }
 
     .tab-btn {
-        padding: 0.75rem 0.6rem;
-        font-size: 0.75rem;
-        min-width: 70px;
+        padding: 0.65rem 0.4rem;
+        font-size: 0.7rem;
+        min-width: 64px;
+        min-height: 52px;
     }
 
+    .tab-btn svg {
+        width: 1rem;
+        height: 1rem;
+    }
+
+    /* Tab content panel */
+    .tabs-content {
+        padding: 1rem 0.875rem;
+        gap: 1rem;
+    }
+
+    /* Form layouts — !important needed because base rule is declared after this media query */
     .form-row {
-        grid-template-columns: 1fr;
-        gap: 0.85rem;
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+        width: 100% !important;
+    }
+
+    .form-card {
+        padding: 0.85rem;
+    }
+
+    .form-group {
+        margin-bottom: 0.75rem;
+    }
+
+    .form-group label {
+        font-size: 0.7rem;
     }
 
     .form-group input,
     .form-group textarea,
     .form-group select {
-        font-size: 0.92rem; /* Touch friendly font size prevents iOS zoom */
-        padding: 0.65rem 0.85rem;
+        font-size: 1rem !important; /* Prevents iOS auto-zoom on focus */
+        padding: 0.65rem 0.75rem !important;
+        min-height: 44px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
     }
 
+    .form-group textarea {
+        min-height: 90px;
+    }
+
+    /* Section titles */
+    .panel-section-title {
+        font-size: 0.78rem;
+    }
+
+    /* Collapsible cards */
+    .collapsible-header {
+        padding: 0.7rem 0.85rem;
+        min-height: 52px;
+    }
+
+    /* Footer action buttons */
+    .sidebar-footer {
+        padding: 0.75rem;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .sidebar-footer .btn-action {
+        flex: 1;
+        min-width: 80px;
+        padding: 0.6rem 0.5rem;
+        font-size: 0.78rem;
+        justify-content: center;
+        text-align: center;
+        min-height: 44px;
+        border-radius: 10px;
+    }
+
+    /* --- Preview Container --- */
     .preview-container {
         width: 100%;
+        max-width: 100vw;
         height: auto;
-        min-height: calc(100vh - 54px);
-        padding: 1rem 0.5rem;
-        overflow-x: hidden;
+        min-height: calc(100dvh - 56px);
+        padding: 0.75rem 0.5rem 1.5rem;
+        overflow-x: auto;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-x pan-y pinch-zoom;
+        align-items: flex-start;
+        gap: 0.75rem;
     }
 
+    /* Preview Toolbar – compact single row on mobile */
     .preview-toolbar {
-        width: 95%;
-        max-width: 500px;
-        padding: 0.5rem 0.85rem;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        justify-content: center !important;
-        border-radius: 16px;
-    }
-
-    .preview-toolbar button {
+        width: calc(100% - 1rem);
+        max-width: 420px;
         padding: 0.4rem 0.75rem;
-        font-size: 0.75rem;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        justify-content: space-between !important;
+        align-items: center;
+        gap: 0.4rem;
+        border-radius: 12px;
+        position: sticky;
+        left: 0.5rem;
+        top: 0;
     }
 
+    /* Hide the "Prévisualisation du CV" label on mobile toolbar to save space */
+    .preview-toolbar > span:first-child {
+        display: none;
+    }
+
+    .preview-toolbar button,
+    .preview-toolbar .btn-action {
+        padding: 0.35rem 0.65rem;
+        font-size: 0.73rem;
+        min-height: 36px;
+        border-radius: 8px;
+    }
+
+    /* Zoom control group */
+    .preview-toolbar > div {
+        gap: 0.3rem;
+        padding: 0.2rem 0.5rem;
+    }
+
+    /* A4 Page area */
     #a4-page {
         width: 100%;
-        max-width: 100vw;
-        overflow-x: hidden;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-x pan-y pinch-zoom;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
     }
 
-    /* Screen preview sheet scale down for small screens */
+    #screen-preview-container {
+        touch-action: pan-x pan-y pinch-zoom;
+    }
+
     .a4-page-sheet {
-        max-width: 100%;
-        margin-bottom: 15px;
+        margin-bottom: 12px;
+        touch-action: pan-x pan-y pinch-zoom;
     }
 
-    /* Toggle visibility classes for mobile views */
+    /* --- Mobile view toggle (show-editor / show-preview) --- */
     #app-container.show-editor .editor-sidebar {
         display: flex !important;
     }
@@ -433,6 +556,8 @@ body {
     font-size: 0.82rem;
     outline: none;
     transition: all 0.2s;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .form-group input:focus,
@@ -445,6 +570,13 @@ body {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0.75rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-row > .form-group {
+    min-width: 0; /* prevents grid blowout */
+    width: 100%;
 }
 
 /* PFP Upload Zone */
