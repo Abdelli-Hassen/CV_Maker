@@ -1727,7 +1727,7 @@ function renderSkillsList() {
         </div>
         <div class="form-group">
         <label>Compétences (Séparez par virgules)</label>
-        <textarea rows="3" data-field="value" placeholder="HTML, CSS, JavaScript, ..." oninput="updateSkillCategory(${index}, 'value', this.value)">${s.value}</textarea>
+        <textarea rows="5" data-field="value" placeholder="HTML, CSS, JavaScript, ..." oninput="updateSkillCategory(${index}, 'value', this.value)">${s.value}</textarea>
         </div>
     `;
         container.appendChild(card);
@@ -1787,7 +1787,7 @@ function renderList(key) {
         </div>
         <div class="form-group">
             <label>${key === 'experiences' ? 'Missions (Une mission par ligne)' : 'Détails / Missions (Un par ligne)'}</label>
-            <textarea rows="4" data-field="bullets" oninput="updateListBullets('${key}', ${index}, this.value)">${item.bullets.join('\n')}</textarea>
+            <textarea rows="6" data-field="bullets" oninput="updateListBullets('${key}', ${index}, this.value)">${item.bullets.join('\n')}</textarea>
         </div>`;
         } else if (key === 'projects') {
             titleText = item.title || "Projet sans titre";
@@ -1803,7 +1803,7 @@ function renderList(key) {
         </div>
         <div class="form-group">
             <label>Description du projet</label>
-            <textarea rows="4" data-field="description" oninput="updateListItem('${key}', ${index}, 'description', this.value)">${item.description}</textarea>
+            <textarea rows="6" data-field="description" oninput="updateListItem('${key}', ${index}, 'description', this.value)">${item.description}</textarea>
         </div>`;
         } else if (key === 'education') {
             titleText = item.degree || "Diplôme";

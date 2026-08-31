@@ -586,6 +586,12 @@ body {
     box-sizing: border-box;
 }
 
+.form-group textarea {
+    min-height: 120px;
+    line-height: 1.5;
+    resize: vertical;
+}
+
 .form-group input:focus,
 .form-group textarea:focus {
     border-color: var(--accent);
