@@ -1577,6 +1577,14 @@ function populateFormInputs() {
     document.getElementById('input-website').value = cvData.contact.website || "";
     document.getElementById('input-driver').value = cvData.contact.driver || "";
 
+    // Sync header social links dynamically
+    const linkGh = document.getElementById('brand-link-github');
+    const linkLi = document.getElementById('brand-link-linkedin');
+    const linkGm = document.getElementById('brand-link-gmail');
+    if (linkGh) linkGh.href = formatGithubHref(cvData.contact.github);
+    if (linkLi) linkLi.href = formatLinkedinHref(cvData.contact.linkedin);
+    if (linkGm) linkGm.href = formatEmailHref(cvData.contact.email);
+
     document.getElementById('input-profile').value = cvData.profile;
 
     // Image Size Slider initialization

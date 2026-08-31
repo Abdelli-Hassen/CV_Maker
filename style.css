@@ -343,6 +343,34 @@ body {
     color: var(--text-muted);
 }
 
+.brand-social-links {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+}
+
+.brand-social-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    transition: all 0.2s ease-in-out;
+}
+
+.brand-social-icon:hover {
+    background: rgba(251, 191, 36, 0.18);
+    border-color: #fbbf24;
+    color: #fbbf24;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.2);
+}
+
 /* Tab switcher navigation */
 .tabs-nav {
     display: flex;
