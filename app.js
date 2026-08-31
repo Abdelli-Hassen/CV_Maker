@@ -1499,7 +1499,11 @@ function renderPreview() {
         }
     });
 
-    const effectiveHeight = maxContentBottom > 0 ? (maxContentBottom - 5) : printContainer.offsetHeight;
+    const effectiveHeight = Math.max(
+        maxContentBottom > 0 ? (maxContentBottom - 5) : 0,
+        printContainer.offsetHeight,
+        printContainer.scrollHeight
+    );
     const totalPages = Math.max(1, Math.ceil(effectiveHeight / pageContentHeightPx));
 
     // 6. Clear screen container and populate A4 sliced pages
@@ -2251,6 +2255,9 @@ function importJSON(input) {
 function saveAndSync() {
     localStorage.setItem('cv_data', JSON.stringify(cvData));
     renderPreview();
+    if (window.innerWidth <= 900) {
+        autoFitMobileZoom();
+    }
 }
 
 function attachEditorBindings(container) {
@@ -2537,7 +2544,15 @@ function switchMobileView(view) {
         appContainer.classList.add('show-preview');
         if (btnEditor) btnEditor.classList.remove('active');
         if (btnPreview) btnPreview.classList.add('active');
+        
+        // Re-run pagination rendering when preview tab opens so heights are accurate
+        renderPreview();
         autoFitMobileZoom();
+        const previewContainer = document.querySelector('.preview-container');
+        if (previewContainer) {
+            previewContainer.scrollTop = 0;
+            previewContainer.scrollLeft = 0;
+        }
     } else {
         appContainer.classList.remove('show-preview');
         appContainer.classList.add('show-editor');
@@ -2548,11 +2563,20 @@ function switchMobileView(view) {
 
 function autoFitMobileZoom() {
     if (window.innerWidth <= 900) {
-        // No padding on container now — use full viewport width
         const targetWidth = 794; // 210mm at 96dpi
         const calculatedScale = Math.min(1.0, Math.max(0.3, window.innerWidth / targetWidth));
         previewZoom = parseFloat(calculatedScale.toFixed(2));
         applyZoom();
+
+        // Reset heights so container recalculates natural scroll bounds cleanly
+        const screenPreview = document.getElementById('screen-preview-container');
+        const a4Page = document.getElementById('a4-page');
+        if (screenPreview) {
+            screenPreview.style.height = 'auto';
+        }
+        if (a4Page) {
+            a4Page.style.height = 'auto';
+        }
     }
 }
 
