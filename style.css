@@ -242,7 +242,7 @@ body {
     .preview-toolbar {
         width: calc(100% - 1rem);
         max-width: 420px;
-        padding: 0.4rem 0.75rem;
+        padding: 0.35rem 0.6rem;
         flex-direction: row;
         flex-wrap: nowrap;
         justify-content: space-between !important;
@@ -254,23 +254,29 @@ body {
         top: 0;
     }
 
-    /* Hide the "Prévisualisation du CV" label on mobile toolbar to save space */
-    .preview-toolbar > span:first-child {
-        display: none;
+    /* Hide the verbose title on mobile — ID beats inline display:flex */
+    #preview-toolbar-title {
+        display: none !important;
     }
 
-    .preview-toolbar button,
+    /* Icon-only print button on mobile */
+    #print-btn-label {
+        display: none !important;
+    }
+
     .preview-toolbar .btn-action {
-        padding: 0.35rem 0.65rem;
+        padding: 0.4rem 0.65rem;
         font-size: 0.73rem;
         min-height: 36px;
         border-radius: 8px;
+        gap: 0;
     }
 
     /* Zoom control group */
     .preview-toolbar > div {
         gap: 0.3rem;
         padding: 0.2rem 0.5rem;
+        border-radius: 12px;
     }
 
     /* A4 Page area */
