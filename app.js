@@ -2548,10 +2548,9 @@ function switchMobileView(view) {
 
 function autoFitMobileZoom() {
     if (window.innerWidth <= 900) {
-        // Calculate appropriate scale for 210mm (approx 794px at 96dpi) sheet on mobile screen
-        const screenWidth = window.innerWidth - 30; // accounting for padding
-        const targetWidth = 794;
-        const calculatedScale = Math.min(1.0, Math.max(0.35, screenWidth / targetWidth));
+        // No padding on container now — use full viewport width
+        const targetWidth = 794; // 210mm at 96dpi
+        const calculatedScale = Math.min(1.0, Math.max(0.3, window.innerWidth / targetWidth));
         previewZoom = parseFloat(calculatedScale.toFixed(2));
         applyZoom();
     }

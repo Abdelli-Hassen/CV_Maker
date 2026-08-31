@@ -78,6 +78,23 @@ body {
     box-shadow: 0 4px 12px rgba(251, 191, 36, 0.25);
 }
 
+/* Print button in mobile nav — compact icon pill, no flex:1 */
+.mobile-print-btn {
+    flex: 0 0 auto !important;
+    width: 46px;
+    min-width: 46px;
+    padding: 0.65rem 0.5rem;
+    color: var(--text-muted);
+    border-color: var(--border-color);
+}
+
+.mobile-print-btn:hover,
+.mobile-print-btn:active {
+    background: rgba(251, 191, 36, 0.15) !important;
+    color: var(--accent) !important;
+    border-color: var(--accent) !important;
+}
+
 /* ----------------------------------------------------
     1.1 MOBILE & TABLET RESPONSIVE MEDIA QUERIES
     ---------------------------------------------------- */
@@ -229,73 +246,40 @@ body {
         max-width: 100vw;
         height: auto;
         min-height: calc(100dvh - 56px);
-        padding: 0.75rem 0.5rem 1.5rem;
+        padding: 0;
         overflow-x: auto;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         touch-action: pan-x pan-y pinch-zoom;
         align-items: flex-start;
-        gap: 0.75rem;
-    }
-
-    /* Preview Toolbar – compact single row on mobile */
-    .preview-toolbar {
-        width: calc(100% - 1rem);
-        max-width: 420px;
-        padding: 0.35rem 0.6rem;
-        flex-direction: row;
-        flex-wrap: nowrap;
-        justify-content: space-between !important;
-        align-items: center;
-        gap: 0.4rem;
-        border-radius: 12px;
-        position: sticky;
-        left: 0.5rem;
-        top: 0;
-    }
-
-    /* Hide the verbose title on mobile — ID beats inline display:flex */
-    #preview-toolbar-title {
-        display: none !important;
-    }
-
-    /* Icon-only print button on mobile */
-    #print-btn-label {
-        display: none !important;
-    }
-
-    .preview-toolbar .btn-action {
-        padding: 0.4rem 0.65rem;
-        font-size: 0.73rem;
-        min-height: 36px;
-        border-radius: 8px;
         gap: 0;
     }
 
-    /* Zoom control group */
-    .preview-toolbar > div {
-        gap: 0.3rem;
-        padding: 0.2rem 0.5rem;
-        border-radius: 12px;
+    /* Hide the entire toolbar on mobile — zoom handled by pinch, print by nav bar */
+    .preview-toolbar {
+        display: none !important;
     }
 
-    /* A4 Page area */
+    /* A4 Page area — flush, full width */
     #a4-page {
         width: 100%;
-        overflow-x: auto;
+        overflow-x: hidden;
         -webkit-overflow-scrolling: touch;
         touch-action: pan-x pan-y pinch-zoom;
         display: flex;
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
+        padding: 0;
+        gap: 0;
     }
 
     #screen-preview-container {
         touch-action: pan-x pan-y pinch-zoom;
+        transform-origin: top center;
     }
 
     .a4-page-sheet {
-        margin-bottom: 12px;
+        margin-bottom: 10px;
         touch-action: pan-x pan-y pinch-zoom;
     }
 
