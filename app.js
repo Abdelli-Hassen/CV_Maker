@@ -546,12 +546,12 @@ function renderProfessionalLayout() {
                 ${cvData.activities && cvData.activities.length > 0 && !cvData.hidden_sections?.activities ? `<ul class="cv-prof-bullets" style="margin-bottom:0.5rem;">${actHTML}</ul>` : ''}
                 ${cvData.languages && cvData.languages.length > 0 && !cvData.hidden_sections?.languages ? `
                 <div style="font-size:0.78rem; border-top:1px solid #d1d5db; padding-top:0.4rem; color:#374151;" data-editor-tab="tab-education">
-                    🗣️ <strong>Langues :</strong> ${langHTML}
+                     <strong>Langues :</strong> ${langHTML}
                 </div>
                 ` : ''}
                 ${cvData.interests && cvData.interests.length > 0 && !cvData.hidden_sections?.interests ? `
                 <div style="font-size:0.75rem; border-top:1px solid #d1d5db; margin-top:0.4rem; padding-top:0.4rem; color:#374151;" data-editor-tab="tab-education">
-                    🎯 <strong>Intérêts :</strong> ${cvData.interests.map((item, idx) => `<span data-editor-tab="tab-education" data-editor-target="interests" data-editor-index="${idx}" data-editor-field="value">${item}</span>`).join(', ')}
+                     <strong>Intérêts :</strong> ${cvData.interests.map((item, idx) => `<span data-editor-tab="tab-education" data-editor-target="interests" data-editor-index="${idx}" data-editor-field="value">${item}</span>`).join(', ')}
                 </div>
                 ` : ''}
             </section>
@@ -761,9 +761,9 @@ function renderSidebarLayout() {
     if (cvData.contact.email) contactItems.push(`<div style="margin-bottom: 0.35rem;" data-editor-tab="tab-profile" data-editor-focus="input-email">${ICONS.email}<a href="${formatEmailHref(cvData.contact.email)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.email}</a></div>`);
     if (cvData.contact.phone) contactItems.push(`<div style="margin-bottom: 0.35rem;" data-editor-tab="tab-profile" data-editor-focus="input-phone">${ICONS.phone}<a href="tel:${cvData.contact.phone}" style="color:inherit; text-decoration:none;">${cvData.contact.phone}</a></div>`);
     if (cvData.contact.location) contactItems.push(`<div style="margin-bottom: 0.35rem;" data-editor-tab="tab-profile" data-editor-focus="input-location">${ICONS.location}${cvData.contact.location}</div>`);
-    if (cvData.contact.linkedin) contactItems.push(`<div style="margin-bottom: 0.35rem;" data-editor-tab="tab-profile" data-editor-focus="input-linkedin">${ICONS.linkedin}<a href="${formatLinkedinHref(cvData.contact.linkedin)}" target="_blank" style="color:var(--sidebar-accent); font-weight:600; text-decoration:none;">LinkedIn</a></div>`);
-    if (cvData.contact.github) contactItems.push(`<div style="margin-bottom: 0.35rem;" data-editor-tab="tab-profile" data-editor-focus="input-github">${ICONS.github}<a href="${formatGithubHref(cvData.contact.github)}" target="_blank" style="color:var(--sidebar-accent); font-weight:600; text-decoration:none;">GitHub</a></div>`);
-    if (cvData.contact.website) contactItems.push(`<div style="margin-bottom: 0.35rem;" data-editor-tab="tab-profile" data-editor-focus="input-website">${ICONS.website}<a href="${formatHref(cvData.contact.website)}" target="_blank" style="color:var(--sidebar-accent); font-weight:600; text-decoration:none;">Site Web</a></div>`);
+    if (cvData.contact.linkedin) contactItems.push(`<div style="margin-bottom: 0.35rem;" data-editor-tab="tab-profile" data-editor-focus="input-linkedin">${ICONS.linkedin}<a href="${formatLinkedinHref(cvData.contact.linkedin)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.linkedin}</a></div>`);
+    if (cvData.contact.github) contactItems.push(`<div style="margin-bottom: 0.35rem;" data-editor-tab="tab-profile" data-editor-focus="input-github">${ICONS.github}<a href="${formatGithubHref(cvData.contact.github)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.github}</a></div>`);
+    if (cvData.contact.website) contactItems.push(`<div style="margin-bottom: 0.35rem;" data-editor-tab="tab-profile" data-editor-focus="input-website">${ICONS.website}<a href="${formatHref(cvData.contact.website)}" target="_blank" style="color:inherit; text-decoration:none;">${cvData.contact.website}</a></div>`);
     if (cvData.contact.driver) contactItems.push(`<div style="margin-bottom: 0.35rem;" data-editor-tab="tab-profile" data-editor-focus="input-driver">${ICONS.driver}${cvData.contact.driver}</div>`);
 
     let contactHTML = "";
@@ -2311,7 +2311,7 @@ function attachEditorBindings(container) {
         }
 
         let sectionContainer = header.closest('section, .section, .cv-sidebar-right-section, .cv-sidebar-left-section, .cv-mini-right-col > div, .cv-mini-left-col > div, .cv-euro-row, .cv-ats-section');
-        
+
         let isRootContainer = false;
         if (!sectionContainer || sectionContainer === container ||
             sectionContainer.classList.contains('cv-ats-body') ||
@@ -2337,7 +2337,7 @@ function attachEditorBindings(container) {
                     sectionItems.push(curr);
                 }
                 curr.querySelectorAll('.cv-designed-card, .cv-prof-item, .cv-ats-item, .cv-sidebar-item, .cv-mini-item, .cv-euro-item, .skill-cat, .cv-prof-skillrow, .cv-designed-simpleitem, .cv-mini-skillcat, .cv-euro-item-row').forEach(it => sectionItems.push(it));
-                
+
                 sectionChildren.push(curr);
                 curr.querySelectorAll('h1, h2, h3, h4, h5, h6, p, li, span, div, a, .cv-designed-simpleitem').forEach(ch => sectionChildren.push(ch));
                 curr = curr.nextElementSibling;
@@ -2552,7 +2552,7 @@ function switchMobileView(view) {
         appContainer.classList.add('show-preview');
         if (btnEditor) btnEditor.classList.remove('active');
         if (btnPreview) btnPreview.classList.add('active');
-        
+
         // Re-run pagination rendering when preview tab opens so heights are accurate
         renderPreview();
         autoFitMobileZoom();
