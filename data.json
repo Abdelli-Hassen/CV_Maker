@@ -174,7 +174,7 @@
       "gold_dark": "#d97706"
     },
     "professional": {
-      "navy_primary": "#1e3a8a",
+      "navy_primary": "#a72a2a",
       "navy_light": "#eff6ff"
     },
     "sidebar": {
@@ -196,7 +196,7 @@
     "pfp_shadow": 15,
     "pfp_opacity": 1,
     "pfp_offset_x": 0,
-    "pfp_offset_y": 26
+    "pfp_offset_y": -27
   },
   "profile": "Diplômé en Sciences de l'Informatique (spécialité Génie Logiciel), passionné par l'administration des\nsystèmes/réseaux et le développement full-stack. Fort d'une solide expérience pratique en maintenance de parcs\ninformatiques, déploiement d'infrastructures LAN/WLAN et vidéosurveillance, je conçois également des solutions\nlogicielles modernes (React, Angular, Flutter, Node.js) et des architectures IoT/IA . Orienté sécurité et\nrésolution de problèmes, je recherche une opportunité pour mettre\nmes compétences polyvalentes au service de projets innovants.\n",
   "hidden_sections": {
