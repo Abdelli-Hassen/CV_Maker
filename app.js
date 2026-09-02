@@ -1956,6 +1956,7 @@ function changeLayout(layout) {
     if (sidebarGrp) sidebarGrp.style.display = (layout === 'sidebar') ? 'flex' : 'none';
     if (btnRandom) btnRandom.style.display = (layout === 'designed' || layout === 'professional' || layout === 'sidebar') ? 'inline-flex' : 'none';
 
+    syncTextColorPickers();
     renderPreview();
 }
 
@@ -2002,6 +2003,79 @@ function updateThemeColor(type, hex) {
         const p = document.getElementById('design-picker-sidebar-accent');
         if (p) p.value = hex;
     }
+}
+
+function updateTextColor(type, hex) {
+    if (!cvData.design) cvData.design = {};
+    if (!cvData.design.text_colors) cvData.design.text_colors = {};
+    cvData.design.text_colors[type] = hex;
+
+    const cssVarMap = {
+        name: '--text-color-name',
+        title: '--text-color-title',
+        heading: '--text-color-heading',
+        body: '--text-color-body',
+        muted: '--text-color-muted'
+    };
+
+    if (cssVarMap[type]) {
+        document.documentElement.style.setProperty(cssVarMap[type], hex);
+        const picker = document.getElementById(`design-picker-text-${type}`);
+        if (picker) picker.value = hex;
+        const badge = document.getElementById(`badge-color-text-${type}`);
+        if (badge) badge.style.backgroundColor = hex;
+    }
+
+    saveAndSync();
+}
+
+function resetTextColors() {
+    if (cvData.design && cvData.design.text_colors) {
+        delete cvData.design.text_colors;
+    }
+    const cssVars = ['--text-color-name', '--text-color-title', '--text-color-heading', '--text-color-body', '--text-color-muted'];
+    cssVars.forEach(v => document.documentElement.style.removeProperty(v));
+    syncTextColorPickers();
+    saveAndSync();
+}
+
+function getDefaultTextColorForLayout(layout, key) {
+    if (layout === 'professional') {
+        const navy = cvData.themes?.professional?.navy_primary || '#1e3a8a';
+        const map = { name: '#0f172a', title: '#334155', heading: navy, body: '#1e293b', muted: '#475569' };
+        return map[key] || '#1e293b';
+    } else if (layout === 'designed') {
+        const gold = cvData.themes?.designed?.gold_primary || '#f59e0b';
+        const map = { name: '#ffffff', title: gold, heading: gold, body: '#cbd5e1', muted: '#94a3b8' };
+        return map[key] || '#cbd5e1';
+    } else if (layout === 'ats') {
+        const map = { name: '#000000', title: '#333333', heading: '#000000', body: '#1f2937', muted: '#4b5563' };
+        return map[key] || '#1f2937';
+    } else if (layout === 'sidebar') {
+        const accent = cvData.themes?.sidebar?.sidebar_accent || '#3b82f6';
+        const map = { name: '#0f172a', title: accent, heading: '#1e293b', body: '#334155', muted: '#64748b' };
+        return map[key] || '#334155';
+    } else {
+        const map = { name: '#0f172a', title: '#475569', heading: '#0f172a', body: '#1e293b', muted: '#64748b' };
+        return map[key] || '#1e293b';
+    }
+}
+
+function syncTextColorPickers() {
+    const textColors = (cvData.design && cvData.design.text_colors) ? cvData.design.text_colors : {};
+    const keys = ['name', 'title', 'heading', 'body', 'muted'];
+    keys.forEach(key => {
+        const picker = document.getElementById(`design-picker-text-${key}`);
+        const badge = document.getElementById(`badge-color-text-${key}`);
+        const colorVal = textColors[key] || getDefaultTextColorForLayout(currentLayout, key);
+        if (textColors[key]) {
+            document.documentElement.style.setProperty(`--text-color-${key}`, textColors[key]);
+        } else {
+            document.documentElement.style.removeProperty(`--text-color-${key}`);
+        }
+        if (picker) picker.value = colorVal;
+        if (badge) badge.style.backgroundColor = colorVal;
+    });
 }
 
 const PRESETS = {
@@ -2197,6 +2271,8 @@ function applyDesignStyles() {
     document.documentElement.style.setProperty('--pfp-opacity', design.pfp_opacity ?? 1);
     document.documentElement.style.setProperty('--pfp-margin-left', `${design.pfp_offset_x ?? 0}px`);
     document.documentElement.style.setProperty('--pfp-margin-top', `${design.pfp_offset_y ?? 0}px`);
+
+    syncTextColorPickers();
 }
 
 async function resetToDefaults() {
@@ -2535,6 +2611,23 @@ function attachEditorBindings(container) {
     container.querySelectorAll('.cv-sidebar-pfp').forEach(el => {
         el.setAttribute('data-editor-tab', 'tab-profile');
     });
+
+    // Tag elements for interactive design mode color editing
+    container.querySelectorAll('.cv-designed-name, .cv-prof-name, .cv-ats-name, .cv-sidebar-name, .cv-mini-name, .cv-euro-name').forEach(el => {
+        el.setAttribute('data-design-target', 'name');
+    });
+    container.querySelectorAll('.cv-designed-title, .cv-prof-title, .cv-ats-title, .cv-sidebar-title, .cv-mini-title, .cv-euro-title').forEach(el => {
+        el.setAttribute('data-design-target', 'title');
+    });
+    container.querySelectorAll('h2, h3, h4, .cv-designed-sectitle, .cv-prof-sectitle, .cv-ats-sectitle, .cv-sidebar-right-title, .cv-sidebar-left-title, .cv-mini-sectitle, .cv-euro-sectitle').forEach(el => {
+        el.setAttribute('data-design-target', 'heading');
+    });
+    container.querySelectorAll('.cv-designed-bullets li, .cv-prof-bullets li, .cv-ats-bullets li, .cv-sidebar-bullets li, .cv-mini-bullets li, .cv-euro-bullets li, .cv-designed-profile, .cv-prof-profile, .cv-ats-profile, .cv-mini-profile, .cv-euro-profile, .cv-prof-skillrow, .cv-designed-card p, .cv-ats-item p').forEach(el => {
+        el.setAttribute('data-design-target', 'body');
+    });
+    container.querySelectorAll('.cv-designed-contacts, .cv-prof-contacts, .cv-ats-contacts, .cv-sidebar-contacts, .cv-mini-contacts, .cv-euro-contacts, .cv-designed-carddate, .cv-prof-itemdate, .cv-ats-itemdate, .cv-sidebar-itemdate, .cv-mini-itemdate, .cv-euro-itemdate, .cv-prof-cardloc, .cv-designed-cardloc').forEach(el => {
+        el.setAttribute('data-design-target', 'muted');
+    });
 }
 
 /* ----------------------------------------------------
@@ -2663,6 +2756,31 @@ document.getElementById('screen-preview-container').addEventListener('click', (e
         return; // Don't intercept — let the browser follow the link
     }
 
+    const designTargetEl = e.target.closest('[data-design-target]');
+    const isDesignModeActive = document.getElementById('btn-mode-design')?.classList.contains('active');
+
+    // If in Design Mode or clicking a design element while holding Alt/Ctrl key, switch to Design tab & focus color picker
+    if (designTargetEl && (isDesignModeActive || e.altKey || e.ctrlKey)) {
+        const targetType = designTargetEl.getAttribute('data-design-target');
+        setEditorMode('design');
+        if (window.innerWidth <= 900) {
+            switchMobileView('editor');
+        }
+        setTimeout(() => {
+            const cardEl = document.getElementById(`design-card-text-${targetType}`);
+            const pickerEl = document.getElementById(`design-picker-text-${targetType}`);
+            if (cardEl) {
+                cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                cardEl.style.animation = 'pulseHighlight 0.8s ease-out';
+                setTimeout(() => { cardEl.style.animation = ''; }, 800);
+            }
+            if (pickerEl) {
+                pickerEl.focus();
+            }
+        }, 100);
+        return;
+    }
+
     const focusTarget = e.target.closest('[data-editor-focus]');
     const indexedTarget = e.target.closest('[data-editor-index]');
     const fieldTarget = e.target.closest('[data-editor-field]');
@@ -2735,6 +2853,13 @@ document.getElementById('screen-preview-container').addEventListener('click', (e
                         }
                     }
                 }
+            }
+        }, 100);
+    } else if (targetKey) {
+        setTimeout(() => {
+            const listContainer = document.getElementById(`list-${targetKey}`);
+            if (listContainer) {
+                listContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         }, 100);
     }

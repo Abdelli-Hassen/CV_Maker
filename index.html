@@ -385,6 +385,71 @@
           </div>
         </div>
 
+        <!-- Individual Text Colors Customizer -->
+        <div id="design-text-colors-section">
+          <div class="panel-section-title">Couleurs des Textes (Individuel)</div>
+          <div class="form-card" style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom: 0.25rem;">
+              💡 <em>Astuce : Cliquez sur n'importe quel texte dans l'aperçu du CV pour ajuster sa couleur directement.</em>
+            </div>
+
+            <!-- Nom complet -->
+            <div id="design-card-text-name" style="display: flex; justify-content: space-between; align-items: center; padding: 0.35rem 0.5rem; border-radius: 6px; background: rgba(255,255,255,0.03);">
+              <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted); display:flex; align-items:center; gap:0.4rem;">
+                <span id="badge-color-text-name" style="display:inline-block; width:12px; height:12px; border-radius:50%; background:var(--text-color-name, #0f172a); border:1px solid rgba(255,255,255,0.3);"></span>
+                Nom complet
+              </label>
+              <input type="color" id="design-picker-text-name" oninput="updateTextColor('name', this.value)"
+                style="border:none; width:45px; height:28px; cursor:pointer; background:none;">
+            </div>
+
+            <!-- Titre / Profession -->
+            <div id="design-card-text-title" style="display: flex; justify-content: space-between; align-items: center; padding: 0.35rem 0.5rem; border-radius: 6px; background: rgba(255,255,255,0.03);">
+              <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted); display:flex; align-items:center; gap:0.4rem;">
+                <span id="badge-color-text-title" style="display:inline-block; width:12px; height:12px; border-radius:50%; background:var(--text-color-title, #334155); border:1px solid rgba(255,255,255,0.3);"></span>
+                Titre / Profession
+              </label>
+              <input type="color" id="design-picker-text-title" oninput="updateTextColor('title', this.value)"
+                style="border:none; width:45px; height:28px; cursor:pointer; background:none;">
+            </div>
+
+            <!-- Titres de section -->
+            <div id="design-card-text-heading" style="display: flex; justify-content: space-between; align-items: center; padding: 0.35rem 0.5rem; border-radius: 6px; background: rgba(255,255,255,0.03);">
+              <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted); display:flex; align-items:center; gap:0.4rem;">
+                <span id="badge-color-text-heading" style="display:inline-block; width:12px; height:12px; border-radius:50%; background:var(--text-color-heading, #1e3a8a); border:1px solid rgba(255,255,255,0.3);"></span>
+                Titres de sections
+              </label>
+              <input type="color" id="design-picker-text-heading" oninput="updateTextColor('heading', this.value)"
+                style="border:none; width:45px; height:28px; cursor:pointer; background:none;">
+            </div>
+
+            <!-- Texte principal / Description -->
+            <div id="design-card-text-body" style="display: flex; justify-content: space-between; align-items: center; padding: 0.35rem 0.5rem; border-radius: 6px; background: rgba(255,255,255,0.03);">
+              <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted); display:flex; align-items:center; gap:0.4rem;">
+                <span id="badge-color-text-body" style="display:inline-block; width:12px; height:12px; border-radius:50%; background:var(--text-color-body, #1e293b); border:1px solid rgba(255,255,255,0.3);"></span>
+                Texte principal (Corps)
+              </label>
+              <input type="color" id="design-picker-text-body" oninput="updateTextColor('body', this.value)"
+                style="border:none; width:45px; height:28px; cursor:pointer; background:none;">
+            </div>
+
+            <!-- Textes secondaires / Dates / Contacts -->
+            <div id="design-card-text-muted" style="display: flex; justify-content: space-between; align-items: center; padding: 0.35rem 0.5rem; border-radius: 6px; background: rgba(255,255,255,0.03);">
+              <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted); display:flex; align-items:center; gap:0.4rem;">
+                <span id="badge-color-text-muted" style="display:inline-block; width:12px; height:12px; border-radius:50%; background:var(--text-color-muted, #64748b); border:1px solid rgba(255,255,255,0.3);"></span>
+                Dates & Secondaires
+              </label>
+              <input type="color" id="design-picker-text-muted" oninput="updateTextColor('muted', this.value)"
+                style="border:none; width:45px; height:28px; cursor:pointer; background:none;">
+            </div>
+
+            <button id="design-btn-reset-text-colors" class="btn-action" onclick="resetTextColors()"
+              style="width: 100%; justify-content: center; margin-top: 0.25rem; background: rgba(255, 255, 255, 0.05); color: var(--text-muted); border: 1px solid var(--border-color);">
+              🔄 Réinitialiser les couleurs de texte
+            </button>
+          </div>
+        </div>
+
         <!-- Typography -->
         <div class="panel-section-title">Typographie</div>
         <div class="form-card" style="display: flex; flex-direction: column; gap: 1rem;">
