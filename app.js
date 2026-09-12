@@ -2949,36 +2949,45 @@ function buildFieldStylePanel(path) {
     const id = `field-style-panel-${path.replace(/\./g, '-')}`;
     
     return `
-    <div id="${id}" class="field-design-popover" style="display: none;">
-        <div class="field-design-grid">
-            <div class="design-control-group">
-                <label>Couleur du texte</label>
-                <div class="custom-color-picker">
-                    <input type="color" value="${getVal('color', '#ffffff')}" oninput="updateFieldStyle('${path}', 'color', this.value)">
-                </div>
-            </div>
-            <div class="design-control-group">
-                <label>Taille (px)</label>
-                <input type="number" class="glass-input" value="${parseInt(getVal('fontSize', 14))}" oninput="updateFieldStyle('${path}', 'fontSize', this.value + 'px')">
-            </div>
-            <div class="design-control-group" style="grid-column: span 2;">
-                <label>Style du texte</label>
-                <div class="style-toggles">
-                    <button class="style-toggle-btn ${styles.fontWeight === 'bold' ? 'active' : ''}" 
-                            onclick="const isActive = this.classList.toggle('active'); updateFieldStyle('${path}', 'fontWeight', isActive ? 'bold' : 'normal')">
-                        <b>B</b>
-                    </button>
-                    <button class="style-toggle-btn ${styles.fontStyle === 'italic' ? 'active' : ''}" 
-                            onclick="const isActive = this.classList.toggle('active'); updateFieldStyle('${path}', 'fontStyle', isActive ? 'italic' : 'normal')">
-                        <i>I</i>
-                    </button>
-                </div>
+    <div id="${id}" class="figma-style-panel" style="display: none;">
+        <div class="f-panel-header">
+            <span class="f-panel-title">PROPRIÉTÉS DU TEXTE</span>
+            <button class="f-panel-reset" onclick="resetFieldStyle('${path}')" title="Réinitialiser">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            </button>
+        </div>
+        
+        <div class="f-panel-row">
+            <span class="f-panel-label">Couleur</span>
+            <div class="f-color-wrapper">
+                <div class="f-color-swatch" style="background-color: ${getVal('color', '#ffffff')}"></div>
+                <input type="color" value="${getVal('color', '#ffffff')}" 
+                       oninput="this.previousElementSibling.style.backgroundColor = this.value; updateFieldStyle('${path}', 'color', this.value)">
             </div>
         </div>
-        <button class="btn-reset-field" onclick="resetFieldStyle('${path}')">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-            Réinitialiser
-        </button>
+        
+        <div class="f-panel-row">
+            <span class="f-panel-label">Taille</span>
+            <div class="f-input-wrapper">
+                <input type="number" value="${parseInt(getVal('fontSize', 14))}" 
+                       oninput="updateFieldStyle('${path}', 'fontSize', this.value + 'px')">
+                <span class="f-input-suffix">px</span>
+            </div>
+        </div>
+        
+        <div class="f-panel-row">
+            <span class="f-panel-label">Style</span>
+            <div class="f-segmented-control">
+                <button class="f-segment-btn ${styles.fontWeight === 'bold' ? 'active' : ''}" 
+                        onclick="this.classList.toggle('active'); updateFieldStyle('${path}', 'fontWeight', this.classList.contains('active') ? 'bold' : 'normal')" title="Gras">
+                    <span style="font-weight: 700;">B</span>
+                </button>
+                <button class="f-segment-btn ${styles.fontStyle === 'italic' ? 'active' : ''}" 
+                        onclick="this.classList.toggle('active'); updateFieldStyle('${path}', 'fontStyle', this.classList.contains('active') ? 'italic' : 'normal')" title="Italique">
+                    <span style="font-style: italic; font-family: serif;">I</span>
+                </button>
+            </div>
+        </div>
     </div>
     `;
 }
@@ -3017,6 +3026,7 @@ function injectFieldDesignButtons() {
         wrapper.className = 'field-design-wrapper';
         wrapper.style.width = '100%';
         wrapper.style.marginBottom = '0.5rem';
+        wrapper.style.position = 'relative'; // Added to constrain absolute popover
         
         const header = document.createElement('div');
         header.style.display = 'flex';
@@ -3048,15 +3058,15 @@ function injectFieldDesignButtons() {
         
         wrapper.appendChild(header);
         
-        // Insert wrapper before input, then move input inside wrapper
-        input.parentNode.insertBefore(wrapper, input);
-        wrapper.appendChild(input);
-        
-        // Append the panel
+        // Append the panel (before the input)
         const panelHtml = buildFieldStylePanel(path);
         const temp = document.createElement('div');
         temp.innerHTML = panelHtml;
         wrapper.appendChild(temp.firstElementChild);
+        
+        // Insert wrapper before input, then move input inside wrapper
+        input.parentNode.insertBefore(wrapper, input);
+        wrapper.appendChild(input);
     });
 }
 
@@ -3072,13 +3082,13 @@ function applyFieldStyles(container) {
         
         if (parts.length === 2 && parts[0] === 'contact') {
             const field = parts[1];
-            if (field === 'name') targetSelector = '.cv-designed-name, .cv-prof-name, .cv-ats-name, .cv-minimalist-name, .cv-sidebar-name, .cv-europass-name';
-            else if (field === 'title_sub') targetSelector = '.cv-designed-title, .cv-prof-title, .cv-ats-title, .cv-minimalist-title, .cv-sidebar-title, .cv-europass-title';
+            if (field === 'name') targetSelector = '.cv-designed-name, .cv-prof-name, .cv-ats-name, .cv-mini-name, .cv-sidebar-name, .cv-euro-name';
+            else if (field === 'title_sub') targetSelector = '.cv-designed-title, .cv-prof-title, .cv-ats-title, .cv-mini-title, .cv-sidebar-title, .cv-euro-title';
             else if (field === 'email' || field === 'phone' || field === 'location' || field === 'linkedin' || field === 'github' || field === 'website' || field === 'driver') {
-                targetSelector = '.cv-designed-contact span, .cv-prof-contact span, .cv-ats-contact span, .cv-minimalist-contact span, .cv-sidebar-contact span, .cv-europass-contact span';
+                targetSelector = '.cv-designed-contacts span, .cv-prof-contacts span, .cv-ats-contacts span, .cv-mini-contacts span, .cv-sidebar-contacts span, .cv-euro-contacts span, .cv-designed-contacts a, .cv-prof-contacts a, .cv-sidebar-contacts a, .cv-mini-contacts a, .cv-euro-contacts a';
             }
         } else if (parts[0] === 'profile') {
-            targetSelector = '.cv-designed-summary, .cv-prof-summary, .cv-ats-summary, .cv-minimalist-summary, .cv-sidebar-summary, .cv-europass-summary';
+            targetSelector = '.cv-designed-profile, .cv-prof-profile, .cv-ats-profile, .cv-mini-profile, .cv-sidebar-left-content, .cv-euro-profile';
         } else if (parts.length === 3) {
             targetSelector = `[data-editor-target="${parts[0]}"][data-editor-index="${parts[1]}"] [data-editor-field="${parts[2]}"]`;
         } else if (parts.length === 2) {
@@ -3090,10 +3100,10 @@ function applyFieldStyles(container) {
         
         const els = container.querySelectorAll(targetSelector);
         els.forEach(el => {
-            if (styles.color) el.style.color = styles.color;
-            if (styles.fontSize) el.style.fontSize = styles.fontSize;
-            if (styles.fontWeight) el.style.fontWeight = styles.fontWeight;
-            if (styles.fontStyle) el.style.fontStyle = styles.fontStyle;
+            if (styles.color) el.style.setProperty('color', styles.color, 'important');
+            if (styles.fontSize) el.style.setProperty('font-size', styles.fontSize, 'important');
+            if (styles.fontWeight) el.style.setProperty('font-weight', styles.fontWeight, 'important');
+            if (styles.fontStyle) el.style.setProperty('font-style', styles.fontStyle, 'important');
         });
     }
 }
