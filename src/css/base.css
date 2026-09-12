@@ -1,0 +1,369 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,600&display=swap');
+
+
+/* ----------------------------------------------------
+    1. CORE SYSTEM & DARK NEUMORPHIC BUILDER THEME
+    ---------------------------------------------------- */
+:root {
+    --bg-builder: #0b0f19;
+    --bg-sidebar: #111827;
+    --bg-card: #1f2937;
+    --bg-input: #030712;
+    --border-color: rgba(255, 255, 255, 0.08);
+    --accent: #fbbf24;
+    --accent-dark: #d97706;
+    --text-main: #f3f4f6;
+    --text-muted: #9ca3af;
+
+    /* CV Layout Variable Defaults */
+    --design-bg: #0b0f19;
+    --design-gold: #f59e0b;
+    --design-gold-dark: #d97706;
+    --prof-navy: #1e3a8a;
+
+    /* Granular Text Color Customizations */
+    --text-color-name: initial;
+    --text-color-title: initial;
+    --text-color-heading: initial;
+    --text-color-body: initial;
+    --text-color-muted: initial;
+}
+
+/* Interactive Preview Hover Cues */
+#screen-preview-container [data-design-target] {
+    cursor: pointer;
+    transition: outline 0.15s ease, background-color 0.15s ease;
+    border-radius: 3px;
+}
+
+#screen-preview-container [data-design-target]:hover {
+    outline: 1.5px dashed rgba(59, 130, 246, 0.65);
+    background-color: rgba(59, 130, 246, 0.05);
+}
+
+/* Granular Text Target Selectors */
+[data-design-target="name"] {
+    color: var(--text-color-name) !important;
+}
+
+[data-design-target="title"] {
+    color: var(--text-color-title) !important;
+}
+
+[data-design-target="heading"] {
+    color: var(--text-color-heading) !important;
+}
+
+[data-design-target="body"] {
+    color: var(--text-color-body) !important;
+}
+
+[data-design-target="muted"] {
+    color: var(--text-color-muted) !important;
+}
+
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-builder);
+    color: var(--text-main);
+    overflow: hidden;
+    height: 100vh;
+}
+
+#app-container {
+    display: grid;
+    display: flex; justify-content: center;
+    height: 100vh;
+}
+
+/* Mobile top navigation bar (hidden on desktop) */
+.mobile-nav-bar {
+    display: none;
+    background: #0f172a;
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.5rem 0.75rem;
+    gap: 0.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.mobile-nav-btn {
+    flex: 1;
+    padding: 0.65rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-muted);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.25s ease;
+}
+
+.mobile-nav-btn.active {
+    background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+    color: #000000;
+    border-color: #fbbf24;
+    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.25);
+}
+
+/* Print button in mobile nav — compact icon pill, no flex:1 */
+.mobile-print-btn {
+    flex: 0 0 auto !important;
+    width: 46px;
+    min-width: 46px;
+    padding: 0.65rem 0.5rem;
+    color: var(--text-muted);
+    border-color: var(--border-color);
+}
+
+.mobile-print-btn:hover,
+.mobile-print-btn:active {
+    background: rgba(251, 191, 36, 0.15) !important;
+    color: var(--accent) !important;
+    border-color: var(--accent) !important;
+}
+
+
+/* ----------------------------------------------------
+    1.1 MOBILE & TABLET RESPONSIVE MEDIA QUERIES
+    ---------------------------------------------------- */
+@media screen and (max-width: 900px) {
+
+    /* --- Root layout --- */
+    body {
+        overflow-x: visible;
+        /* allow preview to pan horizontally when zoomed */
+        overflow-y: auto !important;
+        height: auto !important;
+        min-height: 100vh;
+    }
+
+    .mobile-nav-bar {
+        display: flex;
+    }
+
+    #app-container {
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        width: 100%;
+    }
+
+    /* --- Sidebar Editor --- */
+    .editor-sidebar {
+        width: 100%;
+        max-width: 100vw;
+        height: auto;
+        min-height: calc(100dvh - 56px);
+        border-right: none;
+        overflow: hidden;
+        overflow-y: auto;
+    }
+
+    /* Hide the branding header on mobile to save space */
+    .sidebar-brand {
+        display: none;
+    }
+
+    /* Mode Selector (Données / Design) */
+    .mode-selector {
+        padding: 0.5rem 0.75rem;
+        gap: 0.5rem;
+        border-radius: 0;
+    }
+
+    .mode-btn {
+        padding: 0.6rem 0.5rem;
+        font-size: 0.8rem;
+        min-height: 44px;
+    }
+
+    /* Tab Navigation */
+    .tabs-nav {
+        padding: 0;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+
+    .tabs-nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    .tab-btn {
+        padding: 0.65rem 0.4rem;
+        font-size: 0.7rem;
+        min-width: 64px;
+        min-height: 52px;
+    }
+
+    .tab-btn svg {
+        width: 1rem;
+        height: 1rem;
+    }
+
+    /* Tab content panel */
+    .tabs-content {
+        padding: 1rem 0.875rem;
+        gap: 1rem;
+    }
+
+    /* Form layouts — !important needed because base rule is declared after this media query */
+    .form-row {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+        width: 100% !important;
+    }
+
+    .form-card {
+        padding: 0.85rem;
+    }
+
+    .form-group {
+        margin-bottom: 0.75rem;
+    }
+
+    .form-group label {
+        font-size: 0.7rem;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        font-size: 1rem !important;
+        /* Prevents iOS auto-zoom on focus */
+        padding: 0.65rem 0.75rem !important;
+        min-height: 44px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .form-group textarea {
+        min-height: 90px;
+    }
+
+    /* Section titles */
+    .panel-section-title {
+        font-size: 0.78rem;
+    }
+
+    /* Collapsible cards */
+    .collapsible-header {
+        padding: 0.7rem 0.85rem;
+        min-height: 52px;
+    }
+
+    /* Footer action buttons */
+    .sidebar-footer {
+        padding: 0.75rem;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .sidebar-footer .btn-action {
+        flex: 1;
+        min-width: 80px;
+        padding: 0.6rem 0.5rem;
+        font-size: 0.78rem;
+        justify-content: center;
+        text-align: center;
+        min-height: 44px;
+        border-radius: 10px;
+    }
+
+    /* --- Preview Container --- */
+    .preview-container {
+        width: 100% !important;
+        max-width: 100vw !important;
+        height: auto !important;
+        min-height: calc(100dvh - 56px) !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow-x: auto !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-x pan-y pinch-zoom;
+        align-items: flex-start !important;
+        align-content: flex-start !important;
+        gap: 0 !important;
+    }
+
+    /* Hide the entire toolbar on mobile — zoom handled by pinch, print by nav bar */
+    .preview-toolbar {
+        display: none !important;
+    }
+
+    /* A4 Page area — NOT a scroll container (overflow:visible).
+       preview-container handles ALL scrolling (x and y).
+       Note: setting overflow-x:auto forces overflow-y:auto per CSS spec,
+       which created a hidden inner scroll trap after section toggles. */
+    #a4-page {
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-x pan-y pinch-zoom;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        padding: 0 !important;
+        gap: 0 !important;
+    }
+
+    /* Override inline width:100% so zoom scales the natural 794px content, not the viewport box */
+    #screen-preview-container {
+        width: max-content !important;
+        height: auto !important;
+        touch-action: pan-x pan-y pinch-zoom;
+    }
+
+    .a4-page-sheet {
+        margin-bottom: 10px;
+        touch-action: pan-x pan-y pinch-zoom;
+    }
+
+    /* --- Mobile view toggle (show-editor / show-preview) --- */
+    #app-container.show-editor .editor-sidebar {
+        display: flex !important;
+    }
+
+    #app-container.show-editor .preview-container {
+        display: none !important;
+    }
+
+    #app-container.show-preview .editor-sidebar {
+        display: none !important;
+    }
+
+    #app-container.show-preview .preview-container {
+        display: flex !important;
+    }
+}
+
+
+
+
+/* Override layout for full screen editor */
+#app-container {
+    display: flex;
+    justify-content: center;
+}
+.editor-sidebar {
+    width: 100%;
+    max-width: 900px;
+    border-right: none;
+}

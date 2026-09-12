@@ -1329,6 +1329,9 @@ function renderPreview() {
 
     // Attach data attributes to connect preview elements to their editor sections
     attachEditorBindings(printContainer);
+    
+    if (typeof applyItemStyles === 'function') applyItemStyles(printContainer);
+    if (typeof applySectionStyles === 'function') applySectionStyles(printContainer);
 
     // 2. Determine conversion from page height and margins to pixels
     const dummyPage = document.createElement('div');
@@ -1839,6 +1842,8 @@ function renderList(key) {
 
         const div = document.createElement('div');
         div.className = `collapsible-card ${isOpen ? 'open' : ''}`;
+        div.setAttribute('data-card-key', key);
+        div.setAttribute('data-card-index', index);
         div.innerHTML = `
         <div class="collapsible-header" onclick="toggleCollapse('${key}', ${index})">
         <div class="collapsible-header-info">
@@ -1851,7 +1856,14 @@ function renderList(key) {
         </div>
         </div>
         <div class="collapsible-content">
-        ${fields}
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <button class="tab-btn btn-subtab-content active" style="flex:1; padding:5px; font-size:12px; height:auto; min-height:0;" onclick="toggleCardStyleTab('${key}', ${index}, 'content')">📝 Contenu</button>
+                <button class="tab-btn btn-subtab-style" style="flex:1; padding:5px; font-size:12px; height:auto; min-height:0;" onclick="toggleCardStyleTab('${key}', ${index}, 'style')">🎨 Design</button>
+            </div>
+            <div class="card-content-panel">
+                ${fields}
+            </div>
+            ${typeof buildItemStylePanel === 'function' ? buildItemStylePanel(key, index) : ''}
         </div>
     `;
         container.appendChild(div);
@@ -1865,11 +1877,22 @@ function renderSimpleList(key) {
     cvData[key].forEach((item, index) => {
         const div = document.createElement('div');
         div.style.display = "flex";
+        div.style.flexDirection = "column";
         div.style.gap = "0.5rem";
         div.style.marginBottom = "0.5rem";
+        div.style.background = "var(--bg-card)";
+        div.style.padding = "0.5rem";
+        div.style.borderRadius = "4px";
         div.innerHTML = `
-        <input type="text" data-field="value" data-index="${index}" value="${item}" style="flex:1; background:var(--bg-input); border:1px solid var(--border-color); color:white; padding:0.4rem; font-size:0.8rem; border-radius:4px;" oninput="updateSimpleListItem('${key}', ${index}, this.value)">
-        <button class="pfp-btn" style="color:#ef4444; border-color:rgba(239,68,68,0.15);" onclick="deleteSimpleItem('${key}', ${index})">✕</button>
+        <div style="display:flex; gap:0.5rem;">
+            <input type="text" data-field="value" data-index="${index}" value="${item}" style="flex:1; background:var(--bg-input); border:1px solid var(--border-color); color:white; padding:0.4rem; font-size:0.8rem; border-radius:4px;" oninput="updateSimpleListItem('${key}', ${index}, this.value)">
+            <button class="pfp-btn" style="color:#3b82f6; border-color:rgba(59,130,246,0.3); padding:0 0.5rem;" onclick="const p = this.parentElement.nextElementSibling.querySelector('.card-style-panel'); p.style.display = p.style.display === 'none' ? 'block' : 'none';">🎨</button>
+            <button class="pfp-btn" style="color:#ef4444; border-color:rgba(239,68,68,0.15); padding:0 0.5rem;" onclick="deleteSimpleItem('${key}', ${index})">✕</button>
+        </div>
+        <div class="collapsible-card open" style="margin:0; border:none; background:transparent;" data-card-key="${key}" data-card-index="${index}">
+            <div class="card-content-panel" style="display:none;"></div>
+            ${typeof buildItemStylePanel === 'function' ? buildItemStylePanel(key, index) : ''}
+        </div>
     `;
         container.appendChild(div);
     });
@@ -2166,27 +2189,7 @@ function applyRandomPalette() {
     saveAndSync();
 }
 
-function setEditorMode(mode) {
-    const btnData = document.getElementById('btn-mode-data');
-    const btnDesign = document.getElementById('btn-mode-design');
-    const containerData = document.getElementById('mode-data-container');
-    const containerDesign = document.getElementById('mode-design-container');
-
-    if (mode === 'data') {
-        btnData.classList.add('active');
-        btnDesign.classList.remove('active');
-        containerData.style.display = 'flex';
-        containerDesign.style.display = 'none';
-    } else {
-        btnData.classList.remove('active');
-        btnDesign.classList.add('active');
-        containerData.style.display = 'none';
-        containerDesign.style.display = 'flex';
-
-        // Sync active layout sub-picker colors visibility:
-        changeLayout(currentLayout);
-    }
-}
+// setEditorMode removed in favor of unified tabs
 
 function updateDesignField(field, value) {
     if (!cvData.design) cvData.design = {};
@@ -2762,7 +2765,8 @@ document.getElementById('screen-preview-container').addEventListener('click', (e
     // If in Design Mode or clicking a design element while holding Alt/Ctrl key, switch to Design tab & focus color picker
     if (designTargetEl && (isDesignModeActive || e.altKey || e.ctrlKey)) {
         const targetType = designTargetEl.getAttribute('data-design-target');
-        setEditorMode('design');
+        switchTab('tab-design');
+        window.changeLayout(window.App.currentLayout);
         if (window.innerWidth <= 900) {
             switchMobileView('editor');
         }
@@ -2798,7 +2802,7 @@ document.getElementById('screen-preview-container').addEventListener('click', (e
     const focusId = focusTarget ? focusTarget.getAttribute('data-editor-focus') : null;
     const field = fieldTarget ? fieldTarget.getAttribute('data-editor-field') : (e.target.getAttribute('data-editor-field') || null);
 
-    setEditorMode('data');
+
     if (tabId) {
         switchTab(tabId);
     }
@@ -2912,5 +2916,263 @@ window.onload = async function () {
     } else {
         applyZoom();
     }
-    setEditorMode('data');
+    
+    if (typeof renderSectionDesignPanels === 'function') {
+        renderSectionDesignPanels();
+    }
 };
+
+// ==========================================
+// ITEM LEVEL STYLES (DEEP CONFIG)
+// ==========================================
+
+function updateItemStyle(key, index, prop, val) {
+    if (!cvData.item_styles) cvData.item_styles = {};
+    if (!cvData.item_styles[key]) cvData.item_styles[key] = {};
+    if (!cvData.item_styles[key][index]) cvData.item_styles[key][index] = {};
+    cvData.item_styles[key][index][prop] = val;
+    saveAndSync();
+}
+
+function getItemStyle(key, index) {
+    if (cvData.item_styles && cvData.item_styles[key] && cvData.item_styles[key][index]) {
+        return cvData.item_styles[key][index];
+    }
+    return {};
+}
+
+function resetItemStyle(key, index) {
+    if (cvData.item_styles && cvData.item_styles[key]) {
+        delete cvData.item_styles[key][index];
+        saveAndSync();
+        renderList(key); // Re-render to clear the panel state
+    }
+}
+
+function toggleCardStyleTab(key, index, tab) {
+    const card = document.querySelector(`.collapsible-card[data-card-key="${key}"][data-card-index="${index}"]`);
+    if (!card) return;
+    const contentPanel = card.querySelector('.card-content-panel');
+    const stylePanel = card.querySelector('.card-style-panel');
+    const btnContent = card.querySelector('.btn-subtab-content');
+    const btnStyle = card.querySelector('.btn-subtab-style');
+    
+    if (tab === 'content') {
+        contentPanel.style.display = 'block';
+        stylePanel.style.display = 'none';
+        btnContent.classList.add('active');
+        btnStyle.classList.remove('active');
+    } else {
+        contentPanel.style.display = 'none';
+        stylePanel.style.display = 'block';
+        btnContent.classList.remove('active');
+        btnStyle.classList.add('active');
+    }
+}
+
+function buildItemStylePanel(key, index) {
+    const styles = getItemStyle(key, index);
+    const getVal = (prop, def) => styles[prop] !== undefined ? styles[prop] : def;
+    
+    return `
+    <div class="card-style-panel" style="display: none; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 6px; margin-top: 10px;">
+        <h4 style="margin-top:0; margin-bottom:10px; color:#fff; font-size:12px; text-transform:uppercase; letter-spacing:1px;">Apparence de cet élément</h4>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label>Couleur Titre</label>
+                <div class="color-picker-wrapper">
+                    <input type="color" value="${getVal('titleColor', '#ffffff')}" oninput="updateItemStyle('${key}', ${index}, 'titleColor', this.value)">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Couleur Texte</label>
+                <div class="color-picker-wrapper">
+                    <input type="color" value="${getVal('bodyColor', '#cccccc')}" oninput="updateItemStyle('${key}', ${index}, 'bodyColor', this.value)">
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label>Couleur Méta (Période/Lieu)</label>
+                <div class="color-picker-wrapper">
+                    <input type="color" value="${getVal('metaColor', '#999999')}" oninput="updateItemStyle('${key}', ${index}, 'metaColor', this.value)">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Fond de la carte</label>
+                <div class="color-picker-wrapper">
+                    <input type="color" value="${getVal('cardBackground', '#000000')}" oninput="updateItemStyle('${key}', ${index}, 'cardBackground', this.value)">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Bordures (px)</label>
+                <input type="number" value="${parseInt(getVal('cardBorderRadius', 0))}" oninput="updateItemStyle('${key}', ${index}, 'cardBorderRadius', this.value + 'px')" style="padding:0.4rem;">
+            </div>
+            <div class="form-group">
+                <label>Padding (px)</label>
+                <input type="number" value="${parseInt(getVal('cardPadding', 0))}" oninput="updateItemStyle('${key}', ${index}, 'cardPadding', this.value + 'px')" style="padding:0.4rem;">
+            </div>
+        </div>
+        
+        <button class="pfp-btn" style="margin-top:10px; width:100%; border-color:#ef4444; color:#ef4444;" onclick="resetItemStyle('${key}', ${index})">Réinitialiser les styles</button>
+    </div>
+    `;
+}
+
+function applyItemStyles(container) {
+    if (!cvData.item_styles) return;
+    
+    for (let sectionKey in cvData.item_styles) {
+        for (let index in cvData.item_styles[sectionKey]) {
+            const styles = cvData.item_styles[sectionKey][index];
+            if (!styles) continue;
+            
+            const targetElements = container.querySelectorAll(`[data-editor-target="${sectionKey}"][data-editor-index="${index}"]`);
+            targetElements.forEach(el => {
+                if (styles.cardBackground) el.style.background = styles.cardBackground;
+                if (styles.cardBorderRadius) el.style.borderRadius = styles.cardBorderRadius;
+                if (styles.cardPadding) el.style.padding = styles.cardPadding;
+                
+                // Titles
+                el.querySelectorAll('[data-editor-field="title"], [data-editor-field="degree"], [data-editor-field="name"]').forEach(titleEl => {
+                    if (styles.titleColor) titleEl.style.color = styles.titleColor;
+                });
+                // Metas
+                el.querySelectorAll('[data-editor-field="period"], [data-editor-field="company"], [data-editor-field="location"], [data-editor-field="school"]').forEach(metaEl => {
+                    if (styles.metaColor) metaEl.style.color = styles.metaColor;
+                });
+                // Bodies
+                el.querySelectorAll('[data-editor-field="bullets"], [data-editor-field="description"], li, p').forEach(bodyEl => {
+                    if (styles.bodyColor) bodyEl.style.color = styles.bodyColor;
+                });
+            });
+        }
+    }
+}
+
+// ==========================================
+// SECTION LEVEL STYLES (DEEP CONFIG)
+// ==========================================
+
+function updateSectionStyle(section, prop, val) {
+    if (!cvData.section_styles) cvData.section_styles = {};
+    if (!cvData.section_styles[section]) cvData.section_styles[section] = {};
+    cvData.section_styles[section][prop] = val;
+    saveAndSync();
+}
+
+function getSectionStyle(section) {
+    return (cvData.section_styles && cvData.section_styles[section]) || {};
+}
+
+function resetSectionStyle(section) {
+    if (cvData.section_styles && cvData.section_styles[section]) {
+        delete cvData.section_styles[section];
+        saveAndSync();
+        renderSectionDesignPanels();
+    }
+}
+
+function toggleSectionDesign(section) {
+    const panel = document.getElementById(`design-panel-${section}`);
+    if (panel) {
+        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        if (panel.style.display === 'block') {
+            renderSectionDesignPanels(); // Ensure it's rendered when opened
+        }
+    }
+}
+
+function renderSectionDesignPanels() {
+    const sections = ['contact', 'experiences', 'formations', 'projects', 'education', 'skills', 'languages', 'certifications', 'activities', 'interests'];
+    
+    sections.forEach(sec => {
+        const panel = document.getElementById(`design-panel-${sec}`);
+        if (!panel) return;
+        
+        const styles = getSectionStyle(sec);
+        const getVal = (prop, def) => styles[prop] !== undefined ? styles[prop] : def;
+        
+        let html = `
+        <div class="card-style-panel" style="padding: 10px; background: rgba(0,0,0,0.2); border-radius: 6px; border-left: 3px solid #3b82f6;">
+            <h4 style="margin-top:0; margin-bottom:10px; color:#fff; font-size:12px; text-transform:uppercase;">Design : ${sec}</h4>
+        `;
+        
+        if (sec === 'contact') {
+            html += `
+            <div class="form-row">
+                <div class="form-group"><label>Couleur Nom</label><div class="color-picker-wrapper"><input type="color" value="${getVal('nameColor', '#ffffff')}" oninput="updateSectionStyle('${sec}', 'nameColor', this.value)"></div></div>
+                <div class="form-group"><label>Couleur Titre Pro</label><div class="color-picker-wrapper"><input type="color" value="${getVal('titleColor', '#cccccc')}" oninput="updateSectionStyle('${sec}', 'titleColor', this.value)"></div></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>Couleur Icônes/Contact</label><div class="color-picker-wrapper"><input type="color" value="${getVal('contactColor', '#999999')}" oninput="updateSectionStyle('${sec}', 'contactColor', this.value)"></div></div>
+                <div class="form-group"><label>Couleur Profil (Texte)</label><div class="color-picker-wrapper"><input type="color" value="${getVal('profileColor', '#dddddd')}" oninput="updateSectionStyle('${sec}', 'profileColor', this.value)"></div></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>Fond Section Contact</label><div class="color-picker-wrapper"><input type="color" value="${getVal('background', '#000000')}" oninput="updateSectionStyle('${sec}', 'background', this.value)"></div></div>
+            </div>
+            `;
+        } else {
+            html += `
+            <div class="form-row">
+                <div class="form-group"><label>Couleur Titre Section</label><div class="color-picker-wrapper"><input type="color" value="${getVal('titleColor', '#ffffff')}" oninput="updateSectionStyle('${sec}', 'titleColor', this.value)"></div></div>
+                <div class="form-group"><label>Fond Section</label><div class="color-picker-wrapper"><input type="color" value="${getVal('background', '#000000')}" oninput="updateSectionStyle('${sec}', 'background', this.value)"></div></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>Padding (px)</label><input type="number" value="${parseInt(getVal('padding', 0))}" oninput="updateSectionStyle('${sec}', 'padding', this.value + 'px')" style="padding:0.4rem;"></div>
+                <div class="form-group"><label>Border Radius (px)</label><input type="number" value="${parseInt(getVal('borderRadius', 0))}" oninput="updateSectionStyle('${sec}', 'borderRadius', this.value + 'px')" style="padding:0.4rem;"></div>
+            </div>
+            `;
+        }
+        
+        html += `
+            <button class="pfp-btn" style="margin-top:10px; width:100%; border-color:#ef4444; color:#ef4444;" onclick="resetSectionStyle('${sec}')">Réinitialiser la section</button>
+        </div>
+        `;
+        panel.innerHTML = html;
+    });
+}
+
+function applySectionStyles(container) {
+    if (!cvData.section_styles) return;
+    for (let sec in cvData.section_styles) {
+        const styles = cvData.section_styles[sec];
+        if (!styles) continue;
+        
+        if (sec === 'contact') {
+            const nameEl = container.querySelector('.cv-designed-name, .cv-prof-name, .cv-ats-name, .cv-minimalist-name, .cv-sidebar-name, .cv-europass-name');
+            if (nameEl && styles.nameColor) nameEl.style.color = styles.nameColor;
+            
+            const titleEl = container.querySelector('.cv-designed-title, .cv-prof-title, .cv-ats-title, .cv-minimalist-title, .cv-sidebar-title, .cv-europass-title');
+            if (titleEl && styles.titleColor) titleEl.style.color = styles.titleColor;
+            
+            const contactEls = container.querySelectorAll('.cv-designed-contact span, .cv-prof-contact span, .cv-ats-contact span, .cv-minimalist-contact span, .cv-sidebar-contact span, .cv-europass-contact span, .cv-sidebar-contact, .cv-designed-contact');
+            if (contactEls && styles.contactColor) contactEls.forEach(el => el.style.color = styles.contactColor);
+            
+            const profileEl = container.querySelector('.cv-designed-summary, .cv-prof-summary, .cv-ats-summary, .cv-minimalist-summary, .cv-sidebar-summary, .cv-europass-summary');
+            if (profileEl && styles.profileColor) profileEl.style.color = styles.profileColor;
+            
+            const headerEl = container.querySelector('header, .cv-sidebar-left');
+            if (headerEl && styles.background && styles.background !== '#000000') {
+                 headerEl.style.background = styles.background;
+            }
+        } else {
+            const sectionTitles = container.querySelectorAll(`.cv-designed-sectitle[data-editor-tab="tab-${sec}"], .cv-prof-sectitle[data-editor-tab="tab-${sec}"], .cv-sidebar-sectitle[data-editor-tab="tab-${sec}"], .cv-minimalist-sectitle[data-editor-tab="tab-${sec}"], .cv-europass-sectitle[data-editor-tab="tab-${sec}"], .cv-ats-sectitle[data-editor-tab="tab-${sec}"]`);
+            if (sectionTitles && styles.titleColor) sectionTitles.forEach(el => el.style.color = styles.titleColor);
+            
+            sectionTitles.forEach(titleEl => {
+                const section = titleEl.closest('section');
+                if (section) {
+                    if (styles.background && styles.background !== '#000000') section.style.background = styles.background;
+                    if (styles.padding) section.style.padding = styles.padding;
+                    if (styles.borderRadius) section.style.borderRadius = styles.borderRadius;
+                }
+            });
+        }
+    }
+}
