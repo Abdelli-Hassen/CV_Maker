@@ -1330,8 +1330,7 @@ function renderPreview() {
     // Attach data attributes to connect preview elements to their editor sections
     attachEditorBindings(printContainer);
     
-    if (typeof applyItemStyles === 'function') applyItemStyles(printContainer);
-    if (typeof applySectionStyles === 'function') applySectionStyles(printContainer);
+    if (typeof applyFieldStyles === 'function') applyFieldStyles(printContainer);
 
     // 2. Determine conversion from page height and margins to pixels
     const dummyPage = document.createElement('div');
@@ -1856,18 +1855,15 @@ function renderList(key) {
         </div>
         </div>
         <div class="collapsible-content">
-            <div style="display:flex; gap:10px; margin-bottom:15px;">
-                <button class="tab-btn btn-subtab-content active" style="flex:1; padding:5px; font-size:12px; height:auto; min-height:0;" onclick="toggleCardStyleTab('${key}', ${index}, 'content')">📝 Contenu</button>
-                <button class="tab-btn btn-subtab-style" style="flex:1; padding:5px; font-size:12px; height:auto; min-height:0;" onclick="toggleCardStyleTab('${key}', ${index}, 'style')">🎨 Design</button>
-            </div>
             <div class="card-content-panel">
                 ${fields}
             </div>
-            ${typeof buildItemStylePanel === 'function' ? buildItemStylePanel(key, index) : ''}
         </div>
     `;
         container.appendChild(div);
     });
+    
+    if (typeof injectFieldDesignButtons === 'function') injectFieldDesignButtons();
 }
 
 function renderSimpleList(key) {
@@ -1877,25 +1873,16 @@ function renderSimpleList(key) {
     cvData[key].forEach((item, index) => {
         const div = document.createElement('div');
         div.style.display = "flex";
-        div.style.flexDirection = "column";
         div.style.gap = "0.5rem";
         div.style.marginBottom = "0.5rem";
-        div.style.background = "var(--bg-card)";
-        div.style.padding = "0.5rem";
-        div.style.borderRadius = "4px";
         div.innerHTML = `
-        <div style="display:flex; gap:0.5rem;">
-            <input type="text" data-field="value" data-index="${index}" value="${item}" style="flex:1; background:var(--bg-input); border:1px solid var(--border-color); color:white; padding:0.4rem; font-size:0.8rem; border-radius:4px;" oninput="updateSimpleListItem('${key}', ${index}, this.value)">
-            <button class="pfp-btn" style="color:#3b82f6; border-color:rgba(59,130,246,0.3); padding:0 0.5rem;" onclick="const p = this.parentElement.nextElementSibling.querySelector('.card-style-panel'); p.style.display = p.style.display === 'none' ? 'block' : 'none';">🎨</button>
-            <button class="pfp-btn" style="color:#ef4444; border-color:rgba(239,68,68,0.15); padding:0 0.5rem;" onclick="deleteSimpleItem('${key}', ${index})">✕</button>
-        </div>
-        <div class="collapsible-card open" style="margin:0; border:none; background:transparent;" data-card-key="${key}" data-card-index="${index}">
-            <div class="card-content-panel" style="display:none;"></div>
-            ${typeof buildItemStylePanel === 'function' ? buildItemStylePanel(key, index) : ''}
-        </div>
+        <input type="text" data-field="value" data-index="${index}" value="${item}" style="flex:1; background:var(--bg-input); border:1px solid var(--border-color); color:white; padding:0.4rem; font-size:0.8rem; border-radius:4px;" oninput="updateSimpleListItem('${key}', ${index}, this.value)">
+        <button class="pfp-btn" style="color:#ef4444; border-color:rgba(239,68,68,0.15);" onclick="deleteSimpleItem('${key}', ${index})">✕</button>
     `;
         container.appendChild(div);
     });
+    
+    if (typeof injectFieldDesignButtons === 'function') injectFieldDesignButtons();
 }
 
 /* Input bindings */
@@ -2917,262 +2904,196 @@ window.onload = async function () {
         applyZoom();
     }
     
-    if (typeof renderSectionDesignPanels === 'function') {
-        renderSectionDesignPanels();
+    if (typeof injectFieldDesignButtons === 'function') {
+        injectFieldDesignButtons();
     }
 };
 
 // ==========================================
-// ITEM LEVEL STYLES (DEEP CONFIG)
+// FIELD LEVEL STYLES (DEEP CONFIG)
 // ==========================================
 
-function updateItemStyle(key, index, prop, val) {
-    if (!cvData.item_styles) cvData.item_styles = {};
-    if (!cvData.item_styles[key]) cvData.item_styles[key] = {};
-    if (!cvData.item_styles[key][index]) cvData.item_styles[key][index] = {};
-    cvData.item_styles[key][index][prop] = val;
+function updateFieldStyle(path, prop, val) {
+    if (!cvData.field_styles) cvData.field_styles = {};
+    if (!cvData.field_styles[path]) cvData.field_styles[path] = {};
+    cvData.field_styles[path][prop] = val;
     saveAndSync();
 }
 
-function getItemStyle(key, index) {
-    if (cvData.item_styles && cvData.item_styles[key] && cvData.item_styles[key][index]) {
-        return cvData.item_styles[key][index];
-    }
-    return {};
+function getFieldStyle(path) {
+    return (cvData.field_styles && cvData.field_styles[path]) || {};
 }
 
-function resetItemStyle(key, index) {
-    if (cvData.item_styles && cvData.item_styles[key]) {
-        delete cvData.item_styles[key][index];
+function resetFieldStyle(path) {
+    if (cvData.field_styles && cvData.field_styles[path]) {
+        delete cvData.field_styles[path];
         saveAndSync();
-        renderList(key); // Re-render to clear the panel state
+        // re-render the panel
+        const panel = document.getElementById(`field-style-panel-${path.replace(/\./g, '-')}`);
+        if(panel) {
+            panel.outerHTML = buildFieldStylePanel(path);
+        }
     }
 }
 
-function toggleCardStyleTab(key, index, tab) {
-    const card = document.querySelector(`.collapsible-card[data-card-key="${key}"][data-card-index="${index}"]`);
-    if (!card) return;
-    const contentPanel = card.querySelector('.card-content-panel');
-    const stylePanel = card.querySelector('.card-style-panel');
-    const btnContent = card.querySelector('.btn-subtab-content');
-    const btnStyle = card.querySelector('.btn-subtab-style');
-    
-    if (tab === 'content') {
-        contentPanel.style.display = 'block';
-        stylePanel.style.display = 'none';
-        btnContent.classList.add('active');
-        btnStyle.classList.remove('active');
-    } else {
-        contentPanel.style.display = 'none';
-        stylePanel.style.display = 'block';
-        btnContent.classList.remove('active');
-        btnStyle.classList.add('active');
+function toggleFieldStylePanel(path) {
+    const id = `field-style-panel-${path.replace(/\./g, '-')}`;
+    const panel = document.getElementById(id);
+    if (panel) {
+        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
     }
 }
-
-function buildItemStylePanel(key, index) {
-    const styles = getItemStyle(key, index);
+function buildFieldStylePanel(path) {
+    const styles = getFieldStyle(path);
     const getVal = (prop, def) => styles[prop] !== undefined ? styles[prop] : def;
+    const id = `field-style-panel-${path.replace(/\./g, '-')}`;
     
     return `
-    <div class="card-style-panel" style="display: none; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 6px; margin-top: 10px;">
-        <h4 style="margin-top:0; margin-bottom:10px; color:#fff; font-size:12px; text-transform:uppercase; letter-spacing:1px;">Apparence de cet élément</h4>
-        
-        <div class="form-row">
-            <div class="form-group">
-                <label>Couleur Titre</label>
-                <div class="color-picker-wrapper">
-                    <input type="color" value="${getVal('titleColor', '#ffffff')}" oninput="updateItemStyle('${key}', ${index}, 'titleColor', this.value)">
+    <div id="${id}" class="field-design-popover" style="display: none;">
+        <div class="field-design-grid">
+            <div class="design-control-group">
+                <label>Couleur du texte</label>
+                <div class="custom-color-picker">
+                    <input type="color" value="${getVal('color', '#ffffff')}" oninput="updateFieldStyle('${path}', 'color', this.value)">
                 </div>
             </div>
-            <div class="form-group">
-                <label>Couleur Texte</label>
-                <div class="color-picker-wrapper">
-                    <input type="color" value="${getVal('bodyColor', '#cccccc')}" oninput="updateItemStyle('${key}', ${index}, 'bodyColor', this.value)">
-                </div>
+            <div class="design-control-group">
+                <label>Taille (px)</label>
+                <input type="number" class="glass-input" value="${parseInt(getVal('fontSize', 14))}" oninput="updateFieldStyle('${path}', 'fontSize', this.value + 'px')">
             </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group">
-                <label>Couleur Méta (Période/Lieu)</label>
-                <div class="color-picker-wrapper">
-                    <input type="color" value="${getVal('metaColor', '#999999')}" oninput="updateItemStyle('${key}', ${index}, 'metaColor', this.value)">
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Fond de la carte</label>
-                <div class="color-picker-wrapper">
-                    <input type="color" value="${getVal('cardBackground', '#000000')}" oninput="updateItemStyle('${key}', ${index}, 'cardBackground', this.value)">
+            <div class="design-control-group" style="grid-column: span 2;">
+                <label>Style du texte</label>
+                <div class="style-toggles">
+                    <button class="style-toggle-btn ${styles.fontWeight === 'bold' ? 'active' : ''}" 
+                            onclick="const isActive = this.classList.toggle('active'); updateFieldStyle('${path}', 'fontWeight', isActive ? 'bold' : 'normal')">
+                        <b>B</b>
+                    </button>
+                    <button class="style-toggle-btn ${styles.fontStyle === 'italic' ? 'active' : ''}" 
+                            onclick="const isActive = this.classList.toggle('active'); updateFieldStyle('${path}', 'fontStyle', isActive ? 'italic' : 'normal')">
+                        <i>I</i>
+                    </button>
                 </div>
             </div>
         </div>
-
-        <div class="form-row">
-            <div class="form-group">
-                <label>Bordures (px)</label>
-                <input type="number" value="${parseInt(getVal('cardBorderRadius', 0))}" oninput="updateItemStyle('${key}', ${index}, 'cardBorderRadius', this.value + 'px')" style="padding:0.4rem;">
-            </div>
-            <div class="form-group">
-                <label>Padding (px)</label>
-                <input type="number" value="${parseInt(getVal('cardPadding', 0))}" oninput="updateItemStyle('${key}', ${index}, 'cardPadding', this.value + 'px')" style="padding:0.4rem;">
-            </div>
-        </div>
-        
-        <button class="pfp-btn" style="margin-top:10px; width:100%; border-color:#ef4444; color:#ef4444;" onclick="resetItemStyle('${key}', ${index})">Réinitialiser les styles</button>
+        <button class="btn-reset-field" onclick="resetFieldStyle('${path}')">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            Réinitialiser
+        </button>
     </div>
     `;
 }
 
-function applyItemStyles(container) {
-    if (!cvData.item_styles) return;
+function injectFieldDesignButtons() {
+    // Inject design buttons next to all inputs that have data-field or updateField
+    const inputs = document.querySelectorAll('input[oninput*="updateField"], textarea[oninput*="updateField"], input[oninput*="updateListItem"], textarea[oninput*="updateListItem"], input[oninput*="updateSimpleListItem"]');
     
-    for (let sectionKey in cvData.item_styles) {
-        for (let index in cvData.item_styles[sectionKey]) {
-            const styles = cvData.item_styles[sectionKey][index];
-            if (!styles) continue;
-            
-            const targetElements = container.querySelectorAll(`[data-editor-target="${sectionKey}"][data-editor-index="${index}"]`);
-            targetElements.forEach(el => {
-                if (styles.cardBackground) el.style.background = styles.cardBackground;
-                if (styles.cardBorderRadius) el.style.borderRadius = styles.cardBorderRadius;
-                if (styles.cardPadding) el.style.padding = styles.cardPadding;
-                
-                // Titles
-                el.querySelectorAll('[data-editor-field="title"], [data-editor-field="degree"], [data-editor-field="name"]').forEach(titleEl => {
-                    if (styles.titleColor) titleEl.style.color = styles.titleColor;
-                });
-                // Metas
-                el.querySelectorAll('[data-editor-field="period"], [data-editor-field="company"], [data-editor-field="location"], [data-editor-field="school"]').forEach(metaEl => {
-                    if (styles.metaColor) metaEl.style.color = styles.metaColor;
-                });
-                // Bodies
-                el.querySelectorAll('[data-editor-field="bullets"], [data-editor-field="description"], li, p').forEach(bodyEl => {
-                    if (styles.bodyColor) bodyEl.style.color = styles.bodyColor;
-                });
-            });
+    inputs.forEach(input => {
+        // Prevent double injection
+        if (input.parentElement.classList.contains('field-design-wrapper')) return;
+        
+        let path = '';
+        const oninput = input.getAttribute('oninput');
+        
+        // Extract path based on the function called
+        if (oninput.includes("updateField('")) {
+            path = oninput.split("updateField('")[1].split("'")[0];
+        } else if (oninput.includes("updateListItem('")) {
+            const parts = oninput.split("updateListItem('")[1].split("'");
+            const key = parts[0];
+            const index = oninput.split(", ")[1];
+            const field = parts[2];
+            path = `${key}.${index}.${field}`;
+        } else if (oninput.includes("updateSimpleListItem('")) {
+            const parts = oninput.split("updateSimpleListItem('")[1].split("'");
+            const key = parts[0];
+            const index = oninput.split(", ")[1];
+            path = `${key}.${index}`;
         }
-    }
-}
-
-// ==========================================
-// SECTION LEVEL STYLES (DEEP CONFIG)
-// ==========================================
-
-function updateSectionStyle(section, prop, val) {
-    if (!cvData.section_styles) cvData.section_styles = {};
-    if (!cvData.section_styles[section]) cvData.section_styles[section] = {};
-    cvData.section_styles[section][prop] = val;
-    saveAndSync();
-}
-
-function getSectionStyle(section) {
-    return (cvData.section_styles && cvData.section_styles[section]) || {};
-}
-
-function resetSectionStyle(section) {
-    if (cvData.section_styles && cvData.section_styles[section]) {
-        delete cvData.section_styles[section];
-        saveAndSync();
-        renderSectionDesignPanels();
-    }
-}
-
-function toggleSectionDesign(section) {
-    const panel = document.getElementById(`design-panel-${section}`);
-    if (panel) {
-        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-        if (panel.style.display === 'block') {
-            renderSectionDesignPanels(); // Ensure it's rendered when opened
-        }
-    }
-}
-
-function renderSectionDesignPanels() {
-    const sections = ['contact', 'experiences', 'formations', 'projects', 'education', 'skills', 'languages', 'certifications', 'activities', 'interests'];
-    
-    sections.forEach(sec => {
-        const panel = document.getElementById(`design-panel-${sec}`);
-        if (!panel) return;
         
-        const styles = getSectionStyle(sec);
-        const getVal = (prop, def) => styles[prop] !== undefined ? styles[prop] : def;
+        if (!path) return;
         
-        let html = `
-        <div class="card-style-panel" style="padding: 10px; background: rgba(0,0,0,0.2); border-radius: 6px; border-left: 3px solid #3b82f6;">
-            <h4 style="margin-top:0; margin-bottom:10px; color:#fff; font-size:12px; text-transform:uppercase;">Design : ${sec}</h4>
-        `;
+        // Wrap input and inject button
+        const wrapper = document.createElement('div');
+        wrapper.className = 'field-design-wrapper';
+        wrapper.style.width = '100%';
+        wrapper.style.marginBottom = '0.5rem';
         
-        if (sec === 'contact') {
-            html += `
-            <div class="form-row">
-                <div class="form-group"><label>Couleur Nom</label><div class="color-picker-wrapper"><input type="color" value="${getVal('nameColor', '#ffffff')}" oninput="updateSectionStyle('${sec}', 'nameColor', this.value)"></div></div>
-                <div class="form-group"><label>Couleur Titre Pro</label><div class="color-picker-wrapper"><input type="color" value="${getVal('titleColor', '#cccccc')}" oninput="updateSectionStyle('${sec}', 'titleColor', this.value)"></div></div>
-            </div>
-            <div class="form-row">
-                <div class="form-group"><label>Couleur Icônes/Contact</label><div class="color-picker-wrapper"><input type="color" value="${getVal('contactColor', '#999999')}" oninput="updateSectionStyle('${sec}', 'contactColor', this.value)"></div></div>
-                <div class="form-group"><label>Couleur Profil (Texte)</label><div class="color-picker-wrapper"><input type="color" value="${getVal('profileColor', '#dddddd')}" oninput="updateSectionStyle('${sec}', 'profileColor', this.value)"></div></div>
-            </div>
-            <div class="form-row">
-                <div class="form-group"><label>Fond Section Contact</label><div class="color-picker-wrapper"><input type="color" value="${getVal('background', '#000000')}" oninput="updateSectionStyle('${sec}', 'background', this.value)"></div></div>
-            </div>
-            `;
+        const header = document.createElement('div');
+        header.style.display = 'flex';
+        header.style.justifyContent = 'space-between';
+        header.style.alignItems = 'center';
+        header.style.marginBottom = '4px';
+        
+        // Move the label into the header if it exists
+        const prev = input.previousElementSibling;
+        if (prev && prev.tagName === 'LABEL') {
+            header.appendChild(prev);
+            prev.style.marginBottom = '0';
         } else {
-            html += `
-            <div class="form-row">
-                <div class="form-group"><label>Couleur Titre Section</label><div class="color-picker-wrapper"><input type="color" value="${getVal('titleColor', '#ffffff')}" oninput="updateSectionStyle('${sec}', 'titleColor', this.value)"></div></div>
-                <div class="form-group"><label>Fond Section</label><div class="color-picker-wrapper"><input type="color" value="${getVal('background', '#000000')}" oninput="updateSectionStyle('${sec}', 'background', this.value)"></div></div>
-            </div>
-            <div class="form-row">
-                <div class="form-group"><label>Padding (px)</label><input type="number" value="${parseInt(getVal('padding', 0))}" oninput="updateSectionStyle('${sec}', 'padding', this.value + 'px')" style="padding:0.4rem;"></div>
-                <div class="form-group"><label>Border Radius (px)</label><input type="number" value="${parseInt(getVal('borderRadius', 0))}" oninput="updateSectionStyle('${sec}', 'borderRadius', this.value + 'px')" style="padding:0.4rem;"></div>
-            </div>
-            `;
+            const dummyLabel = document.createElement('label');
+            dummyLabel.innerText = "Champ";
+            dummyLabel.style.marginBottom = '0';
+            header.appendChild(dummyLabel);
         }
         
-        html += `
-            <button class="pfp-btn" style="margin-top:10px; width:100%; border-color:#ef4444; color:#ef4444;" onclick="resetSectionStyle('${sec}')">Réinitialiser la section</button>
-        </div>
-        `;
-        panel.innerHTML = html;
+        const btn = document.createElement('button');
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.38 0 2.5-1.12 2.5-2.5 0-.61-.23-1.17-.6-1.59-.3-.32-.4-.73-.4-1.12 0-1.1.9-2 2-2H19c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"></path></svg>';
+        btn.className = 'btn-field-design';
+        btn.onclick = (e) => {
+            e.preventDefault();
+            btn.classList.toggle('active');
+            toggleFieldStylePanel(path);
+        };
+        header.appendChild(btn);
+        
+        wrapper.appendChild(header);
+        
+        // Insert wrapper before input, then move input inside wrapper
+        input.parentNode.insertBefore(wrapper, input);
+        wrapper.appendChild(input);
+        
+        // Append the panel
+        const panelHtml = buildFieldStylePanel(path);
+        const temp = document.createElement('div');
+        temp.innerHTML = panelHtml;
+        wrapper.appendChild(temp.firstElementChild);
     });
 }
 
-function applySectionStyles(container) {
-    if (!cvData.section_styles) return;
-    for (let sec in cvData.section_styles) {
-        const styles = cvData.section_styles[sec];
+function applyFieldStyles(container) {
+    if (!cvData.field_styles) return;
+    
+    for (let path in cvData.field_styles) {
+        const styles = cvData.field_styles[path];
         if (!styles) continue;
         
-        if (sec === 'contact') {
-            const nameEl = container.querySelector('.cv-designed-name, .cv-prof-name, .cv-ats-name, .cv-minimalist-name, .cv-sidebar-name, .cv-europass-name');
-            if (nameEl && styles.nameColor) nameEl.style.color = styles.nameColor;
-            
-            const titleEl = container.querySelector('.cv-designed-title, .cv-prof-title, .cv-ats-title, .cv-minimalist-title, .cv-sidebar-title, .cv-europass-title');
-            if (titleEl && styles.titleColor) titleEl.style.color = styles.titleColor;
-            
-            const contactEls = container.querySelectorAll('.cv-designed-contact span, .cv-prof-contact span, .cv-ats-contact span, .cv-minimalist-contact span, .cv-sidebar-contact span, .cv-europass-contact span, .cv-sidebar-contact, .cv-designed-contact');
-            if (contactEls && styles.contactColor) contactEls.forEach(el => el.style.color = styles.contactColor);
-            
-            const profileEl = container.querySelector('.cv-designed-summary, .cv-prof-summary, .cv-ats-summary, .cv-minimalist-summary, .cv-sidebar-summary, .cv-europass-summary');
-            if (profileEl && styles.profileColor) profileEl.style.color = styles.profileColor;
-            
-            const headerEl = container.querySelector('header, .cv-sidebar-left');
-            if (headerEl && styles.background && styles.background !== '#000000') {
-                 headerEl.style.background = styles.background;
+        const parts = path.split('.');
+        let targetSelector = '';
+        
+        if (parts.length === 2 && parts[0] === 'contact') {
+            const field = parts[1];
+            if (field === 'name') targetSelector = '.cv-designed-name, .cv-prof-name, .cv-ats-name, .cv-minimalist-name, .cv-sidebar-name, .cv-europass-name';
+            else if (field === 'title_sub') targetSelector = '.cv-designed-title, .cv-prof-title, .cv-ats-title, .cv-minimalist-title, .cv-sidebar-title, .cv-europass-title';
+            else if (field === 'email' || field === 'phone' || field === 'location' || field === 'linkedin' || field === 'github' || field === 'website' || field === 'driver') {
+                targetSelector = '.cv-designed-contact span, .cv-prof-contact span, .cv-ats-contact span, .cv-minimalist-contact span, .cv-sidebar-contact span, .cv-europass-contact span';
             }
-        } else {
-            const sectionTitles = container.querySelectorAll(`.cv-designed-sectitle[data-editor-tab="tab-${sec}"], .cv-prof-sectitle[data-editor-tab="tab-${sec}"], .cv-sidebar-sectitle[data-editor-tab="tab-${sec}"], .cv-minimalist-sectitle[data-editor-tab="tab-${sec}"], .cv-europass-sectitle[data-editor-tab="tab-${sec}"], .cv-ats-sectitle[data-editor-tab="tab-${sec}"]`);
-            if (sectionTitles && styles.titleColor) sectionTitles.forEach(el => el.style.color = styles.titleColor);
-            
-            sectionTitles.forEach(titleEl => {
-                const section = titleEl.closest('section');
-                if (section) {
-                    if (styles.background && styles.background !== '#000000') section.style.background = styles.background;
-                    if (styles.padding) section.style.padding = styles.padding;
-                    if (styles.borderRadius) section.style.borderRadius = styles.borderRadius;
-                }
-            });
+        } else if (parts[0] === 'profile') {
+            targetSelector = '.cv-designed-summary, .cv-prof-summary, .cv-ats-summary, .cv-minimalist-summary, .cv-sidebar-summary, .cv-europass-summary';
+        } else if (parts.length === 3) {
+            targetSelector = `[data-editor-target="${parts[0]}"][data-editor-index="${parts[1]}"] [data-editor-field="${parts[2]}"]`;
+        } else if (parts.length === 2) {
+            // simple list
+            targetSelector = `[data-editor-target="${parts[0]}"][data-editor-index="${parts[1]}"]`;
         }
+        
+        if (!targetSelector) continue;
+        
+        const els = container.querySelectorAll(targetSelector);
+        els.forEach(el => {
+            if (styles.color) el.style.color = styles.color;
+            if (styles.fontSize) el.style.fontSize = styles.fontSize;
+            if (styles.fontWeight) el.style.fontWeight = styles.fontWeight;
+            if (styles.fontStyle) el.style.fontStyle = styles.fontStyle;
+        });
     }
 }
