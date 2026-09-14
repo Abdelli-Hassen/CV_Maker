@@ -2936,20 +2936,230 @@ function resetFieldStyle(path) {
     }
 }
 
-function toggleFieldStylePanel(path) {
+function rgbToHex(rgb) {
+    if (!rgb || rgb === 'transparent' || rgb === 'rgba(0, 0, 0, 0)') return '#000000';
+    if (rgb.startsWith('#')) return rgb;
+    const match = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (!match) return '#000000';
+    return '#' + [match[1], match[2], match[3]].map(x => {
+        const h = parseInt(x).toString(16);
+        return h.length === 1 ? '0' + h : h;
+    }).join('');
+}
+
+function getDefaultFieldStyles(path) {
+    const iframe = document.getElementById('preview-iframe');
+    if (!iframe) return {};
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+    if (!iframeDoc || !iframeDoc.body) return {};
+
+    // All layouts embed data-editor-focus directly in template HTML — use those.
+    // For list items, fall back to data-editor-target/index/field.
+    const FOCUS_MAP = {
+        'name':            'input-name',
+        'title_sub':       'input-title-sub',
+        'profile':         'input-profile',
+        'contact.email':   'input-email',
+        'contact.phone':   'input-phone',
+        'contact.location':'input-location',
+        'contact.linkedin':'input-linkedin',
+        'contact.github':  'input-github',
+        'contact.website': 'input-website',
+        'contact.driver':  'input-driver',
+    };
+
+    const parts = path.split('.');
+    let el = null;
+
+    const focusKey = FOCUS_MAP[path];
+    if (focusKey) {
+        el = iframeDoc.querySelector(`[data-editor-focus="${focusKey}"]`);
+    } else if (parts.length === 3) {
+        el = iframeDoc.querySelector(`[data-editor-target="${parts[0]}"][data-editor-index="${parts[1]}"] [data-editor-field="${parts[2]}"]`);
+    } else if (parts.length === 2) {
+        el = iframeDoc.querySelector(`[data-editor-target="${parts[0]}"][data-editor-index="${parts[1]}"]`);
+    }
+
+    if (!el) return {};
+
+    const win = iframe.contentWindow;
+    const comp = win.getComputedStyle(el);
+
+    let fontWeight = comp.fontWeight;
+    if (fontWeight === 'bold' || parseInt(fontWeight) >= 600) fontWeight = 'bold';
+    else fontWeight = 'normal';
+
+    return {
+        color: rgbToHex(comp.color),
+        fontSize: parseInt(comp.fontSize) || 14,
+        fontWeight,
+        fontStyle: comp.fontStyle === 'italic' ? 'italic' : 'normal',
+        letterSpacing: comp.letterSpacing !== 'normal' ? parseFloat(comp.letterSpacing) || 0 : 0,
+        textTransform: comp.textTransform !== 'none' ? comp.textTransform : 'none',
+        textAlign: comp.textAlign || 'left',
+        // Paragraph properties
+        lineHeight: comp.lineHeight && comp.lineHeight !== 'normal'
+            ? (parseFloat(comp.lineHeight) / (parseInt(comp.fontSize) || 14)).toFixed(2)
+            : 1.45,
+        textIndent: comp.textIndent ? parseFloat(comp.textIndent) || 0 : 0,
+        wordSpacing: comp.wordSpacing && comp.wordSpacing !== 'normal' ? parseFloat(comp.wordSpacing) || 0 : 0,
+        opacity: comp.opacity !== undefined ? parseFloat(comp.opacity) : 1,
+    };
+}
+
+let figmaPanelZIndex = 9999;
+
+function toggleFieldStylePanel(path, btn = null) {
     const id = `field-style-panel-${path.replace(/\./g, '-')}`;
-    const panel = document.getElementById(id);
-    if (panel) {
-        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    let panel = document.getElementById(id);
+    
+    // Close all other panels and reset button states
+    document.querySelectorAll('.figma-style-panel').forEach(p => {
+        if (p.id !== id) p.remove();
+    });
+    
+    const wasActive = btn && btn.classList.contains('active');
+    
+    document.querySelectorAll('.btn-field-design.active').forEach(b => {
+        b.classList.remove('active');
+    });
+    
+    if (panel || wasActive) {
+        if (panel) panel.remove();
+        return; // It was open, now closed
+    }
+
+    if (btn) btn.classList.add('active');
+    figmaPanelZIndex++;
+    
+    let align = 'right';
+    let btnRect = { top: 0, left: 0, bottom: 0, right: 0, height: 0 };
+    if (btn) {
+        btnRect = btn.getBoundingClientRect();
+        if (btnRect.left < window.innerWidth / 2) {
+            align = 'left';
+        }
+    }
+
+    // Build the panel and append directly to body
+    const panelHtml = buildFieldStylePanel(path, false, align, figmaPanelZIndex);
+    const temp = document.createElement('div');
+    temp.innerHTML = panelHtml;
+    panel = temp.firstElementChild;
+    document.body.appendChild(panel);
+    
+    panel.style.position = 'fixed';
+    panel.style.display = 'block';
+    
+    if (btn) {
+        // Position it near the button
+        if (align === 'left') {
+            panel.style.left = `${btnRect.left}px`;
+            panel.style.right = 'auto';
+        } else {
+            panel.style.right = `${window.innerWidth - btnRect.right}px`;
+            panel.style.left = 'auto';
+        }
+        
+        // Try to position it above the button, or below if no space
+        const panelRect = panel.getBoundingClientRect();
+        if (btnRect.top - panelRect.height - 8 > 0) {
+            panel.style.top = `${btnRect.top - panelRect.height - 8}px`;
+            panel.style.bottom = 'auto';
+            panel.style.transformOrigin = align === 'left' ? 'bottom left' : 'bottom right';
+        } else {
+            panel.style.top = `${btnRect.bottom + 8}px`;
+            panel.style.bottom = 'auto';
+            panel.style.transformOrigin = align === 'left' ? 'top left' : 'top right';
+        }
     }
 }
-function buildFieldStylePanel(path) {
-    const styles = getFieldStyle(path);
-    const getVal = (prop, def) => styles[prop] !== undefined ? styles[prop] : def;
+
+// Close panels when clicking outside
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.figma-style-panel') || e.target.closest('.btn-field-design')) {
+        return;
+    }
+    document.querySelectorAll('.figma-style-panel').forEach(panel => {
+        panel.remove();
+    });
+    document.querySelectorAll('.btn-field-design.active').forEach(btn => {
+        btn.classList.remove('active');
+    });
+});
+
+// Close panels on any scroll (with capture to catch sidebar scrolling)
+window.addEventListener('scroll', function(e) {
+    // Don't close if scrolling inside the panel itself
+    if (e.target.closest && e.target.closest('.figma-style-panel')) return;
+    
+    document.querySelectorAll('.figma-style-panel').forEach(panel => panel.remove());
+    document.querySelectorAll('.btn-field-design.active').forEach(btn => btn.classList.remove('active'));
+}, true);
+
+function buildFieldStylePanel(path, hidden = true, align = 'right', zIndex = 9999) {
+    const overrides = getFieldStyle(path);
+    const defaults = getDefaultFieldStyles(path);
+    const getVal = (prop, def) => overrides[prop] !== undefined ? overrides[prop] : (defaults[prop] !== undefined ? defaults[prop] : def);
+    
     const id = `field-style-panel-${path.replace(/\./g, '-')}`;
+    const displayStyle = hidden ? 'none' : 'block';
+    const alignStyle = align === 'left' ? 'left: 0px; right: auto; transform-origin: bottom left;' : 'right: 0px; left: auto; transform-origin: bottom right;';
+    
+    const currentTT = getVal('textTransform', 'none');
+    const currentAlign = getVal('textAlign', 'left');
+    
+    // Determine if this path represents a paragraph/textarea (multi-line content)
+    const isParagraph = path === 'profile' || 
+        (path.includes('.') && (path.endsWith('.bullets') || path.endsWith('.description') || path.endsWith('.profile')));
+    
+    const paragraphControls = isParagraph ? `
+        <div class="f-panel-divider"><span>PARAGRAPHE</span></div>
+        
+        <div class="f-panel-row">
+            <span class="f-panel-label">Interligne</span>
+            <div class="f-input-wrapper">
+                <input type="number" step="0.05" min="0.8" max="3" value="${parseFloat(getVal('lineHeight', 1.45)).toFixed(2)}" 
+                       oninput="updateFieldStyle('${path}', 'lineHeight', this.value)">
+                <span class="f-input-suffix">×</span>
+            </div>
+        </div>
+        
+        <div class="f-panel-row">
+            <span class="f-panel-label">Retrait</span>
+            <div class="f-input-wrapper">
+                <input type="number" step="1" min="0" value="${parseInt(getVal('textIndent', 0))}" 
+                       oninput="updateFieldStyle('${path}', 'textIndent', this.value + 'px')">
+                <span class="f-input-suffix">px</span>
+            </div>
+        </div>
+        
+        <div class="f-panel-row">
+            <span class="f-panel-label">Esp. mots</span>
+            <div class="f-input-wrapper">
+                <input type="number" step="0.5" value="${parseFloat(getVal('wordSpacing', 0))}" 
+                       oninput="updateFieldStyle('${path}', 'wordSpacing', this.value + 'px')">
+                <span class="f-input-suffix">px</span>
+            </div>
+        </div>
+
+        <div class="f-panel-row">
+            <span class="f-panel-label">Opacité</span>
+            <div class="f-input-wrapper">
+                <input type="number" step="0.05" min="0" max="1" value="${parseFloat(getVal('opacity', 1)).toFixed(2)}" 
+                       oninput="updateFieldStyle('${path}', 'opacity', this.value)">
+                <span class="f-input-suffix">/ 1</span>
+            </div>
+        </div>` : '';
+
+    const justifyBtn = isParagraph ? `
+                <button class="f-segment-btn ${currentAlign === 'justify' ? 'active' : ''}" 
+                        onclick="updateFieldStyle('${path}', 'textAlign', 'justify'); toggleFieldStylePanel('${path}'); toggleFieldStylePanel('${path}')" title="Justifier">
+                    <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                </button>` : '';
     
     return `
-    <div id="${id}" class="figma-style-panel" style="display: none;">
+    <div id="${id}" class="figma-style-panel" style="display: ${displayStyle}; ${alignStyle} z-index: ${zIndex};">
         <div class="f-panel-header">
             <span class="f-panel-title">PROPRIÉTÉS DU TEXTE</span>
             <button class="f-panel-reset" onclick="resetFieldStyle('${path}')" title="Réinitialiser">
@@ -2957,6 +3167,8 @@ function buildFieldStylePanel(path) {
             </button>
         </div>
         
+        <div class="f-panel-divider"><span>TYPOGRAPHIE</span></div>
+
         <div class="f-panel-row">
             <span class="f-panel-label">Couleur</span>
             <div class="f-color-wrapper">
@@ -2978,23 +3190,71 @@ function buildFieldStylePanel(path) {
         <div class="f-panel-row">
             <span class="f-panel-label">Style</span>
             <div class="f-segmented-control">
-                <button class="f-segment-btn ${styles.fontWeight === 'bold' ? 'active' : ''}" 
+                <button class="f-segment-btn ${getVal('fontWeight', 'normal') === 'bold' ? 'active' : ''}" 
                         onclick="this.classList.toggle('active'); updateFieldStyle('${path}', 'fontWeight', this.classList.contains('active') ? 'bold' : 'normal')" title="Gras">
                     <span style="font-weight: 700;">B</span>
                 </button>
-                <button class="f-segment-btn ${styles.fontStyle === 'italic' ? 'active' : ''}" 
+                <button class="f-segment-btn ${getVal('fontStyle', 'normal') === 'italic' ? 'active' : ''}" 
                         onclick="this.classList.toggle('active'); updateFieldStyle('${path}', 'fontStyle', this.classList.contains('active') ? 'italic' : 'normal')" title="Italique">
                     <span style="font-style: italic; font-family: serif;">I</span>
                 </button>
             </div>
         </div>
+        
+        <div class="f-panel-row">
+            <span class="f-panel-label">Espacement</span>
+            <div class="f-input-wrapper">
+                <input type="number" step="0.5" value="${parseFloat(getVal('letterSpacing', 0))}" 
+                       oninput="updateFieldStyle('${path}', 'letterSpacing', this.value + 'px')">
+                <span class="f-input-suffix">px</span>
+            </div>
+        </div>
+        
+        <div class="f-panel-row">
+            <span class="f-panel-label">Casse</span>
+            <div class="f-segmented-control" style="grid-template-columns: 1fr 1fr 1fr;">
+                <button class="f-segment-btn ${currentTT === 'none' ? 'active' : ''}" 
+                        onclick="updateFieldStyle('${path}', 'textTransform', 'none'); toggleFieldStylePanel('${path}'); toggleFieldStylePanel('${path}')" title="Normal">
+                    <span>Aa</span>
+                </button>
+                <button class="f-segment-btn ${currentTT === 'uppercase' ? 'active' : ''}" 
+                        onclick="updateFieldStyle('${path}', 'textTransform', 'uppercase'); toggleFieldStylePanel('${path}'); toggleFieldStylePanel('${path}')" title="Majuscules">
+                    <span>AA</span>
+                </button>
+                <button class="f-segment-btn ${currentTT === 'lowercase' ? 'active' : ''}" 
+                        onclick="updateFieldStyle('${path}', 'textTransform', 'lowercase'); toggleFieldStylePanel('${path}'); toggleFieldStylePanel('${path}')" title="Minuscules">
+                    <span>aa</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="f-panel-row">
+            <span class="f-panel-label">Align.</span>
+            <div class="f-segmented-control" style="grid-template-columns: ${isParagraph ? '1fr 1fr 1fr 1fr' : '1fr 1fr 1fr'};">
+                <button class="f-segment-btn ${currentAlign === 'left' || currentAlign === 'start' ? 'active' : ''}" 
+                        onclick="updateFieldStyle('${path}', 'textAlign', 'left'); toggleFieldStylePanel('${path}'); toggleFieldStylePanel('${path}')" title="Gauche">
+                    <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="15" y2="12"></line><line x1="3" y1="18" x2="19" y2="18"></line></svg>
+                </button>
+                <button class="f-segment-btn ${currentAlign === 'center' ? 'active' : ''}" 
+                        onclick="updateFieldStyle('${path}', 'textAlign', 'center'); toggleFieldStylePanel('${path}'); toggleFieldStylePanel('${path}')" title="Centrer">
+                    <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="6" y1="12" x2="18" y2="12"></line><line x1="4" y1="18" x2="20" y2="18"></line></svg>
+                </button>
+                <button class="f-segment-btn ${currentAlign === 'right' || currentAlign === 'end' ? 'active' : ''}" 
+                        onclick="updateFieldStyle('${path}', 'textAlign', 'right'); toggleFieldStylePanel('${path}'); toggleFieldStylePanel('${path}')" title="Droite">
+                    <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="9" y1="12" x2="21" y2="12"></line><line x1="5" y1="18" x2="21" y2="18"></line></svg>
+                </button>
+                ${justifyBtn}
+            </div>
+        </div>
+
+        ${paragraphControls}
     </div>
     `;
 }
 
 function injectFieldDesignButtons() {
     // Inject design buttons next to all inputs that have data-field or updateField
-    const inputs = document.querySelectorAll('input[oninput*="updateField"], textarea[oninput*="updateField"], input[oninput*="updateListItem"], textarea[oninput*="updateListItem"], input[oninput*="updateSimpleListItem"]');
+    const inputs = document.querySelectorAll('input[oninput*="updateField"], textarea[oninput*="updateField"], input[oninput*="updateListItem"], textarea[oninput*="updateListItem"], input[oninput*="updateSimpleListItem"], textarea[oninput*="updateSimpleListItem"], textarea[oninput*="updateListBullets"], textarea[oninput*="updateSkillCategory"], input[oninput*="updateSkillCategory"]');
     
     inputs.forEach(input => {
         // Prevent double injection
@@ -3017,6 +3277,16 @@ function injectFieldDesignButtons() {
             const key = parts[0];
             const index = oninput.split(", ")[1];
             path = `${key}.${index}`;
+        } else if (oninput.includes("updateListBullets('")) {
+            const parts = oninput.split("updateListBullets('")[1].split("'");
+            const key = parts[0];
+            const index = oninput.split(", ")[1];
+            path = `${key}.${index}.bullets`;
+        } else if (oninput.includes("updateSkillCategory(")) {
+            const parts = oninput.split("updateSkillCategory(")[1].split(", ");
+            const index = parts[0];
+            const field = parts[1].replace(/'/g, '');
+            path = `skills.${index}.${field}`;
         }
         
         if (!path) return;
@@ -3051,18 +3321,12 @@ function injectFieldDesignButtons() {
         btn.className = 'btn-field-design';
         btn.onclick = (e) => {
             e.preventDefault();
-            btn.classList.toggle('active');
-            toggleFieldStylePanel(path);
+            // Don't toggle 'active' here, let toggleFieldStylePanel handle it
+            toggleFieldStylePanel(path, btn);
         };
         header.appendChild(btn);
         
         wrapper.appendChild(header);
-        
-        // Append the panel (before the input)
-        const panelHtml = buildFieldStylePanel(path);
-        const temp = document.createElement('div');
-        temp.innerHTML = panelHtml;
-        wrapper.appendChild(temp.firstElementChild);
         
         // Insert wrapper before input, then move input inside wrapper
         input.parentNode.insertBefore(wrapper, input);
@@ -3072,38 +3336,52 @@ function injectFieldDesignButtons() {
 
 function applyFieldStyles(container) {
     if (!cvData.field_styles) return;
-    
+
+    const FOCUS_MAP = {
+        'name':            'input-name',
+        'title_sub':       'input-title-sub',
+        'profile':         'input-profile',
+        'contact.email':   'input-email',
+        'contact.phone':   'input-phone',
+        'contact.location':'input-location',
+        'contact.linkedin':'input-linkedin',
+        'contact.github':  'input-github',
+        'contact.website': 'input-website',
+        'contact.driver':  'input-driver',
+    };
+
     for (let path in cvData.field_styles) {
         const styles = cvData.field_styles[path];
         if (!styles) continue;
-        
+
         const parts = path.split('.');
-        let targetSelector = '';
-        
-        if (parts.length === 2 && parts[0] === 'contact') {
-            const field = parts[1];
-            if (field === 'name') targetSelector = '.cv-designed-name, .cv-prof-name, .cv-ats-name, .cv-mini-name, .cv-sidebar-name, .cv-euro-name';
-            else if (field === 'title_sub') targetSelector = '.cv-designed-title, .cv-prof-title, .cv-ats-title, .cv-mini-title, .cv-sidebar-title, .cv-euro-title';
-            else if (field === 'email' || field === 'phone' || field === 'location' || field === 'linkedin' || field === 'github' || field === 'website' || field === 'driver') {
-                targetSelector = '.cv-designed-contacts span, .cv-prof-contacts span, .cv-ats-contacts span, .cv-mini-contacts span, .cv-sidebar-contacts span, .cv-euro-contacts span, .cv-designed-contacts a, .cv-prof-contacts a, .cv-sidebar-contacts a, .cv-mini-contacts a, .cv-euro-contacts a';
-            }
-        } else if (parts[0] === 'profile') {
-            targetSelector = '.cv-designed-profile, .cv-prof-profile, .cv-ats-profile, .cv-mini-profile, .cv-sidebar-left-content, .cv-euro-profile';
+        let els = [];
+
+        const focusKey = FOCUS_MAP[path];
+        if (focusKey) {
+            els = Array.from(container.querySelectorAll(`[data-editor-focus="${focusKey}"]`));
         } else if (parts.length === 3) {
-            targetSelector = `[data-editor-target="${parts[0]}"][data-editor-index="${parts[1]}"] [data-editor-field="${parts[2]}"]`;
+            els = Array.from(container.querySelectorAll(`[data-editor-target="${parts[0]}"][data-editor-index="${parts[1]}"] [data-editor-field="${parts[2]}"]`));
         } else if (parts.length === 2) {
-            // simple list
-            targetSelector = `[data-editor-target="${parts[0]}"][data-editor-index="${parts[1]}"]`;
+            els = Array.from(container.querySelectorAll(`[data-editor-target="${parts[0]}"][data-editor-index="${parts[1]}"]`));
         }
-        
-        if (!targetSelector) continue;
-        
-        const els = container.querySelectorAll(targetSelector);
+
+        if (!els.length) continue;
+
         els.forEach(el => {
             if (styles.color) el.style.setProperty('color', styles.color, 'important');
             if (styles.fontSize) el.style.setProperty('font-size', styles.fontSize, 'important');
             if (styles.fontWeight) el.style.setProperty('font-weight', styles.fontWeight, 'important');
             if (styles.fontStyle) el.style.setProperty('font-style', styles.fontStyle, 'important');
+            if (styles.letterSpacing !== undefined) el.style.setProperty('letter-spacing', styles.letterSpacing, 'important');
+            if (styles.textTransform) el.style.setProperty('text-transform', styles.textTransform, 'important');
+            if (styles.textAlign) el.style.setProperty('text-align', styles.textAlign, 'important');
+            // Paragraph-level properties
+            if (styles.lineHeight !== undefined) el.style.setProperty('line-height', styles.lineHeight, 'important');
+            if (styles.textIndent !== undefined) el.style.setProperty('text-indent', styles.textIndent, 'important');
+            if (styles.wordSpacing !== undefined) el.style.setProperty('word-spacing', styles.wordSpacing, 'important');
+            if (styles.opacity !== undefined) el.style.setProperty('opacity', styles.opacity, 'important');
         });
     }
 }
+
