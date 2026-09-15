@@ -2067,6 +2067,7 @@ function changeLayout(layout) {
     if (sidebarGrp) sidebarGrp.style.display = (layout === 'sidebar') ? 'flex' : 'none';
     if (btnRandom) btnRandom.style.display = (layout === 'designed' || layout === 'professional' || layout === 'sidebar') ? 'inline-flex' : 'none';
 
+    renderThemeSwatches();
     renderPreview();
 }
 
