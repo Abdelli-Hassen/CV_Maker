@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node -e \"const fs=require('fs'); fs.copyFileSync('data.js', 'dist/data.js'); fs.copyFileSync('app.js', 'dist/app.js'); fs.writeFileSync('dist/index.html', fs.readFileSync('dist/index.html', 'utf8').replace(/ crossorigin/g, ''))\"",
+    "build": "vite build && node -e \"const fs=require('fs'); fs.copyFileSync('app.js', 'dist/app.js'); fs.writeFileSync('dist/index.html', fs.readFileSync('dist/index.html', 'utf8').replace(/ crossorigin/g, ''))\"",
     "preview": "vite preview"
   },
   "repository": {
