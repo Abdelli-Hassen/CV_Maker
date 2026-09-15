@@ -32,7 +32,7 @@
     </button>
   </div>
 
-  <div id="app-container">
+  <div id="app-container" class="show-editor">
 
     <!-- LEFT SIDEBAR: NEW DASHBOARD EDITOR -->
     <aside class="editor-sidebar">
@@ -54,16 +54,6 @@
             <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
           </a>
         </div>
-      </div>
-
-      <!-- Mode Selector -->
-      <div class="mode-selector">
-        <button class="mode-btn active" id="btn-mode-data" onclick="setEditorMode('data')">
-          ✍ Données
-        </button>
-        <button class="mode-btn" id="btn-mode-design" onclick="setEditorMode('design')">
-          🎨 Design
-        </button>
       </div>
 
       <!-- Données Mode Container -->
@@ -111,6 +101,16 @@
             </svg>
             Études+
           </button>
+          <button class="tab-btn tab-btn-design" onclick="switchTab('tab-design')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/>
+              <circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/>
+              <circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/>
+              <circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/>
+              <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>
+            </svg>
+            Design
+          </button>
         </div>
 
         <!-- Tab Content Panels -->
@@ -126,13 +126,23 @@
                   <span>👤</span>
                 </div>
                 <div class="pfp-actions">
-                  <label class="pfp-btn" style="cursor: pointer;">
-                    Télécharger une photo
+                  <label class="pfp-icon-btn" title="Télécharger une photo" style="cursor: pointer;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                      <circle cx="12" cy="13" r="4"/>
+                    </svg>
                     <input type="file" id="pfp-input" accept="image/*" style="display: none;"
                       onchange="uploadProfileImage(this)">
                   </label>
-                  <button class="pfp-btn" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.2);"
-                    onclick="removeProfileImage()">Supprimer</button>
+                  <button class="pfp-icon-btn pfp-icon-btn--delete" title="Supprimer la photo"
+                    onclick="removeProfileImage()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="3 6 5 6 21 6"/>
+                      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                      <path d="M10 11v6"/><path d="M14 11v6"/>
+                      <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                    </svg>
+                  </button>
                 </div>
               </div>
 
@@ -144,7 +154,11 @@
               </div>
             </div>
 
-            <div class="panel-section-title">Identité & Contact</div>
+            <div class="panel-section-title" style="display:flex; justify-content:space-between; align-items:center;">
+              <span>Identité & Contact</span>
+              
+            </div>
+            
             <div class="form-card">
               <div class="form-group">
                 <label>Nom Complet</label>
@@ -200,8 +214,14 @@
             </div>
 
             <div class="panel-section-title">
-              <span>Profil / Résumé</span>
-              <button class="btn-toggle-section" id="btn-hide-profile" onclick="toggleSectionVisibility('profile')">👁️ Masquer</button>
+              <input type="text" class="section-title-input" data-section="profile" placeholder="Profil / Résumé" value="Profil / Résumé" oninput="updateSectionTitle('profile', this.value)">
+              <div class="section-title-actions">
+
+                <button class="btn-field-design" onclick="toggleFieldStylePanel('heading.profile', this)" title="Design de la section">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.38 0 2.5-1.12 2.5-2.5 0-.61-.23-1.17-.6-1.59-.3-.32-.4-.73-.4-1.12 0-1.1.9-2 2-2H19c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"></path></svg>
+                </button>
+                <button class="btn-toggle-section" id="btn-hide-profile" onclick="toggleSectionVisibility('profile')"><svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+              </div>
             </div>
             <div class="form-card">
               <div class="form-group">
@@ -215,45 +235,66 @@
           <!-- Tab 2: Expériences (Collapsible Cards) -->
           <div id="tab-experiences" class="tab-panel">
             <div class="panel-section-title">
-              <span>Parcours Professionnel</span>
+              <input type="text" class="section-title-input" data-section="experiences" placeholder="Parcours Professionnel" value="Parcours Professionnel" oninput="updateSectionTitle('experiences', this.value)">
               <div class="section-title-actions">
-                <button class="btn-toggle-section" id="btn-hide-experiences" onclick="toggleSectionVisibility('experiences')">👁️ Masquer</button>
-                <button onclick="addItem('experiences')">+ Ajouter</button>
+                <button class="btn-field-design" onclick="toggleFieldStylePanel('heading.experiences', this)" title="Design de la section">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.38 0 2.5-1.12 2.5-2.5 0-.61-.23-1.17-.6-1.59-.3-.32-.4-.73-.4-1.12 0-1.1.9-2 2-2H19c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"></path></svg>
+                </button>
+                <button class="btn-toggle-section" id="btn-hide-experiences" onclick="toggleSectionVisibility('experiences')"><svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                
+                <button onclick="addItem('experiences')"><svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
               </div>
             </div>
+            
             <div id="list-experiences"></div>
 
             <div class="panel-section-title" style="margin-top: 1.5rem;">
-              <span>Stages / Formations</span>
+              <input type="text" class="section-title-input" data-section="formations" placeholder="Stages / Formations" value="Stages / Formations" oninput="updateSectionTitle('formations', this.value)">
               <div class="section-title-actions">
-                <button class="btn-toggle-section" id="btn-hide-formations" onclick="toggleSectionVisibility('formations')">👁️ Masquer</button>
-                <button onclick="addItem('formations')">+ Ajouter</button>
+
+                <button class="btn-field-design" onclick="toggleFieldStylePanel('heading.formations', this)" title="Design de la section">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.38 0 2.5-1.12 2.5-2.5 0-.61-.23-1.17-.6-1.59-.3-.32-.4-.73-.4-1.12 0-1.1.9-2 2-2H19c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"></path></svg>
+                </button>
+                <button class="btn-toggle-section" id="btn-hide-formations" onclick="toggleSectionVisibility('formations')"><svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                
+                <button onclick="addItem('formations')"><svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
               </div>
             </div>
+            
             <div id="list-formations"></div>
           </div>
 
           <!-- Tab 3: Projets (Collapsible Cards) -->
           <div id="tab-projects" class="tab-panel">
             <div class="panel-section-title">
-              <span>Projets & Réalisations</span>
+              <input type="text" class="section-title-input" data-section="projects" placeholder="Projets & Réalisations" value="Projets & Réalisations" oninput="updateSectionTitle('projects', this.value)">
               <div class="section-title-actions">
-                <button class="btn-toggle-section" id="btn-hide-projects" onclick="toggleSectionVisibility('projects')">👁️ Masquer</button>
-                <button onclick="addItem('projects')">+ Ajouter</button>
+                <button class="btn-field-design" onclick="toggleFieldStylePanel('heading.projects', this)" title="Design de la section">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.38 0 2.5-1.12 2.5-2.5 0-.61-.23-1.17-.6-1.59-.3-.32-.4-.73-.4-1.12 0-1.1.9-2 2-2H19c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"></path></svg>
+                </button>
+                <button class="btn-toggle-section" id="btn-hide-projects" onclick="toggleSectionVisibility('projects')"><svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                
+                <button onclick="addItem('projects')"><svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
               </div>
             </div>
+            
             <div id="list-projects"></div>
           </div>
 
           <!-- Tab 4: Compétences (Refactored Dynamic List) -->
           <div id="tab-skills" class="tab-panel">
             <div class="panel-section-title">
-              <span>Catégories de Compétences</span>
+              <input type="text" class="section-title-input" data-section="skills" placeholder="Catégories de Compétences" value="Catégories de Compétences" oninput="updateSectionTitle('skills', this.value)">
               <div class="section-title-actions">
-                <button class="btn-toggle-section" id="btn-hide-skills" onclick="toggleSectionVisibility('skills')">👁️ Masquer</button>
-                <button onclick="addSkillCategory()">+ Catégorie</button>
+                <button class="btn-field-design" onclick="toggleFieldStylePanel('heading.skills', this)" title="Design de la section">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.38 0 2.5-1.12 2.5-2.5 0-.61-.23-1.17-.6-1.59-.3-.32-.4-.73-.4-1.12 0-1.1.9-2 2-2H19c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"></path></svg>
+                </button>
+                <button class="btn-toggle-section" id="btn-hide-skills" onclick="toggleSectionVisibility('skills')"><svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                
+                <button onclick="addSkillCategory()"><svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
               </div>
             </div>
+            
             <div id="list-skills" style="display: flex; flex-direction: column; gap: 0.85rem;"></div>
           </div>
 
@@ -261,58 +302,81 @@
           <div id="tab-education" class="tab-panel">
 
             <div class="panel-section-title">
-              <span>Formations / Études</span>
+              <input type="text" class="section-title-input" data-section="education" placeholder="Formations / Études" value="Formations / Études" oninput="updateSectionTitle('education', this.value)">
               <div class="section-title-actions">
-                <button class="btn-toggle-section" id="btn-hide-education" onclick="toggleSectionVisibility('education')">👁️ Masquer</button>
-                <button onclick="addItem('education')">+ Ajouter</button>
+
+                <button class="btn-field-design" onclick="toggleFieldStylePanel('heading.education', this)" title="Design de la section">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.38 0 2.5-1.12 2.5-2.5 0-.61-.23-1.17-.6-1.59-.3-.32-.4-.73-.4-1.12 0-1.1.9-2 2-2H19c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"></path></svg>
+                </button>
+                <button class="btn-toggle-section" id="btn-hide-education" onclick="toggleSectionVisibility('education')"><svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                
+                <button onclick="addItem('education')"><svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
               </div>
             </div>
+            
             <div id="list-education"></div>
 
             <div class="panel-section-title">
-              <span>Certifications</span>
+              <input type="text" class="section-title-input" data-section="certifications" placeholder="Certifications" value="Certifications" oninput="updateSectionTitle('certifications', this.value)">
               <div class="section-title-actions">
-                <button class="btn-toggle-section" id="btn-hide-certifications" onclick="toggleSectionVisibility('certifications')">👁️ Masquer</button>
-                <button onclick="addSimpleItem('certifications')">+ Ajouter</button>
+                <button class="btn-field-design" onclick="toggleFieldStylePanel('heading.certifications', this)" title="Design de la section">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.38 0 2.5-1.12 2.5-2.5 0-.61-.23-1.17-.6-1.59-.3-.32-.4-.73-.4-1.12 0-1.1.9-2 2-2H19c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"></path></svg>
+                </button>
+                <button class="btn-toggle-section" id="btn-hide-certifications" onclick="toggleSectionVisibility('certifications')"><svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                
+                <button onclick="addSimpleItem('certifications')"><svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
               </div>
             </div>
+            
             <div id="list-certifications"></div>
 
             <div class="panel-section-title">
-              <span>Engagements / Activités</span>
+              <input type="text" class="section-title-input" data-section="activities" placeholder="Engagements / Activités" value="Engagements / Activités" oninput="updateSectionTitle('activities', this.value)">
               <div class="section-title-actions">
-                <button class="btn-toggle-section" id="btn-hide-activities" onclick="toggleSectionVisibility('activities')">👁️ Masquer</button>
-                <button onclick="addSimpleItem('activities')">+ Ajouter</button>
+
+                <button class="btn-field-design" onclick="toggleFieldStylePanel('heading.activities', this)" title="Design de la section">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.38 0 2.5-1.12 2.5-2.5 0-.61-.23-1.17-.6-1.59-.3-.32-.4-.73-.4-1.12 0-1.1.9-2 2-2H19c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"></path></svg>
+                </button>
+                <button class="btn-toggle-section" id="btn-hide-activities" onclick="toggleSectionVisibility('activities')"><svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                
+                <button onclick="addSimpleItem('activities')"><svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
               </div>
             </div>
+            
             <div id="list-activities"></div>
 
             <div class="panel-section-title">
-              <span>Langues</span>
+              <input type="text" class="section-title-input" data-section="languages" placeholder="Langues" value="Langues" oninput="updateSectionTitle('languages', this.value)">
               <div class="section-title-actions">
-                <button class="btn-toggle-section" id="btn-hide-languages" onclick="toggleSectionVisibility('languages')">👁️ Masquer</button>
-                <button onclick="addItem('languages')">+ Ajouter</button>
+                <button class="btn-field-design" onclick="toggleFieldStylePanel('heading.languages', this)" title="Design de la section">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.38 0 2.5-1.12 2.5-2.5 0-.61-.23-1.17-.6-1.59-.3-.32-.4-.73-.4-1.12 0-1.1.9-2 2-2H19c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"></path></svg>
+                </button>
+                <button class="btn-toggle-section" id="btn-hide-languages" onclick="toggleSectionVisibility('languages')"><svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                
+                <button onclick="addItem('languages')"><svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
               </div>
             </div>
+            
             <div id="list-languages"></div>
 
             <div class="panel-section-title">
-              <span>Centres d'intérêt</span>
+              <input type="text" class="section-title-input" data-section="interests" placeholder="Centres d'intérêt" value="Centres d'intérêt" oninput="updateSectionTitle('interests', this.value)">
               <div class="section-title-actions">
-                <button class="btn-toggle-section" id="btn-hide-interests" onclick="toggleSectionVisibility('interests')">👁️ Masquer</button>
-                <button onclick="addSimpleItem('interests')">+ Ajouter</button>
+                <button class="btn-field-design" onclick="toggleFieldStylePanel('heading.interests', this)" title="Design de la section">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.38 0 2.5-1.12 2.5-2.5 0-.61-.23-1.17-.6-1.59-.3-.32-.4-.73-.4-1.12 0-1.1.9-2 2-2H19c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"></path></svg>
+                </button>
+                <button class="btn-toggle-section" id="btn-hide-interests" onclick="toggleSectionVisibility('interests')"><svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                
+                <button onclick="addSimpleItem('interests')"><svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
               </div>
             </div>
+            
             <div id="list-interests"></div>
 
           </div>
 
-        </div>
-      </div>
-
-      <!-- Design Mode Container -->
-      <div id="mode-design-container"
-        style="display: none; padding: 1.5rem; overflow-y: auto; flex: 1; flex-direction: column; gap: 1.25rem;">
+          <!-- Tab 6: Design Mode Container -->
+          <div id="tab-design" class="tab-panel" style="flex-direction: column; gap: 1.25rem;">
 
         <!-- Layout Selection -->
         <div class="panel-section-title">Modèle de CV</div>
@@ -320,7 +384,7 @@
           <div class="form-group">
             <label>Choisissez la structure globale</label>
             <select id="design-layout-picker" class="toolbar-select"
-              style="width: 100%; border-radius: 6px; padding: 0.5rem;" onchange="changeLayout(this.value)">
+              style="width:100%; border-radius:var(--radius-sm);" onchange="changeLayout(this.value)">
               <option value="designed">Midnight Gold (Créatif)</option>
               <option value="professional">Corporate (Professionnel)</option>
               <option value="ats">ATS-Optimisé (Linéaire)</option>
@@ -382,73 +446,13 @@
               style="width: 100%; justify-content: center; margin-top: 0.25rem;">
               🎨 Palette Aléatoire
             </button>
+            
+            <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 1rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Thèmes Prédéfinis</div>
+            <div id="theme-swatches" class="theme-swatches"></div>
           </div>
         </div>
 
-        <!-- Individual Text Colors Customizer -->
-        <div id="design-text-colors-section">
-          <div class="panel-section-title">Couleurs des Textes (Individuel)</div>
-          <div class="form-card" style="display: flex; flex-direction: column; gap: 0.75rem;">
-            <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom: 0.25rem;">
-              💡 <em>Astuce : Cliquez sur n'importe quel texte dans l'aperçu du CV pour ajuster sa couleur directement.</em>
-            </div>
 
-            <!-- Nom complet -->
-            <div id="design-card-text-name" style="display: flex; justify-content: space-between; align-items: center; padding: 0.35rem 0.5rem; border-radius: 6px; background: rgba(255,255,255,0.03);">
-              <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted); display:flex; align-items:center; gap:0.4rem;">
-                <span id="badge-color-text-name" style="display:inline-block; width:12px; height:12px; border-radius:50%; background:var(--text-color-name, #0f172a); border:1px solid rgba(255,255,255,0.3);"></span>
-                Nom complet
-              </label>
-              <input type="color" id="design-picker-text-name" oninput="updateTextColor('name', this.value)"
-                style="border:none; width:45px; height:28px; cursor:pointer; background:none;">
-            </div>
-
-            <!-- Titre / Profession -->
-            <div id="design-card-text-title" style="display: flex; justify-content: space-between; align-items: center; padding: 0.35rem 0.5rem; border-radius: 6px; background: rgba(255,255,255,0.03);">
-              <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted); display:flex; align-items:center; gap:0.4rem;">
-                <span id="badge-color-text-title" style="display:inline-block; width:12px; height:12px; border-radius:50%; background:var(--text-color-title, #334155); border:1px solid rgba(255,255,255,0.3);"></span>
-                Titre / Profession
-              </label>
-              <input type="color" id="design-picker-text-title" oninput="updateTextColor('title', this.value)"
-                style="border:none; width:45px; height:28px; cursor:pointer; background:none;">
-            </div>
-
-            <!-- Titres de section -->
-            <div id="design-card-text-heading" style="display: flex; justify-content: space-between; align-items: center; padding: 0.35rem 0.5rem; border-radius: 6px; background: rgba(255,255,255,0.03);">
-              <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted); display:flex; align-items:center; gap:0.4rem;">
-                <span id="badge-color-text-heading" style="display:inline-block; width:12px; height:12px; border-radius:50%; background:var(--text-color-heading, #1e3a8a); border:1px solid rgba(255,255,255,0.3);"></span>
-                Titres de sections
-              </label>
-              <input type="color" id="design-picker-text-heading" oninput="updateTextColor('heading', this.value)"
-                style="border:none; width:45px; height:28px; cursor:pointer; background:none;">
-            </div>
-
-            <!-- Texte principal / Description -->
-            <div id="design-card-text-body" style="display: flex; justify-content: space-between; align-items: center; padding: 0.35rem 0.5rem; border-radius: 6px; background: rgba(255,255,255,0.03);">
-              <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted); display:flex; align-items:center; gap:0.4rem;">
-                <span id="badge-color-text-body" style="display:inline-block; width:12px; height:12px; border-radius:50%; background:var(--text-color-body, #1e293b); border:1px solid rgba(255,255,255,0.3);"></span>
-                Texte principal (Corps)
-              </label>
-              <input type="color" id="design-picker-text-body" oninput="updateTextColor('body', this.value)"
-                style="border:none; width:45px; height:28px; cursor:pointer; background:none;">
-            </div>
-
-            <!-- Textes secondaires / Dates / Contacts -->
-            <div id="design-card-text-muted" style="display: flex; justify-content: space-between; align-items: center; padding: 0.35rem 0.5rem; border-radius: 6px; background: rgba(255,255,255,0.03);">
-              <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted); display:flex; align-items:center; gap:0.4rem;">
-                <span id="badge-color-text-muted" style="display:inline-block; width:12px; height:12px; border-radius:50%; background:var(--text-color-muted, #64748b); border:1px solid rgba(255,255,255,0.3);"></span>
-                Dates & Secondaires
-              </label>
-              <input type="color" id="design-picker-text-muted" oninput="updateTextColor('muted', this.value)"
-                style="border:none; width:45px; height:28px; cursor:pointer; background:none;">
-            </div>
-
-            <button id="design-btn-reset-text-colors" class="btn-action" onclick="resetTextColors()"
-              style="width: 100%; justify-content: center; margin-top: 0.25rem; background: rgba(255, 255, 255, 0.05); color: var(--text-muted); border: 1px solid var(--border-color);">
-              🔄 Réinitialiser les couleurs de texte
-            </button>
-          </div>
-        </div>
 
         <!-- Typography -->
         <div class="panel-section-title">Typographie</div>
@@ -559,23 +563,28 @@
               <input type="range" id="design-pfp-offset-y" min="-30" max="30" step="1" value="0"
                 oninput="updateDesignField('pfp_offset_y', parseInt(this.value))">
             </div>
-            <button class="btn-action"
-              onclick="updateDesignField('pfp_offset_x', 0); updateDesignField('pfp_offset_y', 0); document.getElementById('design-pfp-offset-x').value=0; document.getElementById('design-pfp-offset-y').value=0;"
-              style="width:100%; justify-content:center; font-size:0.72rem; padding:0.35rem; margin-top:0.25rem; background:rgba(255,255,255,0.05); border:1px solid var(--border-color);">
+            <button class="btn-action btn-ghost" style="width:100%; margin-top:var(--sp-2);"
+              onclick="updateDesignField('pfp_offset_x', 0); updateDesignField('pfp_offset_y', 0); document.getElementById('design-pfp-offset-x').value=0; document.getElementById('design-pfp-offset-y').value=0;">
               ↺ Recentrer
             </button>
           </div>
         </div>
 
       </div>
+      <!-- End of tab-design -->
 
-      <!-- Footer Utilities -->
+      </div>
+      <!-- End of tabs-content -->
+
+      </div>
+      <!-- End of mode-data-container -->
+
       <div class="sidebar-footer">
-        <button class="btn-action btn-danger" style="flex: 1; padding: 0.5rem;"
+        <button class="btn-action btn-danger"
           onclick="resetToDefaults()">Réinitialiser</button>
-        <button class="btn-action" style="flex: 1; padding: 0.5rem; background: #3b82f6; color: white;"
+        <button class="btn-action btn-export"
           onclick="downloadJSON()">⬇ Exporter</button>
-        <button class="btn-action" style="flex: 1; padding: 0.5rem; background: #10b981; color: white;"
+        <button class="btn-action btn-import"
           onclick="document.getElementById('import-json-input').click()">⬆ Importer</button>
         <input type="file" id="import-json-input" accept=".json" style="display:none;" onchange="importJSON(this)">
       </div>
@@ -636,3 +645,4 @@
 </body>
 
 </html>
+

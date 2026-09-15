@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Hassen Abdelli — CV Dashboard & Builder</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="./assets/index-BJDTCxlE.css">
+</head>
+
+  <!-- MOBILE VIEW TOGGLE BAR (Visible on screens <= 900px) -->
+  <div id="mobile-nav-bar" class="mobile-nav-bar">
+    <button class="mobile-nav-btn active" id="btn-view-editor" onclick="switchMobileView('editor')">
+      ✍️ Éditeur
+    </button>
+    <button class="mobile-nav-btn" id="btn-view-preview" onclick="switchMobileView('preview')">
+      👁️ Aperçu CV
+    </button>
+    <button class="mobile-nav-btn mobile-print-btn" onclick="window.print()" title="Imprimer / PDF">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 6 2 18 2 18 9"></polyline>
+        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+        <rect x="6" y="14" width="12" height="8"></rect>
+      </svg>
+    </button>
+  </div>
+
+  <div id="app-container">
+
+    <!-- LEFT SIDEBAR: NEW DASHBOARD EDITOR -->
+    <aside class="editor-sidebar">
+
+      <!-- Top Branding -->
+      <div class="sidebar-brand">
+        <div class="brand-title">
+          <h1>Dashboard CV</h1>
+          <p>Modifier et personnaliser votre profil</p>
+        </div>
+        <div class="brand-social-links">
+          <a id="brand-link-github" href="#" target="_blank" rel="noopener" title="GitHub" class="brand-social-icon">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/></svg>
+          </a>
+          <a id="brand-link-linkedin" href="#" target="_blank" rel="noopener" title="LinkedIn" class="brand-social-icon">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
+          </a>
+          <a id="brand-link-gmail" href="#" target="_blank" rel="noopener" title="Gmail" class="brand-social-icon">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Données Mode Container -->
+      <div id="mode-data-container" style="display: flex; flex-direction: column; flex: 1; overflow: hidden;">
+        <!-- Navigation Tabs -->
+        <div class="tabs-nav">
+          <button class="tab-btn active" onclick="switchTab('tab-profile')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+            Profil
+          </button>
+          <button class="tab-btn" onclick="switchTab('tab-experiences')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+            </svg>
+            Expériences
+          </button>
+          <button class="tab-btn" onclick="switchTab('tab-projects')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+              <polyline points="2 17 12 22 22 17"></polyline>
+              <polyline points="2 12 12 17 22 12"></polyline>
+            </svg>
+            Projets
+          </button>
+          <button class="tab-btn" onclick="switchTab('tab-skills')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <polyline points="16 18 22 12 16 6"></polyline>
+              <polyline points="8 6 2 12 8 18"></polyline>
+            </svg>
+            Compétences
+          </button>
+          <button class="tab-btn" onclick="switchTab('tab-education')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+              <path d="M6 12.5V16a6 6 0 0 0 12 0v-3.5" />
+            </svg>
+            Études+
+          </button>
+          <button class="tab-btn tab-btn-design" onclick="switchTab('tab-design')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/>
+              <circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/>
+              <circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/>
+              <circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/>
+              <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>
+            </svg>
+            Design
+          </button>
+        </div>
+
+        <!-- Tab Content Panels -->
+        <div class="tabs-content">
+
+          <!-- Tab 1: Profil & Photo -->
+          <div id="tab-profile" class="tab-panel active">
+
+            <div class="panel-section-title">Photo de profil & Dimension</div>
+            <div class="form-card" style="display: flex; flex-direction: column; gap: 1rem;">
+              <div class="pfp-upload-container">
+                <div id="pfp-preview" class="pfp-preview-circle">
+                  <span>👤</span>
+                </div>
+                <div class="pfp-actions">
+                  <label class="pfp-btn" style="cursor: pointer;">
+                    Télécharger une photo
+                    <input type="file" id="pfp-input" accept="image/*" style="display: none;"
+                      onchange="uploadProfileImage(this)">
+                  </label>
+                  <button class="pfp-btn" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.2);"
+                    onclick="removeProfileImage()">Supprimer</button>
+                </div>
+              </div>
+
+              <!-- Image size slider -->
+              <div class="form-group" id="image-size-group">
+                <label id="lbl-image-size">Taille de l'image : 80px</label>
+                <input type="range" id="input-image-size" min="60" max="180" step="5" value="80"
+                  oninput="changeImageSize(this.value)">
+              </div>
+            </div>
+
+            <div class="panel-section-title" style="display:flex; justify-content:space-between; align-items:center;">
+              <span>Identité & Contact</span>
+              
+            </div>
+            
+            <div class="form-card">
+              <div class="form-group">
+                <label>Nom Complet</label>
+                <input type="text" id="input-name" placeholder="Ex: Hassen Abdelli"
+                  oninput="updateField('contact.name', this.value)">
+              </div>
+              <div class="form-group">
+                <label>Titre Professionnel</label>
+                <input type="text" id="input-title-sub" placeholder="Ex: Développeur Full Stack"
+                  oninput="updateField('contact.title_sub', this.value)">
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>E-mail</label>
+                  <input type="text" id="input-email" placeholder="Ex: hassen@gmail.com"
+                    oninput="updateField('contact.email', this.value)">
+                </div>
+                <div class="form-group">
+                  <label>Téléphone</label>
+                  <input type="text" id="input-phone" placeholder="Ex: +216 22 333 444"
+                    oninput="updateField('contact.phone', this.value)">
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Localisation</label>
+                <input type="text" id="input-location" placeholder="Ex: Tunis, Tunisie"
+                  oninput="updateField('contact.location', this.value)">
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>LinkedIn</label>
+                  <input type="text" id="input-linkedin" placeholder="Ex: linkedin.com/in/username or username"
+                    oninput="updateField('contact.linkedin', this.value)">
+                </div>
+                <div class="form-group">
+                  <label>GitHub</label>
+                  <input type="text" id="input-github" placeholder="Ex: github.com/username or username"
+                    oninput="updateField('contact.github', this.value)">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Site Web / Portfolio</label>
+                  <input type="text" id="input-website" placeholder="Ex: mon-portfolio.com"
+                    oninput="updateField('contact.website', this.value)">
+                </div>
+                <div class="form-group">
+                  <label>Permis de conduire</label>
+                  <input type="text" id="input-driver" placeholder="Ex: Permis B"
+                    oninput="updateField('contact.driver', this.value)">
+                </div>
+              </div>
+            </div>
+
+            <div class="panel-section-title">
+              <span>Profil / Résumé</span>
+              <button class="btn-toggle-section" id="btn-hide-profile" onclick="toggleSectionVisibility('profile')">👁️ Masquer</button>
+            </div>
+            <div class="form-card">
+              <div class="form-group">
+                <textarea id="input-profile" rows="8" placeholder="Décrivez votre parcours..."
+                  oninput="updateField('profile', this.value)"></textarea>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Tab 2: Expériences (Collapsible Cards) -->
+          <div id="tab-experiences" class="tab-panel">
+            <div class="panel-section-title">
+              <span>Parcours Professionnel</span>
+              <div class="section-title-actions">
+                <button class="btn-toggle-section" id="btn-hide-experiences" onclick="toggleSectionVisibility('experiences')">👁️ Masquer</button>
+                
+                <button onclick="addItem('experiences')">+ Ajouter</button>
+              </div>
+            </div>
+            
+            <div id="list-experiences"></div>
+
+            <div class="panel-section-title" style="margin-top: 1.5rem;">
+              <span>Stages / Formations</span>
+              <div class="section-title-actions">
+                <button class="btn-toggle-section" id="btn-hide-formations" onclick="toggleSectionVisibility('formations')">👁️ Masquer</button>
+                
+                <button onclick="addItem('formations')">+ Ajouter</button>
+              </div>
+            </div>
+            
+            <div id="list-formations"></div>
+          </div>
+
+          <!-- Tab 3: Projets (Collapsible Cards) -->
+          <div id="tab-projects" class="tab-panel">
+            <div class="panel-section-title">
+              <span>Projets & Réalisations</span>
+              <div class="section-title-actions">
+                <button class="btn-toggle-section" id="btn-hide-projects" onclick="toggleSectionVisibility('projects')">👁️ Masquer</button>
+                
+                <button onclick="addItem('projects')">+ Ajouter</button>
+              </div>
+            </div>
+            
+            <div id="list-projects"></div>
+          </div>
+
+          <!-- Tab 4: Compétences (Refactored Dynamic List) -->
+          <div id="tab-skills" class="tab-panel">
+            <div class="panel-section-title">
+              <span>Catégories de Compétences</span>
+              <div class="section-title-actions">
+                <button class="btn-toggle-section" id="btn-hide-skills" onclick="toggleSectionVisibility('skills')">👁️ Masquer</button>
+                
+                <button onclick="addSkillCategory()">+ Catégorie</button>
+              </div>
+            </div>
+            
+            <div id="list-skills" style="display: flex; flex-direction: column; gap: 0.85rem;"></div>
+          </div>
+
+          <!-- Tab 5: Formations & Autre -->
+          <div id="tab-education" class="tab-panel">
+
+            <div class="panel-section-title">
+              <span>Formations / Études</span>
+              <div class="section-title-actions">
+                <button class="btn-toggle-section" id="btn-hide-education" onclick="toggleSectionVisibility('education')">👁️ Masquer</button>
+                
+                <button onclick="addItem('education')">+ Ajouter</button>
+              </div>
+            </div>
+            
+            <div id="list-education"></div>
+
+            <div class="panel-section-title">
+              <span>Certifications</span>
+              <div class="section-title-actions">
+                <button class="btn-toggle-section" id="btn-hide-certifications" onclick="toggleSectionVisibility('certifications')">👁️ Masquer</button>
+                
+                <button onclick="addSimpleItem('certifications')">+ Ajouter</button>
+              </div>
+            </div>
+            
+            <div id="list-certifications"></div>
+
+            <div class="panel-section-title">
+              <span>Engagements / Activités</span>
+              <div class="section-title-actions">
+                <button class="btn-toggle-section" id="btn-hide-activities" onclick="toggleSectionVisibility('activities')">👁️ Masquer</button>
+                
+                <button onclick="addSimpleItem('activities')">+ Ajouter</button>
+              </div>
+            </div>
+            
+            <div id="list-activities"></div>
+
+            <div class="panel-section-title">
+              <span>Langues</span>
+              <div class="section-title-actions">
+                <button class="btn-toggle-section" id="btn-hide-languages" onclick="toggleSectionVisibility('languages')">👁️ Masquer</button>
+                
+                <button onclick="addItem('languages')">+ Ajouter</button>
+              </div>
+            </div>
+            
+            <div id="list-languages"></div>
+
+            <div class="panel-section-title">
+              <span>Centres d'intérêt</span>
+              <div class="section-title-actions">
+                <button class="btn-toggle-section" id="btn-hide-interests" onclick="toggleSectionVisibility('interests')">👁️ Masquer</button>
+                
+                <button onclick="addSimpleItem('interests')">+ Ajouter</button>
+              </div>
+            </div>
+            
+            <div id="list-interests"></div>
+
+          </div>
+
+          <!-- Tab 6: Design Mode Container -->
+          <div id="tab-design" class="tab-panel" style="flex-direction: column; gap: 1.25rem;">
+
+        <!-- Layout Selection -->
+        <div class="panel-section-title">Modèle de CV</div>
+        <div class="form-card">
+          <div class="form-group">
+            <label>Choisissez la structure globale</label>
+            <select id="design-layout-picker" class="toolbar-select"
+              style="width: 100%; border-radius: 6px; padding: 0.5rem;" onchange="changeLayout(this.value)">
+              <option value="designed">Midnight Gold (Créatif)</option>
+              <option value="professional">Corporate (Professionnel)</option>
+              <option value="ats">ATS-Optimisé (Linéaire)</option>
+              <option value="sidebar">Sidebar Bicolore (Compact)</option>
+              <option value="minimalist">Minimalisme Suisse (Moderne)</option>
+              <option value="europass">Norme Europass (Standard)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Color Customizer -->
+        <div id="design-colors-section">
+          <div class="panel-section-title">Couleurs & Thème</div>
+          <div class="form-card" style="display: flex; flex-direction: column; gap: 0.85rem;">
+            <!-- Designed Colors -->
+            <div id="design-color-designed-group" style="display: none; flex-direction: column; gap: 0.75rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted);">Couleur de Fond</label>
+                <input type="color" id="design-picker-bg" oninput="updateThemeColor('bg', this.value)"
+                  onchange="saveAndSync()"
+                  style="border:none; width:45px; height:28px; cursor:pointer; background:none;">
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted);">Couleur Accent</label>
+                <input type="color" id="design-picker-gold" oninput="updateThemeColor('gold', this.value)"
+                  onchange="saveAndSync()"
+                  style="border:none; width:45px; height:28px; cursor:pointer; background:none;">
+              </div>
+            </div>
+
+            <!-- Professional Colors -->
+            <div id="design-color-prof-group" style="display: none; flex-direction: column; gap: 0.75rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted);">Couleur Marine /
+                  Accent</label>
+                <input type="color" id="design-picker-navy" oninput="updateThemeColor('navy', this.value)"
+                  onchange="saveAndSync()"
+                  style="border:none; width:45px; height:28px; cursor:pointer; background:none;">
+              </div>
+            </div>
+
+            <!-- Sidebar Colors -->
+            <div id="design-color-sidebar-group" style="display: none; flex-direction: column; gap: 0.75rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted);">Fond Sidebar</label>
+                <input type="color" id="design-picker-sidebar-bg" oninput="updateThemeColor('sidebar-bg', this.value)"
+                  onchange="saveAndSync()"
+                  style="border:none; width:45px; height:28px; cursor:pointer; background:none;">
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted);">Accent Sidebar</label>
+                <input type="color" id="design-picker-sidebar-accent"
+                  oninput="updateThemeColor('sidebar-accent', this.value)" onchange="saveAndSync()"
+                  style="border:none; width:45px; height:28px; cursor:pointer; background:none;">
+              </div>
+            </div>
+
+            <button id="design-btn-random" class="btn-action" onclick="applyRandomPalette()"
+              style="width: 100%; justify-content: center; margin-top: 0.25rem;">
+              🎨 Palette Aléatoire
+            </button>
+          </div>
+        </div>
+
+        <!-- Individual Text Colors Customizer -->
+        <div id="design-text-colors-section">
+          <div class="panel-section-title">Couleurs des Textes (Individuel)</div>
+          <div class="form-card" style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom: 0.25rem;">
+              💡 <em>Astuce : Cliquez sur n'importe quel texte dans l'aperçu du CV pour ajuster sa couleur directement.</em>
+            </div>
+
+            <!-- Nom complet -->
+            <div id="design-card-text-name" style="display: flex; justify-content: space-between; align-items: center; padding: 0.35rem 0.5rem; border-radius: 6px; background: rgba(255,255,255,0.03);">
+              <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted); display:flex; align-items:center; gap:0.4rem;">
+                <span id="badge-color-text-name" style="display:inline-block; width:12px; height:12px; border-radius:50%; background:var(--text-color-name, #0f172a); border:1px solid rgba(255,255,255,0.3);"></span>
+                Nom complet
+              </label>
+              <input type="color" id="design-picker-text-name" oninput="updateTextColor('name', this.value)"
+                style="border:none; width:45px; height:28px; cursor:pointer; background:none;">
+            </div>
+
+            <!-- Titre / Profession -->
+            <div id="design-card-text-title" style="display: flex; justify-content: space-between; align-items: center; padding: 0.35rem 0.5rem; border-radius: 6px; background: rgba(255,255,255,0.03);">
+              <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted); display:flex; align-items:center; gap:0.4rem;">
+                <span id="badge-color-text-title" style="display:inline-block; width:12px; height:12px; border-radius:50%; background:var(--text-color-title, #334155); border:1px solid rgba(255,255,255,0.3);"></span>
+                Titre / Profession
+              </label>
+              <input type="color" id="design-picker-text-title" oninput="updateTextColor('title', this.value)"
+                style="border:none; width:45px; height:28px; cursor:pointer; background:none;">
+            </div>
+
+            <!-- Titres de section -->
+            <div id="design-card-text-heading" style="display: flex; justify-content: space-between; align-items: center; padding: 0.35rem 0.5rem; border-radius: 6px; background: rgba(255,255,255,0.03);">
+              <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted); display:flex; align-items:center; gap:0.4rem;">
+                <span id="badge-color-text-heading" style="display:inline-block; width:12px; height:12px; border-radius:50%; background:var(--text-color-heading, #1e3a8a); border:1px solid rgba(255,255,255,0.3);"></span>
+                Titres de sections
+              </label>
+              <input type="color" id="design-picker-text-heading" oninput="updateTextColor('heading', this.value)"
+                style="border:none; width:45px; height:28px; cursor:pointer; background:none;">
+            </div>
+
+            <!-- Texte principal / Description -->
+            <div id="design-card-text-body" style="display: flex; justify-content: space-between; align-items: center; padding: 0.35rem 0.5rem; border-radius: 6px; background: rgba(255,255,255,0.03);">
+              <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted); display:flex; align-items:center; gap:0.4rem;">
+                <span id="badge-color-text-body" style="display:inline-block; width:12px; height:12px; border-radius:50%; background:var(--text-color-body, #1e293b); border:1px solid rgba(255,255,255,0.3);"></span>
+                Texte principal (Corps)
+              </label>
+              <input type="color" id="design-picker-text-body" oninput="updateTextColor('body', this.value)"
+                style="border:none; width:45px; height:28px; cursor:pointer; background:none;">
+            </div>
+
+            <!-- Textes secondaires / Dates / Contacts -->
+            <div id="design-card-text-muted" style="display: flex; justify-content: space-between; align-items: center; padding: 0.35rem 0.5rem; border-radius: 6px; background: rgba(255,255,255,0.03);">
+              <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted); display:flex; align-items:center; gap:0.4rem;">
+                <span id="badge-color-text-muted" style="display:inline-block; width:12px; height:12px; border-radius:50%; background:var(--text-color-muted, #64748b); border:1px solid rgba(255,255,255,0.3);"></span>
+                Dates & Secondaires
+              </label>
+              <input type="color" id="design-picker-text-muted" oninput="updateTextColor('muted', this.value)"
+                style="border:none; width:45px; height:28px; cursor:pointer; background:none;">
+            </div>
+
+            <button id="design-btn-reset-text-colors" class="btn-action" onclick="resetTextColors()"
+              style="width: 100%; justify-content: center; margin-top: 0.25rem; background: rgba(255, 255, 255, 0.05); color: var(--text-muted); border: 1px solid var(--border-color);">
+              🔄 Réinitialiser les couleurs de texte
+            </button>
+          </div>
+        </div>
+
+        <!-- Typography -->
+        <div class="panel-section-title">Typographie</div>
+        <div class="form-card" style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="form-group">
+            <label>Police de caractères</label>
+            <select id="design-font-family" class="toolbar-select"
+              style="width: 100%; border-radius: 6px; padding: 0.5rem;"
+              onchange="updateDesignField('font_family', this.value)">
+              <option value="Inter">Inter (Sans-serif Moderne)</option>
+              <option value="Outfit">Outfit (Géométrique)</option>
+              <option value="Playfair Display">Playfair Display (Serif Classique)</option>
+              <option value="Lora">Lora (Serif Sophistiqué)</option>
+              <option value="Plus Jakarta Sans">Plus Jakarta Sans (Moderne Sans)</option>
+              <option value="Roboto">Roboto (Lisible & Neutre)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label id="lbl-design-base-size">Taille de police : 14px</label>
+            <input type="range" id="design-base-size" min="10" max="18" step="1" value="14"
+              oninput="updateDesignField('base_size', parseInt(this.value))">
+          </div>
+          <div class="form-group">
+            <label id="lbl-design-line-height">Interligne : 1.45</label>
+            <input type="range" id="design-line-height" min="1.1" max="1.8" step="0.05" value="1.45"
+              oninput="updateDesignField('line_height', parseFloat(this.value))">
+          </div>
+        </div>
+
+        <!-- Dimensions & Spacing -->
+        <div class="panel-section-title">Dimensions & Espacement</div>
+        <div class="form-card" style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="form-group">
+            <label id="lbl-design-page-margin">Marges de page : 15mm</label>
+            <input type="range" id="design-page-margin" min="8" max="25" step="1" value="15"
+              oninput="updateDesignField('page_margin', parseInt(this.value))">
+          </div>
+          <div class="form-group">
+            <label id="lbl-design-section-spacing">Espacement des sections : 1.2rem</label>
+            <input type="range" id="design-section-spacing" min="0.5" max="2.5" step="0.1" value="1.2"
+              oninput="updateDesignField('section_spacing', parseFloat(this.value))">
+          </div>
+        </div>
+
+        <!-- Display toggles -->
+        <div class="panel-section-title">Visibilité des éléments</div>
+        <div class="form-card" style="display: flex; flex-direction: column; gap: 0.85rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted);">Afficher la photo de
+              profil</label>
+            <input type="checkbox" id="design-show-pfp" onchange="updateDesignField('show_pfp', this.checked)"
+              style="width: 18px; height: 18px; cursor: pointer;">
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted);">Afficher les numéros de
+              page</label>
+            <input type="checkbox" id="design-show-page-number"
+              onchange="updateDesignField('show_page_number', this.checked)"
+              style="width: 18px; height: 18px; cursor: pointer;">
+          </div>
+        </div>
+
+        <!-- Profile Image Design -->
+        <div class="panel-section-title">Photo de Profil</div>
+        <div class="form-card" style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="form-group">
+            <label>Forme de l'image</label>
+            <select id="design-pfp-shape" class="toolbar-select"
+              style="width: 100%; border-radius: 6px; padding: 0.5rem;"
+              onchange="updateDesignField('pfp_shape', this.value)">
+              <option value="circle">Cercle</option>
+              <option value="rounded">Carré arrondi</option>
+              <option value="square">Carré</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label id="lbl-design-pfp-border-width">Bordure : 2px</label>
+            <input type="range" id="design-pfp-border-width" min="0" max="8" step="0.5" value="2"
+              oninput="updateDesignField('pfp_border_width', parseFloat(this.value))">
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted);">Couleur de bordure</label>
+            <input type="color" id="design-pfp-border-color" value="#d4af37"
+              oninput="updateDesignField('pfp_border_color', this.value)"
+              style="border:none; width:45px; height:28px; cursor:pointer; background:none;">
+          </div>
+          <div class="form-group">
+            <label id="lbl-design-pfp-shadow">Ombre : 15px</label>
+            <input type="range" id="design-pfp-shadow" min="0" max="40" step="1" value="15"
+              oninput="updateDesignField('pfp_shadow', parseInt(this.value))">
+          </div>
+          <div class="form-group">
+            <label id="lbl-design-pfp-opacity">Opacité : 100%</label>
+            <input type="range" id="design-pfp-opacity" min="0.3" max="1" step="0.05" value="1"
+              oninput="updateDesignField('pfp_opacity', parseFloat(this.value))">
+          </div>
+          <div style="border-top: 1px solid var(--border-color); padding-top: 0.75rem; margin-top: 0.25rem;">
+            <label
+              style="font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); margin-bottom:0.5rem; display:block;">Position
+              de l'image</label>
+            <div class="form-group" style="margin-top:0.5rem;">
+              <label id="lbl-design-pfp-offset-x">Décalage horizontal : 0px</label>
+              <input type="range" id="design-pfp-offset-x" min="-30" max="30" step="1" value="0"
+                oninput="updateDesignField('pfp_offset_x', parseInt(this.value))">
+            </div>
+            <div class="form-group">
+              <label id="lbl-design-pfp-offset-y">Décalage vertical : 0px</label>
+              <input type="range" id="design-pfp-offset-y" min="-30" max="30" step="1" value="0"
+                oninput="updateDesignField('pfp_offset_y', parseInt(this.value))">
+            </div>
+            <button class="btn-action"
+              onclick="updateDesignField('pfp_offset_x', 0); updateDesignField('pfp_offset_y', 0); document.getElementById('design-pfp-offset-x').value=0; document.getElementById('design-pfp-offset-y').value=0;"
+              style="width:100%; justify-content:center; font-size:0.72rem; padding:0.35rem; margin-top:0.25rem; background:rgba(255,255,255,0.05); border:1px solid var(--border-color);">
+              ↺ Recentrer
+            </button>
+          </div>
+        </div>
+
+      </div>
+      <!-- End of tab-design -->
+
+      </div>
+      <!-- End of tabs-content -->
+
+      </div>
+      <!-- End of mode-data-container -->
+
+      <div class="sidebar-footer" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <button class="btn-action btn-danger" style="flex: 1; padding: 0.5rem;"
+          onclick="resetToDefaults()">Réinitialiser</button>
+        <button class="btn-action" style="flex: 1; padding: 0.5rem; background: #3b82f6; color: white;"
+          onclick="downloadJSON()">⬇ Exporter</button>
+        <button class="btn-action" style="flex: 1; padding: 0.5rem; background: #10b981; color: white;"
+          onclick="document.getElementById('import-json-input').click()">⬆ Importer</button>
+        <input type="file" id="import-json-input" accept=".json" style="display:none;" onchange="importJSON(this)">
+      </div>
+
+    </aside>
+
+    <!-- RIGHT SIDEBAR: LIVE A4 PREVIEW -->
+    <main class="preview-container">
+
+      <!-- Toolbar -->
+      <div class="preview-toolbar" style="justify-content: space-between;">
+        <span id="preview-toolbar-title"
+          style="font-family:'Plus Jakarta Sans', sans-serif; font-size:0.85rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:0.4rem;">
+          🖨️ Prévisualisation du CV
+        </span>
+
+        <!-- Zoom Controls -->
+        <div
+          style="display: flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.05); padding: 0.25rem 0.65rem; border-radius: 20px; border: 1px solid var(--border-color);">
+          <button onclick="changeZoom(-0.1)" title="Zoom arrière"
+            style="background:transparent; border:none; color:white; cursor:pointer; font-weight:bold; font-size:1.1rem; padding: 0 0.4rem; outline: none; line-height: 1;">−</button>
+          <span id="lbl-zoom-level"
+            style="font-family:'Plus Jakarta Sans', sans-serif; font-size:0.75rem; font-weight:700; color:#fff; min-width:40px; text-align:center;">100%</span>
+          <button onclick="changeZoom(0.1)" title="Zoom avant"
+            style="background:transparent; border:none; color:white; cursor:pointer; font-weight:bold; font-size:1.1rem; padding: 0 0.4rem; outline: none; line-height: 1;">+</button>
+          <button onclick="resetZoom()" title="Réinitialiser"
+            style="background:transparent; border:none; color:var(--text-muted); cursor:pointer; font-size:0.75rem; padding: 0 0.2rem; margin-left:4px; outline: none; line-height: 1;">↺</button>
+        </div>
+
+        <button class="btn-action" onclick="window.print()">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+            <rect x="6" y="14" width="12" height="8"></rect>
+          </svg>
+          <span id="print-btn-label">Imprimer / PDF</span>
+        </button>
+      </div>
+
+      <!-- A4 Page Container -->
+      <div id="a4-page" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+        <div id="screen-preview-container"
+          style="width: 100%; display: flex; flex-direction: column; align-items: center; zoom: var(--preview-zoom, 1); transform-origin: top center;">
+        </div>
+        <div id="print-preview-container" class="a4-sheet"></div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- ----------------------------------------------------
+       6. JAVASCRIPT STATE ENGINE
+       ---------------------------------------------------- -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>

@@ -17,27 +17,7 @@ const emptyCVData = {
     }
 };
 
-
-// Deep sanitize string encoding glitches (like â€¢ instead of •)
-function sanitizeGlitches(obj) {
-    if (typeof obj === 'string') {
-        return obj.replace(/â€¢/g, '•').replace(/â€™/g, "'");
-    }
-    if (Array.isArray(obj)) {
-        return obj.map(sanitizeGlitches);
-    }
-    if (obj !== null && typeof obj === 'object') {
-        const newObj = {};
-        for (const key in obj) {
-            newObj[key] = sanitizeGlitches(obj[key]);
-        }
-        return newObj;
-    }
-    return obj;
-}
-
-let cvDataRaw = JSON.parse(localStorage.getItem('cv_data'));
-let cvData = sanitizeGlitches(cvDataRaw) || (typeof window.defaultCVData !== 'undefined' ? sanitizeGlitches(window.defaultCVData) : JSON.parse(JSON.stringify(emptyCVData)));
+let cvData = JSON.parse(localStorage.getItem('cv_data')) || (typeof window.defaultCVData !== 'undefined' ? window.defaultCVData : JSON.parse(JSON.stringify(emptyCVData)));
 let currentLayout = localStorage.getItem('cv_layout') || 'professional';
 let openCollapseKeys = {}; // Collapsed items status tracking
 
@@ -256,7 +236,7 @@ function renderDesignedLayout() {
         });
         formHTML = `
         <section>
-        <div class="cv-designed-sectitle" data-editor-tab="tab-experiences" data-section-title="formations">${getHdg('formations', 'Stages & Formations')}</div>
+        <div class="cv-designed-sectitle" data-editor-tab="tab-experiences">Stages & Formations</div>
         ${formItemsHTML}
         </section>`;
     }
@@ -346,13 +326,13 @@ function renderDesignedLayout() {
         <div class="cv-designed-sidebar">
             ${cvData.profile && cvData.profile.trim() && !cvData.hidden_sections?.profile ? `
             <section>
-                <div class="cv-designed-sectitle" data-editor-tab="tab-profile" data-section-title="profile">${getHdg('profile', 'Profil')}</div>
+                <div class="cv-designed-sectitle" data-editor-tab="tab-profile">Profil</div>
                 <p style="font-size:0.73rem; color:#9ca3af; line-height:1.45; text-align:justify;" data-editor-tab="tab-profile" data-editor-focus="input-profile">${cvData.profile}</p>
             </section>
             ` : ''}
             ${cvData.skills && cvData.skills.length > 0 && !cvData.hidden_sections?.skills ? `
             <section>
-                <div class="cv-designed-sectitle" data-editor-tab="tab-skills" data-section-title="skills">${getHdg('skills', 'Compétences')}</div>
+                <div class="cv-designed-sectitle" data-editor-tab="tab-skills">Compétences</div>
                 <div class="skills-group">
                 ${skillsHTML}
                 </div>
@@ -360,25 +340,25 @@ function renderDesignedLayout() {
             ` : ''}
             ${cvData.education && cvData.education.length > 0 && !cvData.hidden_sections?.education ? `
             <section>
-                <div class="cv-designed-sectitle" data-editor-tab="tab-education" data-section-title="education">${getHdg('education', 'Éducation')}</div>
+                <div class="cv-designed-sectitle" data-editor-tab="tab-education">Éducation</div>
                 ${eduHTML}
             </section>
             ` : ''}
             ${cvData.certifications && cvData.certifications.length > 0 && !cvData.hidden_sections?.certifications ? `
             <section>
-                <div class="cv-designed-sectitle" data-editor-tab="tab-education" data-section-title="certifications">${getHdg('certifications', 'Certifications')}</div>
+                <div class="cv-designed-sectitle" data-editor-tab="tab-education">Certifications</div>
                 <div class="cv-designed-simplelist">${certsHTML}</div>
             </section>
             ` : ''}
             ${cvData.languages && cvData.languages.length > 0 && !cvData.hidden_sections?.languages ? `
             <section>
-                <div class="cv-designed-sectitle" data-editor-tab="tab-education" data-section-title="languages">${getHdg('languages', 'Langues')}</div>
+                <div class="cv-designed-sectitle" data-editor-tab="tab-education">Langues</div>
                 <div class="cv-designed-simplelist">${langHTML}</div>
             </section>
             ` : ''}
             ${cvData.interests && cvData.interests.length > 0 && !cvData.hidden_sections?.interests ? `
             <section>
-                <div class="cv-designed-sectitle" data-editor-tab="tab-education" data-section-title="interests">${getHdg('interests', 'Centres d\'intérêt')}</div>
+                <div class="cv-designed-sectitle" data-editor-tab="tab-education">Centres d'intérêt</div>
                 <div style="font-size:0.72rem; color:#9ca3af; line-height:1.4;">${cvData.interests.map((item, idx) => `<span data-editor-tab="tab-education" data-editor-target="interests" data-editor-index="${idx}" data-editor-field="value">${item}</span>`).join(', ')}</div>
             </section>
             ` : ''}
@@ -386,14 +366,14 @@ function renderDesignedLayout() {
         <div class="cv-designed-main">
             ${cvData.experiences && cvData.experiences.length > 0 && !cvData.hidden_sections?.experiences ? `
             <section>
-                <div class="cv-designed-sectitle" data-editor-tab="tab-experiences" data-section-title="experiences">${getHdg('experiences', 'Expériences Professionnelles')}</div>
+                <div class="cv-designed-sectitle" data-editor-tab="tab-experiences">Expériences Professionnelles</div>
                 ${expHTML}
             </section>
             ` : ''}
             ${cvData.hidden_sections?.formations ? '' : formHTML}
             ${cvData.projects && cvData.projects.length > 0 && !cvData.hidden_sections?.projects ? `
             <section>
-                <div class="cv-designed-sectitle" data-editor-tab="tab-projects" data-section-title="projects">${getHdg('projects', 'Projets Clés')}</div>
+                <div class="cv-designed-sectitle" data-editor-tab="tab-projects">Projets Clés</div>
                 ${projHTML}
             </section>
             ` : ''}
@@ -454,7 +434,7 @@ function renderProfessionalLayout() {
         });
         formHTML = `
         <section class="section">
-        <div class="cv-prof-sectitle" data-editor-tab="tab-experiences" data-section-title="formations">${getHdg('formations', 'Stages & Formations')}</div>
+        <div class="cv-prof-sectitle" data-editor-tab="tab-experiences">Stages & Formations</div>
         ${formItemsHTML}
         </section>`;
     }
@@ -517,14 +497,14 @@ function renderProfessionalLayout() {
         
         ${cvData.profile && cvData.profile.trim() && !cvData.hidden_sections?.profile ? `
         <section class="section">
-            <div class="cv-prof-sectitle" data-editor-tab="tab-profile" data-section-title="profile">${getHdg('profile', 'Profil Professionnel')}</div>
+            <div class="cv-prof-sectitle" data-editor-tab="tab-profile">Profil Professionnel</div>
             <p style="font-size:0.8rem; color:#374151; text-align:justify; line-height:1.45;" data-editor-tab="tab-profile" data-editor-focus="input-profile">${cvData.profile}</p>
         </section>
         ` : ''}
 
         ${cvData.experiences && cvData.experiences.length > 0 && !cvData.hidden_sections?.experiences ? `
         <section class="section">
-            <div class="cv-prof-sectitle" data-editor-tab="tab-experiences" data-section-title="experiences">${getHdg('experiences', 'Expériences Professionnelles')}</div>
+            <div class="cv-prof-sectitle" data-editor-tab="tab-experiences">Expériences Professionnelles</div>
             ${expHTML}
         </section>
         ` : ''}
@@ -533,7 +513,7 @@ function renderProfessionalLayout() {
 
         ${cvData.projects && cvData.projects.length > 0 && !cvData.hidden_sections?.projects ? `
         <section class="section">
-            <div class="cv-prof-sectitle" data-editor-tab="tab-projects" data-section-title="projects">${getHdg('projects', 'Projets Clés')}</div>
+            <div class="cv-prof-sectitle" data-editor-tab="tab-projects">Projets Clés</div>
             ${projHTML}
         </section>
         ` : ''}
@@ -542,13 +522,13 @@ function renderProfessionalLayout() {
         <div>
             ${cvData.skills && cvData.skills.length > 0 && !cvData.hidden_sections?.skills ? `
             <section class="section">
-                <div class="cv-prof-sectitle" data-editor-tab="tab-skills" data-section-title="skills">${getHdg('skills', 'Compétences Techniques')}</div>
+                <div class="cv-prof-sectitle" data-editor-tab="tab-skills">Compétences Techniques</div>
                 ${skillsHTML}
             </section>
             ` : ''}
             ${cvData.education && cvData.education.length > 0 && !cvData.hidden_sections?.education ? `
             <section class="section">
-                <div class="cv-prof-sectitle" data-editor-tab="tab-education" data-section-title="education">${getHdg('education', 'Éducation')}</div>
+                <div class="cv-prof-sectitle" data-editor-tab="tab-education">Éducation</div>
                 ${eduHTML}
             </section>
             ` : ''}
@@ -556,13 +536,13 @@ function renderProfessionalLayout() {
         <div>
             ${cvData.certifications && cvData.certifications.length > 0 && !cvData.hidden_sections?.certifications ? `
             <section class="section">
-                <div class="cv-prof-sectitle" data-editor-tab="tab-education" data-section-title="certifications">${getHdg('certifications', 'Certifications')}</div>
+                <div class="cv-prof-sectitle" data-editor-tab="tab-education">Certifications</div>
                 <ul class="cv-prof-bullets">${certsHTML}</ul>
             </section>
             ` : ''}
             ${(cvData.activities && cvData.activities.length > 0 && !cvData.hidden_sections?.activities) || (cvData.languages && cvData.languages.length > 0 && !cvData.hidden_sections?.languages) || (cvData.interests && cvData.interests.length > 0 && !cvData.hidden_sections?.interests) ? `
             <section class="section">
-                <div class="cv-prof-sectitle" data-editor-tab="tab-education" data-section-title="languages">${getHdg('languages', 'Divers & Langues')}</div>
+                <div class="cv-prof-sectitle" data-editor-tab="tab-education">Divers & Langues</div>
                 ${cvData.activities && cvData.activities.length > 0 && !cvData.hidden_sections?.activities ? `<ul class="cv-prof-bullets" style="margin-bottom:0.5rem;">${actHTML}</ul>` : ''}
                 ${cvData.languages && cvData.languages.length > 0 && !cvData.hidden_sections?.languages ? `
                 <div style="font-size:0.78rem; border-top:1px solid #d1d5db; padding-top:0.4rem; color:#374151;" data-editor-tab="tab-education">
@@ -614,7 +594,7 @@ function renderATSLayout() {
         </div>`;
         });
         formHTML = `
-        <div class="cv-ats-sectitle" data-editor-tab="tab-experiences" data-section-title="formations">${getHdg('formations', 'Stages & Formations')}</div>
+        <div class="cv-ats-sectitle" data-editor-tab="tab-experiences">Stages & Formations</div>
         ${formItemsHTML}`;
     }
 
@@ -680,7 +660,6 @@ function renderATSLayout() {
         <header class="cv-ats-header" data-editor-tab="tab-profile">
         ${pfpHTML}
         <div class="cv-ats-name" data-editor-tab="tab-profile" data-editor-focus="input-name">${cvData.contact.name}</div>
-        ${cvData.contact.title_sub ? `<div class="cv-ats-title" data-editor-tab="tab-profile" data-editor-focus="input-title-sub">${cvData.contact.title_sub}</div>` : ''}
         <div class="cv-ats-contacts" data-editor-tab="tab-profile">
             ${atsContactsHTML}
         </div>
@@ -688,14 +667,14 @@ function renderATSLayout() {
         
         ${cvData.profile && cvData.profile.trim() && !cvData.hidden_sections?.profile ? `
         <div class="cv-ats-section">
-            <div class="cv-ats-sectitle" data-editor-tab="tab-profile" data-section-title="profile">${getHdg('profile', 'Profil Professionnel')}</div>
+            <div class="cv-ats-sectitle" data-editor-tab="tab-profile">Profil Professionnel</div>
             <p style="font-size:10pt; margin-bottom:0.75rem; text-align:justify;" data-editor-tab="tab-profile" data-editor-focus="input-profile">${cvData.profile}</p>
         </div>
         ` : ''}
 
         ${cvData.experiences && cvData.experiences.length > 0 && !cvData.hidden_sections?.experiences ? `
         <div class="cv-ats-section">
-            <div class="cv-ats-sectitle" data-editor-tab="tab-experiences" data-section-title="experiences">${getHdg('experiences', 'Expérience Professionnelle')}</div>
+            <div class="cv-ats-sectitle" data-editor-tab="tab-experiences">Expérience Professionnelle</div>
             ${expHTML}
         </div>
         ` : ''}
@@ -708,14 +687,14 @@ function renderATSLayout() {
 
         ${cvData.projects && cvData.projects.length > 0 && !cvData.hidden_sections?.projects ? `
         <div class="cv-ats-section">
-            <div class="cv-ats-sectitle" data-editor-tab="tab-projects" data-section-title="projects">${getHdg('projects', 'Projets Réalisés')}</div>
+            <div class="cv-ats-sectitle" data-editor-tab="tab-projects">Projets Réalisés</div>
             ${projHTML}
         </div>
         ` : ''}
 
         ${cvData.skills && cvData.skills.length > 0 && !cvData.hidden_sections?.skills ? `
         <div class="cv-ats-section">
-            <div class="cv-ats-sectitle" data-editor-tab="tab-skills" data-section-title="skills">${getHdg('skills', 'Compétences Techniques')}</div>
+            <div class="cv-ats-sectitle" data-editor-tab="tab-skills">Compétences Techniques</div>
             <div style="font-size:10pt; margin-bottom:0.5rem;">
                 ${skillsHTML}
             </div>
@@ -724,35 +703,35 @@ function renderATSLayout() {
 
         ${cvData.education && cvData.education.length > 0 && !cvData.hidden_sections?.education ? `
         <div class="cv-ats-section">
-            <div class="cv-ats-sectitle" data-editor-tab="tab-education" data-section-title="education">${getHdg('education', 'Éducation')}</div>
+            <div class="cv-ats-sectitle" data-editor-tab="tab-education">Éducation</div>
             ${eduHTML}
         </div>
         ` : ''}
 
         ${cvData.certifications && cvData.certifications.length > 0 && !cvData.hidden_sections?.certifications ? `
         <div class="cv-ats-section">
-            <div class="cv-ats-sectitle" data-editor-tab="tab-education" data-section-title="certifications">${getHdg('certifications', 'Certifications')}</div>
+            <div class="cv-ats-sectitle" data-editor-tab="tab-education">Certifications</div>
             <ul class="cv-ats-bullets">${certsHTML}</ul>
         </div>
         ` : ''}
 
         ${cvData.activities && cvData.activities.length > 0 && !cvData.hidden_sections?.activities ? `
         <div class="cv-ats-section">
-            <div class="cv-ats-sectitle" data-editor-tab="tab-education" data-section-title="activities">${getHdg('activities', 'Engagements & Activités')}</div>
+            <div class="cv-ats-sectitle" data-editor-tab="tab-education">Engagements & Activités</div>
             <ul class="cv-ats-bullets">${actHTML}</ul>
         </div>
         ` : ''}
 
         ${cvData.languages && cvData.languages.length > 0 && !cvData.hidden_sections?.languages ? `
         <div class="cv-ats-section">
-            <div class="cv-ats-sectitle" data-editor-tab="tab-education" data-section-title="languages">${getHdg('languages', 'Langues')}</div>
+            <div class="cv-ats-sectitle" data-editor-tab="tab-education">Langues</div>
             <ul class="cv-ats-bullets">${langHTML}</ul>
         </div>
         ` : ''}
 
         ${cvData.interests && cvData.interests.length > 0 && !cvData.hidden_sections?.interests ? `
         <div class="cv-ats-section">
-            <div class="cv-ats-sectitle" data-editor-tab="tab-education" data-section-title="interests">${getHdg('interests', 'Centres d\'Intérêt')}</div>
+            <div class="cv-ats-sectitle" data-editor-tab="tab-education">Centres d'Intérêt</div>
             <p style="font-size:10pt;">${cvData.interests.map((item, idx) => `<span data-editor-tab="tab-education" data-editor-target="interests" data-editor-index="${idx}" data-editor-field="value">${item}</span>`).join(', ')}</p>
         </div>
         ` : ''}
@@ -844,7 +823,7 @@ function renderSidebarLayout() {
         });
         formHTML = `
         <div class="cv-sidebar-right-section">
-        <div class="cv-sidebar-right-title" data-editor-tab="tab-experiences" data-section-title="formations">${getHdg('formations', 'Stages & Formations')}</div>
+        <div class="cv-sidebar-right-title" data-editor-tab="tab-experiences">Stages & Formations</div>
         ${formItemsHTML}
         </div>`;
     }
@@ -880,39 +859,39 @@ function renderSidebarLayout() {
             ${contactHTML}
             ${cvData.skills && cvData.skills.length > 0 && !cvData.hidden_sections?.skills ? `
             <div class="cv-sidebar-left-section">
-                <div class="cv-sidebar-left-title" data-editor-tab="tab-skills" data-section-title="skills">${getHdg('skills', 'Compétences')}</div>
+                <div class="cv-sidebar-left-title" data-editor-tab="tab-skills">Compétences</div>
                 <div class="cv-sidebar-left-content">${skillsHTML}</div>
             </div>
             ` : ''}
             ${cvData.languages && cvData.languages.length > 0 && !cvData.hidden_sections?.languages ? `
             <div class="cv-sidebar-left-section">
-                <div class="cv-sidebar-left-title" data-editor-tab="tab-education" data-section-title="languages">${getHdg('languages', 'Langues')}</div>
+                <div class="cv-sidebar-left-title" data-editor-tab="tab-education">Langues</div>
                 <ul class="cv-sidebar-left-bullets" style="color:var(--sidebar-text);">${langHTML}</ul>
             </div>
             ` : ''}
             ${cvData.interests && cvData.interests.length > 0 && !cvData.hidden_sections?.interests ? `
             <div class="cv-sidebar-left-section">
-                <div class="cv-sidebar-left-title" data-editor-tab="tab-education" data-section-title="interests">${getHdg('interests', 'Intérêts')}</div>
+                <div class="cv-sidebar-left-title" data-editor-tab="tab-education">Intérêts</div>
                 <div class="cv-sidebar-left-content" style="font-size:0.7rem; opacity:0.85;">${cvData.interests.map((item, idx) => `<span data-editor-tab="tab-education" data-editor-target="interests" data-editor-index="${idx}" data-editor-field="value">${item}</span>`).join(', ')}</div>
             </div>
             ` : ''}
         </div>
         <div class="cv-sidebar-right">
-            <header style="margin-bottom:0.5rem; padding-top:1.5rem;" data-editor-tab="tab-profile">
+            <header style="margin-bottom:0.5rem;" data-editor-tab="tab-profile">
             <h1 style="font-family:'Plus Jakarta Sans', sans-serif; font-size:1.8rem; font-weight:800; color:#0f172a; line-height:1.15;" data-editor-tab="tab-profile" data-editor-focus="input-name">${cvData.contact.name}</h1>
             <p style="font-size:0.85rem; font-weight:700; color:var(--sidebar-accent); text-transform:uppercase; letter-spacing:0.04em; margin-top:0.25rem;" data-editor-tab="tab-profile" data-editor-focus="input-title-sub">${cvData.contact.title_sub}</p>
             </header>
             
             ${cvData.profile && cvData.profile.trim() && !cvData.hidden_sections?.profile ? `
             <div class="cv-sidebar-right-section">
-                <div class="cv-sidebar-right-title" data-editor-tab="tab-profile" data-section-title="profile">${getHdg('profile', 'Profil')}</div>
+                <div class="cv-sidebar-right-title" data-editor-tab="tab-profile">Profil</div>
                 <p style="font-size:0.74rem; color:#334155; line-height:1.45; text-align:justify;" data-editor-tab="tab-profile" data-editor-focus="input-profile">${cvData.profile}</p>
             </div>
             ` : ''}
 
             ${cvData.experiences && cvData.experiences.length > 0 && !cvData.hidden_sections?.experiences ? `
             <div class="cv-sidebar-right-section">
-                <div class="cv-sidebar-right-title" data-editor-tab="tab-experiences" data-section-title="experiences">${getHdg('experiences', 'Expériences Professionnelles')}</div>
+                <div class="cv-sidebar-right-title" data-editor-tab="tab-experiences">Expériences Professionnelles</div>
                 ${expHTML}
             </div>
             ` : ''}
@@ -921,21 +900,21 @@ function renderSidebarLayout() {
 
             ${cvData.projects && cvData.projects.length > 0 && !cvData.hidden_sections?.projects ? `
             <div class="cv-sidebar-right-section">
-                <div class="cv-sidebar-right-title" data-editor-tab="tab-projects" data-section-title="projects">${getHdg('projects', 'Projets Clés')}</div>
+                <div class="cv-sidebar-right-title" data-editor-tab="tab-projects">Projets Clés</div>
                 ${projHTML}
             </div>
             ` : ''}
 
             ${cvData.education && cvData.education.length > 0 && !cvData.hidden_sections?.education ? `
             <div class="cv-sidebar-right-section">
-                <div class="cv-sidebar-right-title" data-editor-tab="tab-education" data-section-title="education">${getHdg('education', 'Éducation')}</div>
+                <div class="cv-sidebar-right-title" data-editor-tab="tab-education">Éducation</div>
                 ${eduHTML}
             </div>
             ` : ''}
 
             ${(cvData.certifications && cvData.certifications.length > 0 && !cvData.hidden_sections?.certifications) || (cvData.activities && cvData.activities.length > 0 && !cvData.hidden_sections?.activities) ? `
             <div class="cv-sidebar-right-section">
-                <div class="cv-sidebar-right-title" data-editor-tab="tab-education" data-section-title="certifications">${getHdg('certifications', 'Certifications & Activités')}</div>
+                <div class="cv-sidebar-right-title" data-editor-tab="tab-education">Certifications & Activités</div>
                 ${cvData.certifications && cvData.certifications.length > 0 && !cvData.hidden_sections?.certifications ? `<ul class="cv-sidebar-bullets" style="margin-bottom:0.4rem;">${certsHTML}</ul>` : ''}
                 ${cvData.activities && cvData.activities.length > 0 && !cvData.hidden_sections?.activities ? `
                 <div style="border-top:1px solid #e2e8f0; padding-top:0.35rem; margin-top:0.4rem;">
@@ -1030,7 +1009,7 @@ function renderMinimalistLayout() {
         });
         formHTML = `
         <div>
-        <div class="cv-mini-sectitle" data-editor-tab="tab-experiences" data-section-title="formations">${getHdg('formations', 'Stages & Formations')}</div>
+        <div class="cv-mini-sectitle" data-editor-tab="tab-experiences">Stages & Formations</div>
         ${formItemsHTML}
         </div>`;
     }
@@ -1066,25 +1045,25 @@ function renderMinimalistLayout() {
         <div class="cv-mini-left-col">
             ${cvData.skills && cvData.skills.length > 0 && !cvData.hidden_sections?.skills ? `
             <div>
-                <div class="cv-mini-sectitle" data-editor-tab="tab-skills" data-section-title="skills">${getHdg('skills', 'Compétences')}</div>
+                <div class="cv-mini-sectitle" data-editor-tab="tab-skills">Compétences</div>
                 ${skillsHTML}
             </div>
             ` : ''}
             ${cvData.education && cvData.education.length > 0 && !cvData.hidden_sections?.education ? `
             <div>
-                <div class="cv-mini-sectitle" data-editor-tab="tab-education" data-section-title="education">${getHdg('education', 'Éducation')}</div>
+                <div class="cv-mini-sectitle" data-editor-tab="tab-education">Éducation</div>
                 ${eduHTML}
             </div>
             ` : ''}
             ${cvData.languages && cvData.languages.length > 0 && !cvData.hidden_sections?.languages ? `
             <div>
-                <div class="cv-mini-sectitle" data-editor-tab="tab-education" data-section-title="languages">${getHdg('languages', 'Langues')}</div>
+                <div class="cv-mini-sectitle" data-editor-tab="tab-education">Langues</div>
                 ${langHTML}
             </div>
             ` : ''}
             ${cvData.interests && cvData.interests.length > 0 && !cvData.hidden_sections?.interests ? `
             <div>
-                <div class="cv-mini-sectitle" data-editor-tab="tab-education" data-section-title="interests">${getHdg('interests', 'Intérêts')}</div>
+                <div class="cv-mini-sectitle" data-editor-tab="tab-education">Intérêts</div>
                 <div style="font-size:0.7rem; color:#52525b; line-height:1.45;">${cvData.interests.map((item, idx) => `<span data-editor-tab="tab-education" data-editor-target="interests" data-editor-index="${idx}" data-editor-field="value">${item}</span>`).join(', ')}</div>
             </div>
             ` : ''}
@@ -1092,26 +1071,26 @@ function renderMinimalistLayout() {
         <div class="cv-mini-right-col">
             ${cvData.profile && cvData.profile.trim() && !cvData.hidden_sections?.profile ? `
             <div>
-                <div class="cv-mini-sectitle" data-editor-tab="tab-profile" data-section-title="profile">${getHdg('profile', 'Profil')}</div>
+                <div class="cv-mini-sectitle" data-editor-tab="tab-profile">Profil</div>
                 <p style="font-size:0.74rem; color:#3f3f46; line-height:1.5; text-align:justify; margin-bottom:0.4rem;" data-editor-tab="tab-profile" data-editor-focus="input-profile">${cvData.profile}</p>
             </div>
             ` : ''}
             ${cvData.experiences && cvData.experiences.length > 0 && !cvData.hidden_sections?.experiences ? `
             <div>
-                <div class="cv-mini-sectitle" data-editor-tab="tab-experiences" data-section-title="experiences">${getHdg('experiences', 'Expériences Professionnelles')}</div>
+                <div class="cv-mini-sectitle" data-editor-tab="tab-experiences">Expériences Professionnelles</div>
                 ${expHTML}
             </div>
             ` : ''}
             ${cvData.hidden_sections?.formations ? '' : formHTML}
             ${cvData.projects && cvData.projects.length > 0 && !cvData.hidden_sections?.projects ? `
             <div>
-                <div class="cv-mini-sectitle" data-editor-tab="tab-projects" data-section-title="projects">${getHdg('projects', 'Projets Clés')}</div>
+                <div class="cv-mini-sectitle" data-editor-tab="tab-projects">Projets Clés</div>
                 ${projHTML}
             </div>
             ` : ''}
             ${(cvData.certifications && cvData.certifications.length > 0 && !cvData.hidden_sections?.certifications) || (cvData.activities && cvData.activities.length > 0 && !cvData.hidden_sections?.activities) ? `
             <div>
-                <div class="cv-mini-sectitle" data-editor-tab="tab-education" data-section-title="certifications">${getHdg('certifications', 'Certifications & Activités')}</div>
+                <div class="cv-mini-sectitle" data-editor-tab="tab-education">Certifications & Activités</div>
                 ${cvData.certifications && cvData.certifications.length > 0 && !cvData.hidden_sections?.certifications ? `<ul class="cv-mini-bullets" style="margin-bottom:0.5rem;">${certsHTML}</ul>` : ''}
                 ${cvData.activities && cvData.activities.length > 0 && !cvData.hidden_sections?.activities ? `
                 <div style="border-top:1px solid #f4f4f5; padding-top:0.4rem; margin-top:0.4rem;">
@@ -1165,7 +1144,7 @@ function renderEuropassLayout() {
         });
         formHTML = `
         <div class="cv-euro-row">
-        <div class="cv-euro-left" data-editor-tab="tab-experiences" data-section-title="formations">${getHdg('formations', 'Stages & Formations')}</div>
+        <div class="cv-euro-left" data-editor-tab="tab-experiences">Stages & Formations</div>
         <div class="cv-euro-right">
             ${formItemsHTML}
         </div>
@@ -1245,7 +1224,7 @@ function renderEuropassLayout() {
 
         ${cvData.profile && cvData.profile.trim() && !cvData.hidden_sections?.profile ? `
         <div class="cv-euro-row">
-            <div class="cv-euro-left" data-editor-tab="tab-profile" data-section-title="profile">${getHdg('profile', 'Profil')}</div>
+            <div class="cv-euro-left" data-editor-tab="tab-profile">Profil</div>
             <div class="cv-euro-right">
             <p style="line-height:1.45; text-align:justify;" data-editor-tab="tab-profile" data-editor-focus="input-profile">${cvData.profile}</p>
             </div>
@@ -1254,7 +1233,7 @@ function renderEuropassLayout() {
 
         ${cvData.experiences && cvData.experiences.length > 0 && !cvData.hidden_sections?.experiences ? `
         <div class="cv-euro-row">
-            <div class="cv-euro-left" data-editor-tab="tab-experiences" data-section-title="experiences">${getHdg('experiences', 'Expériences')}</div>
+            <div class="cv-euro-left" data-editor-tab="tab-experiences">Expériences</div>
             <div class="cv-euro-right">
             ${expHTML}
             </div>
@@ -1265,7 +1244,7 @@ function renderEuropassLayout() {
 
         ${cvData.projects && cvData.projects.length > 0 && !cvData.hidden_sections?.projects ? `
         <div class="cv-euro-row">
-            <div class="cv-euro-left" data-editor-tab="tab-projects" data-section-title="projects">${getHdg('projects', 'Projets')}</div>
+            <div class="cv-euro-left" data-editor-tab="tab-projects">Projets</div>
             <div class="cv-euro-right">
             ${projHTML}
             </div>
@@ -1274,7 +1253,7 @@ function renderEuropassLayout() {
 
         ${cvData.skills && cvData.skills.length > 0 && !cvData.hidden_sections?.skills ? `
         <div class="cv-euro-row">
-            <div class="cv-euro-left" data-editor-tab="tab-skills" data-section-title="skills">${getHdg('skills', 'Compétences')}</div>
+            <div class="cv-euro-left" data-editor-tab="tab-skills">Compétences</div>
             <div class="cv-euro-right">
             ${skillsHTML}
             </div>
@@ -1283,7 +1262,7 @@ function renderEuropassLayout() {
 
         ${cvData.education && cvData.education.length > 0 && !cvData.hidden_sections?.education ? `
         <div class="cv-euro-row">
-            <div class="cv-euro-left" data-editor-tab="tab-education" data-section-title="education">${getHdg('education', 'Éducation')}</div>
+            <div class="cv-euro-left" data-editor-tab="tab-education">Éducation</div>
             <div class="cv-euro-right">
             ${eduHTML}
             </div>
@@ -1292,7 +1271,7 @@ function renderEuropassLayout() {
 
         ${cvData.languages && cvData.languages.length > 0 && !cvData.hidden_sections?.languages ? `
         <div class="cv-euro-row">
-            <div class="cv-euro-left" data-editor-tab="tab-education" data-section-title="languages">${getHdg('languages', 'Langues')}</div>
+            <div class="cv-euro-left" data-editor-tab="tab-education">Langues</div>
             <div class="cv-euro-right">
             <ul class="cv-euro-bullets" style="list-style-type:none; padding-left:0; margin:0;">${langHTML}</ul>
             </div>
@@ -1301,18 +1280,18 @@ function renderEuropassLayout() {
 
         ${(cvData.certifications && cvData.certifications.length > 0 && !cvData.hidden_sections?.certifications) || (cvData.activities && cvData.activities.length > 0 && !cvData.hidden_sections?.activities) || (cvData.interests && cvData.interests.length > 0 && !cvData.hidden_sections?.interests) ? `
         <div class="cv-euro-row">
-            <div class="cv-euro-left" data-editor-tab="tab-education" data-section-title="languages">${getHdg('languages', 'Divers')}</div>
+            <div class="cv-euro-left" data-editor-tab="tab-education">Divers</div>
             <div class="cv-euro-right">
             ${cvData.certifications && cvData.certifications.length > 0 && !cvData.hidden_sections?.certifications ? `
-                <div style="font-weight:700; color:#0055a5; margin-bottom:0.25rem;" data-editor-tab="tab-education" data-section-title="certifications">${getHdg('certifications', 'Certifications')}</div>
+                <div style="font-weight:700; color:#0055a5; margin-bottom:0.25rem;" data-editor-tab="tab-education">Certifications</div>
                 <ul class="cv-euro-bullets" style="margin-bottom:0.5rem;">${certsHTML}</ul>
             ` : ''}
             ${cvData.activities && cvData.activities.length > 0 && !cvData.hidden_sections?.activities ? `
-                <div style="font-weight:700; color:#0055a5; margin-bottom:0.25rem; margin-top:0.4rem;" data-editor-tab="tab-education" data-section-title="activities">${getHdg('activities', 'Activités')}</div>
+                <div style="font-weight:700; color:#0055a5; margin-bottom:0.25rem; margin-top:0.4rem;" data-editor-tab="tab-education">Activités</div>
                 <ul class="cv-euro-bullets" style="margin-bottom:0.5rem;">${actHTML}</ul>
             ` : ''}
             ${cvData.interests && cvData.interests.length > 0 && !cvData.hidden_sections?.interests ? `
-                <div style="font-weight:700; color:#0055a5; margin-bottom:0.25rem; margin-top:0.4rem;" data-editor-tab="tab-education" data-section-title="interests">${getHdg('interests', 'Intérêts')}</div>
+                <div style="font-weight:700; color:#0055a5; margin-bottom:0.25rem; margin-top:0.4rem;" data-editor-tab="tab-education">Intérêts</div>
                 <div style="font-size:0.7rem; color:#444444;">${cvData.interests.map((item, idx) => `<span data-editor-tab="tab-education" data-editor-target="interests" data-editor-index="${idx}" data-editor-field="value">${item}</span>`).join(', ')}</div>
             ` : ''}
             </div>
@@ -1321,13 +1300,7 @@ function renderEuropassLayout() {
     </div>`;
 }
 
-let isRenderingPreview = false;
-
-window.getHdg = function(key, def) { return (cvData.headings && cvData.headings[key]) || def; };
-
 function renderPreview() {
-    isRenderingPreview = true;
-    
     if (cvData && cvData.contact && cvData.contact.name) {
         document.title = `CV ${cvData.contact.name}`;
     } else {
@@ -1337,61 +1310,27 @@ function renderPreview() {
     const printContainer = document.getElementById('print-preview-container');
     const screenContainer = document.getElementById('screen-preview-container');
 
-    // Ensure CSS rules are up-to-date with current hidden_fields
-    applyDesignStyles();
-
-    // Store original data and blank out hidden fields to prevent them (and their separators) from being rendered
-    const originalCvData = cvData;
-    try {
-        if (cvData.hidden_fields) {
-            cvData = JSON.parse(JSON.stringify(originalCvData));
-            Object.keys(cvData.hidden_fields).forEach(path => {
-                if (cvData.hidden_fields[path]) {
-                    const parts = path.split('.');
-                    let current = cvData;
-                    for (let i = 0; i < parts.length - 1; i++) {
-                        if (current && current[parts[i]]) current = current[parts[i]];
-                    }
-                    if (current && current[parts[parts.length - 1]] !== undefined) {
-                        if (Array.isArray(current)) {
-                            current[parts[parts.length - 1]] = null;
-                        } else {
-                            current[parts[parts.length - 1]] = "";
-                        }
-                    }
-                }
-            });
-
-            // Filter out nulls from lists
-            ['experiences', 'formations', 'languages', 'skills', 'projects'].forEach(key => {
-                if (cvData[key]) {
-                    cvData[key] = cvData[key].filter(item => item !== null);
-                }
-            });
-        }
-
-        // 1. Generate full layout HTML inside the print container
-        let layoutHTML = '';
-        if (currentLayout === 'designed') {
-            layoutHTML = renderDesignedLayout();
-        } else if (currentLayout === 'professional') {
-            layoutHTML = renderProfessionalLayout();
-        } else if (currentLayout === 'sidebar') {
-            layoutHTML = renderSidebarLayout();
-        } else if (currentLayout === 'minimalist') {
-            layoutHTML = renderMinimalistLayout();
-        } else if (currentLayout === 'europass') {
-            layoutHTML = renderEuropassLayout();
-        } else {
-            layoutHTML = renderATSLayout();
-        }
-        printContainer.innerHTML = layoutHTML;
-    } finally {
-        cvData = originalCvData;
+    // 1. Generate full layout HTML inside the print container
+    let layoutHTML = '';
+    if (currentLayout === 'designed') {
+        layoutHTML = renderDesignedLayout();
+    } else if (currentLayout === 'professional') {
+        layoutHTML = renderProfessionalLayout();
+    } else if (currentLayout === 'sidebar') {
+        layoutHTML = renderSidebarLayout();
+    } else if (currentLayout === 'minimalist') {
+        layoutHTML = renderMinimalistLayout();
+    } else if (currentLayout === 'europass') {
+        layoutHTML = renderEuropassLayout();
+    } else {
+        layoutHTML = renderATSLayout();
     }
+    printContainer.innerHTML = layoutHTML;
 
     // Attach data attributes to connect preview elements to their editor sections
     attachEditorBindings(printContainer);
+    
+    if (typeof applyFieldStyles === 'function') applyFieldStyles(printContainer);
 
     // 2. Determine conversion from page height and margins to pixels
     const dummyPage = document.createElement('div');
@@ -1626,7 +1565,6 @@ function renderPreview() {
     10. FORM FIELDS POPULATOR & DYNAMIC LISTS
     ---------------------------------------------------- */
 function populateFormInputs() {
-    setTimeout(renderThemeSwatches, 100);
     if (document.getElementById('design-layout-picker')) {
         document.getElementById('design-layout-picker').value = currentLayout;
     }
@@ -1650,13 +1588,6 @@ function populateFormInputs() {
     if (linkGm) linkGm.href = formatEmailHref(cvData.contact.email);
 
     document.getElementById('input-profile').value = cvData.profile;
-
-    if (cvData.headings) {
-        Object.keys(cvData.headings).forEach(section => {
-            const input = document.querySelector(`.section-title-input[data-section="${section}"]`);
-            if (input) input.value = cvData.headings[section];
-        });
-    }
 
     // Image Size Slider initialization
     const sz = cvData.contact.image_size || 80;
@@ -1731,10 +1662,6 @@ function populateFormInputs() {
     renderSimpleList('interests');
 
     updateSectionVisibilityUI();
-    
-    setTimeout(() => {
-        isRenderingPreview = false;
-    }, 100);
 }
 
 function toggleSectionVisibility(key) {
@@ -1757,11 +1684,11 @@ function updateSectionVisibilityUI() {
 
         if (btn) {
             if (isHidden) {
-                btn.innerHTML = `<svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+                btn.innerHTML = `👁️ Afficher`;
                 btn.classList.add('is-hidden');
                 btn.title = "Cliquez pour afficher cette section sur le CV";
             } else {
-                btn.innerHTML = `<svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+                btn.innerHTML = `👁️ Masquer`;
                 btn.classList.remove('is-hidden');
                 btn.title = "Cliquez pour masquer cette section du CV (les données sont conservées)";
             }
@@ -1793,15 +1720,12 @@ function renderSkillsList() {
     cvData.skills.forEach((s, index) => {
         const card = document.createElement('div');
         card.className = "form-card";
+        card.style.position = "relative";
         card.innerHTML = `
-        <div class="form-group" style="margin-bottom:0.5rem;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--sp-1);">
-                <label style="margin-bottom:0; flex:1;">Nom de Catégorie</label>
-                <div class="field-actions-container" style="display:flex; gap:var(--sp-1); align-items:center;">
-                    <button class="btn-icon-delete" onclick="deleteSkillCategory(${index})" title="Supprimer cette catégorie"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path></svg></button>
-                </div>
-            </div>
-            <input type="text" data-field="category" value="${s.category}" oninput="updateSkillCategory(${index}, 'category', this.value)">
+        <button class="pfp-btn" style="position:absolute; top:0.75rem; right:0.75rem; color:#ef4444; border-color:transparent;" onclick="deleteSkillCategory(${index})">✕</button>
+        <div class="form-group" style="margin-right:2rem; margin-bottom:0.5rem;">
+        <label>Nom de Catégorie</label>
+        <input type="text" data-field="category" value="${s.category}" oninput="updateSkillCategory(${index}, 'category', this.value)">
         </div>
         <div class="form-group">
         <label>Compétences (Séparez par virgules)</label>
@@ -1836,10 +1760,6 @@ function renderList(key) {
 
     cvData[key].forEach((item, index) => {
         const isOpen = openCollapseKeys[key] === index;
-        const isHidden = cvData.hidden_fields && cvData.hidden_fields[`${key}.${index}`];
-        const eyeIcon = isHidden ? 
-            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>' : 
-            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
 
         let titleText = "";
         let subtitleText = "";
@@ -1930,12 +1850,7 @@ function renderList(key) {
             <span class="collapsible-header-subtitle">${subtitleText}</span>
         </div>
         <div class="collapsible-header-actions">
-            <button class="btn-icon-eye ${isHidden ? 'field-hidden' : ''}" onclick="event.stopPropagation(); toggleListItemVisibility('${key}', ${index}, this)" title="Afficher/Masquer cet élément">
-                ${eyeIcon}
-            </button>
-            <button class="btn-icon-delete" onclick="event.stopPropagation(); deleteItem('${key}', ${index})" title="Supprimer">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path></svg>
-            </button>
+            <button class="pfp-btn" style="color:#ef4444; border-color:transparent; padding:0.2rem 0.4rem;" onclick="event.stopPropagation(); deleteItem('${key}', ${index})">Supprimer</button>
             <svg class="collapsible-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </div>
         </div>
@@ -1947,7 +1862,7 @@ function renderList(key) {
     `;
         container.appendChild(div);
     });
-
+    
     if (typeof injectFieldDesignButtons === 'function') injectFieldDesignButtons();
 }
 
@@ -1956,25 +1871,17 @@ function renderSimpleList(key) {
     container.innerHTML = "";
 
     cvData[key].forEach((item, index) => {
-        const isHidden = cvData.hidden_fields && cvData.hidden_fields[`${key}.${index}`];
-        const eyeIcon = isHidden ? 
-            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>' : 
-            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
-
         const div = document.createElement('div');
-        div.className = 'simple-list-row';
+        div.style.display = "flex";
+        div.style.gap = "0.5rem";
+        div.style.marginBottom = "0.5rem";
         div.innerHTML = `
-        <button class="btn-icon-eye ${isHidden ? 'field-hidden' : ''}" onclick="toggleListItemVisibility('${key}', ${index}, this)" title="Afficher/Masquer">
-            ${eyeIcon}
-        </button>
-        <input class="simple-list-input" type="text" data-field="value" data-index="${index}" value="${item}" oninput="updateSimpleListItem('${key}', ${index}, this.value)">
-        <button class="btn-icon-delete" onclick="deleteSimpleItem('${key}', ${index})" title="Supprimer">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path></svg>
-        </button>
+        <input type="text" data-field="value" data-index="${index}" value="${item}" style="flex:1; background:var(--bg-input); border:1px solid var(--border-color); color:white; padding:0.4rem; font-size:0.8rem; border-radius:4px;" oninput="updateSimpleListItem('${key}', ${index}, this.value)">
+        <button class="pfp-btn" style="color:#ef4444; border-color:rgba(239,68,68,0.15);" onclick="deleteSimpleItem('${key}', ${index})">✕</button>
     `;
         container.appendChild(div);
     });
-
+    
     if (typeof injectFieldDesignButtons === 'function') injectFieldDesignButtons();
 }
 
@@ -1988,14 +1895,6 @@ function updateField(path, val) {
     }
     saveAndSync();
 }
-
-window.updateSectionTitle = function(section, value) {
-    if (!cvData.headings) cvData.headings = {};
-    cvData.headings[section] = value;
-    saveAndSync();
-    renderPreview();
-};
-
 
 function updateListItem(key, index, field, val) {
     cvData[key][index][field] = val;
@@ -2067,6 +1966,7 @@ function changeLayout(layout) {
     if (sidebarGrp) sidebarGrp.style.display = (layout === 'sidebar') ? 'flex' : 'none';
     if (btnRandom) btnRandom.style.display = (layout === 'designed' || layout === 'professional' || layout === 'sidebar') ? 'inline-flex' : 'none';
 
+    syncTextColorPickers();
     renderPreview();
 }
 
@@ -2115,203 +2015,165 @@ function updateThemeColor(type, hex) {
     }
 }
 
+function updateTextColor(type, hex) {
+    if (!cvData.design) cvData.design = {};
+    if (!cvData.design.text_colors) cvData.design.text_colors = {};
+    cvData.design.text_colors[type] = hex;
 
+    const cssVarMap = {
+        name: '--text-color-name',
+        title: '--text-color-title',
+        heading: '--text-color-heading',
+        body: '--text-color-body',
+        muted: '--text-color-muted'
+    };
 
-const PRESETS = {
-    designed: [
-        // Dark backgrounds with white text
-        { bg: "#0b0f19", gold: "#f59e0b", name: "Midnight Gold", font: "Playfair Display", textColors: { name: "#ffffff", title: "#d1d5db", heading: "#f59e0b", body: "#e2e8f0", muted: "#94a3b8" }, headingStyles: { textTransform: "uppercase", letterSpacing: "2px", textAlign: "center", borderBottom: "1px solid {accent}" } },
-        { bg: "#0f172a", gold: "#38bdf8", name: "Slate & Cyan", font: "Montserrat", textColors: { name: "#f8fafc", title: "#cbd5e1", heading: "#38bdf8", body: "#f1f5f9", muted: "#94a3b8" }, headingStyles: { textTransform: "uppercase", fontWeight: "700", borderBottom: "3px solid {accent}" } },
-        { bg: "#18181b", gold: "#f43f5e", name: "Zinc & Rose", font: "Lora", textColors: { name: "#ffffff", title: "#d4d4d8", heading: "#f43f5e", body: "#e4e4e7", muted: "#a1a1aa" }, headingStyles: { textTransform: "none", textAlign: "left", borderBottom: "1px dashed {accent}" } },
-        { bg: "#064e3b", gold: "#fbbf24", name: "Forest & Gold", font: "Merriweather", textColors: { name: "#ecfdf5", title: "#a7f3d0", heading: "#fbbf24", body: "#d1fae5", muted: "#6ee7b7" }, headingStyles: { textTransform: "capitalize", borderBottom: "2px solid {accent}" } },
-        { bg: "#1e1b4b", gold: "#a855f7", name: "Indigo & Purple", font: "Oswald", textColors: { name: "#ffffff", title: "#e0e7ff", heading: "#a855f7", body: "#c7d2fe", muted: "#818cf8" }, headingStyles: { textTransform: "uppercase", letterSpacing: "2px", textAlign: "center", borderBottom: "none" } },
-        { bg: "#1c1917", gold: "#2dd4bf", name: "Stone & Teal", font: "Inter", textColors: { name: "#fafaf9", title: "#d6d3d1", heading: "#2dd4bf", body: "#e7e5e4", muted: "#a8a29e" }, headingStyles: { textTransform: "none", fontWeight: "600", borderBottom: "2px solid {accent}" } },
-        { bg: "#0c1a2e", gold: "#f97316", name: "Abyss & Flame", font: "Roboto", textColors: { name: "#ffffff", title: "#bfdbfe", heading: "#f97316", body: "#dbeafe", muted: "#93c5fd" }, headingStyles: { textTransform: "uppercase", textAlign: "left", borderBottom: "1px solid #ccc" } },
-        { bg: "#09090b", gold: "#22d3ee", name: "Obsidian & Ice", font: "Lato", textColors: { name: "#ffffff", title: "#d4d4d8", heading: "#22d3ee", body: "#f4f4f5", muted: "#a1a1aa" }, headingStyles: { textTransform: "none", borderBottom: "none" } },
-        { bg: "#0d1117", gold: "#79f2b0", name: "GitHub Dark & Mint", font: "Open Sans", textColors: { name: "#c9d1d9", title: "#8b949e", heading: "#79f2b0", body: "#c9d1d9", muted: "#8b949e" }, headingStyles: { textTransform: "uppercase", letterSpacing: "1px", borderBottom: "1px solid {accent}" } },
-        { bg: "#150926", gold: "#e879f9", name: "Void & Fuchsia", font: "Playfair Display", textColors: { name: "#f3e8ff", title: "#d8b4fe", heading: "#e879f9", body: "#e9d5ff", muted: "#c084fc" }, headingStyles: { textTransform: "capitalize", textAlign: "center", borderBottom: "2px solid {accent}" } },
-        { bg: "#0a0a0a", gold: "#facc15", name: "Carbon & Neon Yellow", font: "Montserrat", textColors: { name: "#fafafa", title: "#a3a3a3", heading: "#facc15", body: "#e5e5e5", muted: "#737373" }, headingStyles: { textTransform: "uppercase", fontWeight: "800", borderBottom: "none" } },
-        { bg: "#1a0533", gold: "#fb923c", name: "Midnight Grape & Sunset", font: "Lora", textColors: { name: "#fff5f5", title: "#fed7aa", heading: "#fb923c", body: "#ffedd5", muted: "#fdba74" }, headingStyles: { textTransform: "none", borderBottom: "1px dashed {accent}" } },
-        { bg: "#012030", gold: "#4ade80", name: "Deep Ocean & Lime", font: "Inter", textColors: { name: "#f0fdf4", title: "#bbf7d0", heading: "#4ade80", body: "#dcfce7", muted: "#86efac" }, headingStyles: { textTransform: "uppercase", textAlign: "left", borderBottom: "2px solid {accent}" } },
-        { bg: "#0f1923", gold: "#f0abfc", name: "Noir & Lavender", font: "Merriweather", textColors: { name: "#fae8ff", title: "#e879f9", heading: "#f0abfc", body: "#f5d0fe", muted: "#c084fc" }, headingStyles: { textTransform: "capitalize", borderBottom: "1px solid {accent}" } },
-        { bg: "#1a1a2e", gold: "#e94560", name: "Deep Blue & Crimson", font: "Oswald", textColors: { name: "#ffffff", title: "#e2e8f0", heading: "#e94560", body: "#f8fafc", muted: "#cbd5e1" }, headingStyles: { textTransform: "uppercase", letterSpacing: "2px", borderBottom: "3px solid {accent}" } },
-        // Light backgrounds with dark text
-        { bg: "#ffffff", gold: "#0f172a", name: "Minimalist Light", font: "Inter", textColors: { name: "#0f172a", title: "#475569", heading: "#0f172a", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "uppercase", letterSpacing: "1px", borderBottom: "1px solid #e2e8f0" } },
-        { bg: "#f8fafc", gold: "#3b82f6", name: "Clean Slate", font: "Roboto", textColors: { name: "#1e293b", title: "#64748b", heading: "#3b82f6", body: "#334155", muted: "#94a3b8" }, headingStyles: { textTransform: "none", borderBottom: "2px solid {accent}" } },
-        { bg: "#fafaf9", gold: "#1c1917", name: "Warm Stone", font: "Lora", textColors: { name: "#1c1917", title: "#57534e", heading: "#1c1917", body: "#44403c", muted: "#78716c" }, headingStyles: { textTransform: "capitalize", textAlign: "center", borderBottom: "1px double #1c1917" } },
-        { bg: "#f0fdf4", gold: "#15803d", name: "Mint Fresh", font: "Montserrat", textColors: { name: "#14532d", title: "#166534", heading: "#15803d", body: "#166534", muted: "#22c55e" }, headingStyles: { textTransform: "uppercase", borderBottom: "2px solid {accent}" } },
-        { bg: "#fffbeb", gold: "#b45309", name: "Cream & Amber", font: "Playfair Display", textColors: { name: "#78350f", title: "#92400e", heading: "#b45309", body: "#92400e", muted: "#d97706" }, headingStyles: { textTransform: "none", borderBottom: "1px dashed {accent}" } }
-    ],
-    professional: [
-        // Professional uses light backgrounds by default, so text should be dark
-        { navy: "#1e3a8a", name: "Corporate Navy", font: "Merriweather", textColors: { name: "#1e3a8a", title: "#475569", heading: "#1e3a8a", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "uppercase", borderBottom: "2px solid {accent}" } },
-        { navy: "#0f766e", name: "Teal", font: "Inter", textColors: { name: "#0f766e", title: "#475569", heading: "#0f766e", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "none", borderBottom: "1px solid #ddd" } },
-        { navy: "#1c1917", name: "Graphite", font: "Montserrat", textColors: { name: "#1c1917", title: "#57534e", heading: "#1c1917", body: "#44403c", muted: "#78716c" }, headingStyles: { textTransform: "uppercase", letterSpacing: "1px", borderBottom: "3px solid {accent}" } },
-        { navy: "#881337", name: "Maroon", font: "Playfair Display", textColors: { name: "#881337", title: "#475569", heading: "#881337", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "none", textAlign: "center", borderBottom: "1px double {accent}" } },
-        { navy: "#312e81", name: "Indigo", font: "Roboto", textColors: { name: "#312e81", title: "#475569", heading: "#312e81", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "capitalize", borderBottom: "2px solid {accent}" } },
-        { navy: "#1d4ed8", name: "Electric Blue", font: "Open Sans", textColors: { name: "#1d4ed8", title: "#475569", heading: "#1d4ed8", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "uppercase", borderBottom: "1px solid {accent}" } },
-        { navy: "#065f46", name: "Emerald", font: "Lato", textColors: { name: "#065f46", title: "#475569", heading: "#065f46", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "uppercase", textAlign: "center", borderBottom: "2px solid {accent}" } },
-        { navy: "#6b21a8", name: "Royal Purple", font: "Lora", textColors: { name: "#6b21a8", title: "#475569", heading: "#6b21a8", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "none", borderBottom: "1px dashed {accent}" } },
-        { navy: "#7c2d12", name: "Terracotta", font: "Oswald", textColors: { name: "#7c2d12", title: "#475569", heading: "#7c2d12", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "uppercase", letterSpacing: "2px", borderBottom: "2px solid {accent}" } },
-        { navy: "#1a202c", name: "Slate Black", font: "Inter", textColors: { name: "#1a202c", title: "#475569", heading: "#1a202c", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "uppercase", borderBottom: "3px solid {accent}" } },
-        { navy: "#4c0519", name: "Dark Burgundy", font: "Merriweather", textColors: { name: "#4c0519", title: "#475569", heading: "#4c0519", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "capitalize", borderBottom: "1px double {accent}" } },
-        { navy: "#14532d", name: "Forest Green", font: "Montserrat", textColors: { name: "#14532d", title: "#475569", heading: "#14532d", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "uppercase", fontWeight: "700", borderBottom: "2px solid {accent}" } },
-        { navy: "#1d2d6b", name: "Prussian Blue", font: "Playfair Display", textColors: { name: "#1d2d6b", title: "#475569", heading: "#1d2d6b", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "none", textAlign: "center", borderBottom: "1px solid {accent}" } },
-        { navy: "#4b2c20", name: "Espresso", font: "Lora", textColors: { name: "#4b2c20", title: "#475569", heading: "#4b2c20", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "capitalize", borderBottom: "1px dashed {accent}" } },
-        { navy: "#374151", name: "Storm Grey", font: "Inter", textColors: { name: "#374151", title: "#475569", heading: "#374151", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "none", borderBottom: "1px solid #e5e7eb" } },
-        { navy: "#00695c", name: "Eucalyptus", font: "Roboto", textColors: { name: "#00695c", title: "#475569", heading: "#00695c", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "uppercase", borderBottom: "2px solid {accent}" } },
-        { navy: "#004d61", name: "Petrol Blue", font: "Open Sans", textColors: { name: "#004d61", title: "#475569", heading: "#004d61", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "uppercase", letterSpacing: "1px", borderBottom: "2px solid {accent}" } },
-        { navy: "#5b2333", name: "Wine Red", font: "Merriweather", textColors: { name: "#5b2333", title: "#475569", heading: "#5b2333", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "capitalize", borderBottom: "1px solid {accent}" } },
-        { navy: "#2c3e50", name: "Wet Asphalt", font: "Lato", textColors: { name: "#2c3e50", title: "#475569", heading: "#2c3e50", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "none", borderBottom: "3px solid {accent}" } },
-        { navy: "#1a1a2e", name: "Cosmic Blue", font: "Oswald", textColors: { name: "#1a1a2e", title: "#475569", heading: "#1a1a2e", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "uppercase", borderBottom: "none" } }
-    ],
-    sidebar: [
-        { bg: "#1e293b", accent: "#3b82f6", name: "Slate & Blue", font: "Inter", textColors: { name: "#1e293b", title: "#475569", heading: "#1e293b", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "uppercase", borderBottom: "2px solid {accent}" } },
-        { bg: "#0f172a", accent: "#f43f5e", name: "Navy & Rose", font: "Montserrat", textColors: { name: "#0f172a", title: "#475569", heading: "#0f172a", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "none", borderBottom: "none" } },
-        { bg: "#1c1917", accent: "#f97316", name: "Charcoal & Orange", font: "Lora", textColors: { name: "#1c1917", title: "#57534e", heading: "#1c1917", body: "#44403c", muted: "#78716c" }, headingStyles: { textTransform: "capitalize", borderBottom: "1px solid {accent}" } },
-        { bg: "#14532d", accent: "#eab308", name: "Forest & Gold", font: "Merriweather", textColors: { name: "#14532d", title: "#475569", heading: "#14532d", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "uppercase", textAlign: "center", borderBottom: "1px dashed {accent}" } },
-        { bg: "#3b0764", accent: "#14b8a6", name: "Eggplant & Teal", font: "Playfair Display", textColors: { name: "#3b0764", title: "#475569", heading: "#3b0764", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "none", borderBottom: "2px solid {accent}" } },
-        { bg: "#0c1a2e", accent: "#f59e0b", name: "Abyss & Amber", font: "Roboto", textColors: { name: "#0c1a2e", title: "#475569", heading: "#0c1a2e", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "uppercase", borderBottom: "1px solid {accent}" } },
-        { bg: "#150926", accent: "#67e8f9", name: "Grape & Cyan", font: "Open Sans", textColors: { name: "#150926", title: "#475569", heading: "#150926", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "uppercase", letterSpacing: "1px", borderBottom: "2px solid {accent}" } },
-        { bg: "#1a0533", accent: "#4ade80", name: "Midnight & Lime", font: "Lato", textColors: { name: "#1a0533", title: "#475569", heading: "#1a0533", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "none", borderBottom: "3px solid {accent}" } },
-        { bg: "#09090b", accent: "#e879f9", name: "Black & Fuchsia", font: "Oswald", textColors: { name: "#09090b", title: "#475569", heading: "#09090b", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "uppercase", letterSpacing: "2px", borderBottom: "none" } },
-        { bg: "#012030", accent: "#fb923c", name: "Ocean & Flame", font: "Merriweather", textColors: { name: "#012030", title: "#475569", heading: "#012030", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "capitalize", borderBottom: "1px double {accent}" } },
-        { bg: "#231942", accent: "#fbbf24", name: "Cosmic & Gold", font: "Playfair Display", textColors: { name: "#231942", title: "#475569", heading: "#231942", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "none", textAlign: "center", borderBottom: "1px solid {accent}" } },
-        { bg: "#1b0000", accent: "#34d399", name: "Blood & Mint", font: "Inter", textColors: { name: "#1b0000", title: "#475569", heading: "#1b0000", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "uppercase", borderBottom: "2px solid {accent}" } },
-        { bg: "#002b36", accent: "#2dd4bf", name: "Solarized Teal", font: "Montserrat", textColors: { name: "#002b36", title: "#475569", heading: "#002b36", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "uppercase", fontWeight: "700", borderBottom: "3px solid {accent}" } },
-        { bg: "#0a192f", accent: "#64ffda", name: "Deep Navy & Jade", font: "Lora", textColors: { name: "#0a192f", title: "#475569", heading: "#0a192f", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "capitalize", borderBottom: "1px dashed {accent}" } },
-        { bg: "#16213e", accent: "#f9a8d4", name: "Midnight & Pink", font: "Roboto", textColors: { name: "#16213e", title: "#475569", heading: "#16213e", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "none", borderBottom: "2px solid {accent}" } },
-        { bg: "#1b1b2f", accent: "#a78bfa", name: "Noir & Violet", font: "Merriweather", textColors: { name: "#1b1b2f", title: "#475569", heading: "#1b1b2f", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "uppercase", borderBottom: "1px solid {accent}" } },
-        { bg: "#0d1117", accent: "#58a6ff", name: "GitHub & Blue", font: "Open Sans", textColors: { name: "#0d1117", title: "#475569", heading: "#0d1117", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "none", borderBottom: "1px solid #e5e7eb" } },
-        { bg: "#0e2323", accent: "#fde68a", name: "Dark Teal & Cream", font: "Playfair Display", textColors: { name: "#0e2323", title: "#475569", heading: "#0e2323", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "capitalize", borderBottom: "1px double {accent}" } },
-        { bg: "#101820", accent: "#ff6b6b", name: "Charcoal & Coral", font: "Lato", textColors: { name: "#101820", title: "#475569", heading: "#101820", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "uppercase", borderBottom: "2px solid {accent}" } },
-        { bg: "#1f1300", accent: "#86efac", name: "Espresso & Sage", font: "Montserrat", textColors: { name: "#1f1300", title: "#475569", heading: "#1f1300", body: "#334155", muted: "#64748b" }, headingStyles: { textTransform: "uppercase", letterSpacing: "1px", borderBottom: "1px solid {accent}" } }
-    ]
-};
-
-
-function renderThemeSwatches() {
-    const container = document.getElementById('theme-swatches');
-    if (!container) return;
-    
-    let list = [];
-    if (currentLayout === 'designed') list = PRESETS.designed;
-    else if (currentLayout === 'professional') list = PRESETS.professional;
-    else if (currentLayout === 'sidebar') list = PRESETS.sidebar;
-    
-    if (list.length === 0) {
-        container.innerHTML = '';
-        return;
-    }
-    
-    container.innerHTML = list.map(theme => {
-        let bgStyle = '';
-        if (currentLayout === 'designed') {
-            bgStyle = `background: linear-gradient(135deg, ${theme.bg} 50%, ${theme.gold} 50%);`;
-        } else if (currentLayout === 'professional') {
-            bgStyle = `background: ${theme.navy};`;
-        } else if (currentLayout === 'sidebar') {
-            bgStyle = `background: linear-gradient(135deg, ${theme.bg} 50%, ${theme.accent} 50%);`;
-        }
-        
-        return `<div class="theme-swatch" style="${bgStyle}" data-tooltip="${theme.name || 'Thème'}" onclick="applySpecificTheme('${encodeURIComponent(JSON.stringify(theme))}')"></div>`;
-    }).join('');
-}
-
-function applySpecificTheme(encodedTheme) {
-    const theme = JSON.parse(decodeURIComponent(encodedTheme));
-
-    // 1. Base Colors
-    if (currentLayout === 'designed') {
-        cvData.themes.designed.bg_color = theme.bg;
-        cvData.themes.designed.gold_primary = theme.gold;
-        cvData.themes.designed.gold_dark = darkenColor(theme.gold, 15);
-        const p1 = document.getElementById('design-picker-bg');
-        const p2 = document.getElementById('design-picker-gold');
-        if (p1) p1.value = theme.bg;
-        if (p2) p2.value = theme.gold;
-    } else if (currentLayout === 'professional') {
-        cvData.themes.professional.navy_primary = theme.navy;
-        const p = document.getElementById('design-picker-navy');
-        if (p) p.value = theme.navy;
-    } else if (currentLayout === 'sidebar') {
-        if (!cvData.themes.sidebar) cvData.themes.sidebar = {};
-        cvData.themes.sidebar.sidebar_bg = theme.bg;
-        cvData.themes.sidebar.sidebar_accent = theme.accent;
-        const p1 = document.getElementById('design-picker-sidebar-bg');
-        const p2 = document.getElementById('design-picker-sidebar-accent');
-        if (p1) p1.value = theme.bg;
-        if (p2) p2.value = theme.accent;
-    }
-
-    // 2. Font family
-    if (theme.font) {
-        if (!cvData.design) cvData.design = {};
-        cvData.design.font_family = theme.font;
-        const fontPicker = document.getElementById('design-font-family');
-        if (fontPicker) fontPicker.value = theme.font;
-    }
-
-    // 3. Text Colors
-    if (theme.textColors) {
-        if (!cvData.design) cvData.design = {};
-        if (!cvData.design.typography) cvData.design.typography = {};
-        ['name', 'title', 'heading', 'body', 'muted'].forEach(type => {
-            if (!cvData.design.typography[type]) cvData.design.typography[type] = {};
-            if (theme.textColors[type]) cvData.design.typography[type].color = theme.textColors[type];
-        });
-    }
-
-    // 4. Section Heading Styles
-    if (theme.headingStyles) {
-        if (!cvData.design) cvData.design = {};
-        if (!cvData.design.overrides) cvData.design.overrides = {};
-        const headingPaths = [
-            'heading.profile', 'heading.experiences', 'heading.formations',
-            'heading.skills', 'heading.projects', 'heading.education',
-            'heading.certifications', 'heading.activities', 'heading.languages', 'heading.interests'
-        ];
-        const accentColor = theme.gold || theme.navy || theme.accent || '#3b82f6';
-        headingPaths.forEach(path => {
-            if (!cvData.design.overrides[path]) cvData.design.overrides[path] = {};
-            if (theme.headingStyles.textTransform !== undefined)
-                cvData.design.overrides[path]['textTransform'] = theme.headingStyles.textTransform;
-            if (theme.headingStyles.textAlign !== undefined)
-                cvData.design.overrides[path]['textAlign'] = theme.headingStyles.textAlign;
-            if (theme.headingStyles.borderBottom !== undefined)
-                cvData.design.overrides[path]['borderBottom'] = theme.headingStyles.borderBottom.replace('{accent}', accentColor);
-            if (theme.headingStyles.letterSpacing !== undefined)
-                cvData.design.overrides[path]['letterSpacing'] = theme.headingStyles.letterSpacing;
-            if (theme.headingStyles.fontWeight !== undefined)
-                cvData.design.overrides[path]['fontWeight'] = theme.headingStyles.fontWeight;
-        });
+    if (cssVarMap[type]) {
+        document.documentElement.style.setProperty(cssVarMap[type], hex);
+        const picker = document.getElementById(`design-picker-text-${type}`);
+        if (picker) picker.value = hex;
+        const badge = document.getElementById(`badge-color-text-${type}`);
+        if (badge) badge.style.backgroundColor = hex;
     }
 
     saveAndSync();
-    renderPreview();
 }
 
+function resetTextColors() {
+    if (cvData.design && cvData.design.text_colors) {
+        delete cvData.design.text_colors;
+    }
+    const cssVars = ['--text-color-name', '--text-color-title', '--text-color-heading', '--text-color-body', '--text-color-muted'];
+    cssVars.forEach(v => document.documentElement.style.removeProperty(v));
+    syncTextColorPickers();
+    saveAndSync();
+}
+
+function getDefaultTextColorForLayout(layout, key) {
+    if (layout === 'professional') {
+        const navy = cvData.themes?.professional?.navy_primary || '#1e3a8a';
+        const map = { name: '#0f172a', title: '#334155', heading: navy, body: '#1e293b', muted: '#475569' };
+        return map[key] || '#1e293b';
+    } else if (layout === 'designed') {
+        const gold = cvData.themes?.designed?.gold_primary || '#f59e0b';
+        const map = { name: '#ffffff', title: gold, heading: gold, body: '#cbd5e1', muted: '#94a3b8' };
+        return map[key] || '#cbd5e1';
+    } else if (layout === 'ats') {
+        const map = { name: '#000000', title: '#333333', heading: '#000000', body: '#1f2937', muted: '#4b5563' };
+        return map[key] || '#1f2937';
+    } else if (layout === 'sidebar') {
+        const accent = cvData.themes?.sidebar?.sidebar_accent || '#3b82f6';
+        const map = { name: '#0f172a', title: accent, heading: '#1e293b', body: '#334155', muted: '#64748b' };
+        return map[key] || '#334155';
+    } else {
+        const map = { name: '#0f172a', title: '#475569', heading: '#0f172a', body: '#1e293b', muted: '#64748b' };
+        return map[key] || '#1e293b';
+    }
+}
+
+function syncTextColorPickers() {
+    const textColors = (cvData.design && cvData.design.text_colors) ? cvData.design.text_colors : {};
+    const keys = ['name', 'title', 'heading', 'body', 'muted'];
+    keys.forEach(key => {
+        const picker = document.getElementById(`design-picker-text-${key}`);
+        const badge = document.getElementById(`badge-color-text-${key}`);
+        const colorVal = textColors[key] || getDefaultTextColorForLayout(currentLayout, key);
+        if (textColors[key]) {
+            document.documentElement.style.setProperty(`--text-color-${key}`, textColors[key]);
+        } else {
+            document.documentElement.style.removeProperty(`--text-color-${key}`);
+        }
+        if (picker) picker.value = colorVal;
+        if (badge) badge.style.backgroundColor = colorVal;
+    });
+}
+
+const PRESETS = {
+    designed: [
+        { bg: "#0b0f19", gold: "#f59e0b" }, // Midnight & Amber
+        { bg: "#0f172a", gold: "#38bdf8" }, // Slate & Cyan
+        { bg: "#18181b", gold: "#f43f5e" }, // Zinc & Rose
+        { bg: "#064e3b", gold: "#fbbf24" }, // Forest Green & Gold
+        { bg: "#1e1b4b", gold: "#a855f7" }, // Indigo & Purple
+        { bg: "#1c1917", gold: "#2dd4bf" }  // Stone & Teal
+    ],
+    professional: [
+        { navy: "#1e3a8a" }, // Corporate Navy
+        { navy: "#0f766e" }, // Teal
+        { navy: "#1c1917" }, // Graphite
+        { navy: "#881337" }, // Maroon Rose
+        { navy: "#312e81" }  // Indigo
+    ],
+    sidebar: [
+        { bg: "#1e293b", accent: "#3b82f6" }, // Slate & Blue
+        { bg: "#0f172a", accent: "#f43f5e" }, // Navy & Rose
+        { bg: "#1c1917", accent: "#f97316" }, // Charcoal & Orange
+        { bg: "#14532d", accent: "#eab308" }, // Forest & Gold
+        { bg: "#3b0764", accent: "#14b8a6" }  // Eggplant & Teal
+    ]
+};
+
 function applyRandomPalette() {
-    let list = [];
-    if (currentLayout === 'designed') list = PRESETS.designed;
-    else if (currentLayout === 'professional') list = PRESETS.professional;
-    else if (currentLayout === 'sidebar') list = PRESETS.sidebar;
+    if (currentLayout === 'designed') {
+        const list = PRESETS.designed;
+        const currentBg = cvData.themes.designed.bg_color;
+        let choice = list[Math.floor(Math.random() * list.length)];
+        for (let i = 0; i < 5; i++) {
+            if (choice.bg === currentBg) {
+                choice = list[Math.floor(Math.random() * list.length)];
+            }
+        }
+        cvData.themes.designed.bg_color = choice.bg;
+        cvData.themes.designed.gold_primary = choice.gold;
+        cvData.themes.designed.gold_dark = darkenColor(choice.gold, 15);
 
-    if (list.length === 0) return;
+        const p1 = document.getElementById('design-picker-bg');
+        const p2 = document.getElementById('design-picker-gold');
+        if (p1) p1.value = choice.bg;
+        if (p2) p2.value = choice.gold;
+    } else if (currentLayout === 'professional') {
+        const list = PRESETS.professional;
+        const currentNavy = cvData.themes.professional.navy_primary;
+        let choice = list[Math.floor(Math.random() * list.length)];
+        for (let i = 0; i < 5; i++) {
+            if (choice.navy === currentNavy) {
+                choice = list[Math.floor(Math.random() * list.length)];
+            }
+        }
+        cvData.themes.professional.navy_primary = choice.navy;
+        const p = document.getElementById('design-picker-navy');
+        if (p) p.value = choice.navy;
+    } else if (currentLayout === 'sidebar') {
+        const list = PRESETS.sidebar;
+        if (!cvData.themes.sidebar) cvData.themes.sidebar = {};
+        const currentBg = cvData.themes.sidebar.sidebar_bg || "";
+        let choice = list[Math.floor(Math.random() * list.length)];
+        for (let i = 0; i < 5; i++) {
+            if (choice.bg === currentBg) {
+                choice = list[Math.floor(Math.random() * list.length)];
+            }
+        }
+        cvData.themes.sidebar.sidebar_bg = choice.bg;
+        cvData.themes.sidebar.sidebar_accent = choice.accent;
 
-    // Pick a random theme different from current
-    let choice = list[Math.floor(Math.random() * list.length)];
-    for (let i = 0; i < 5; i++) {
-        const current = currentLayout === 'designed' ? cvData.themes.designed?.bg_color :
-                        currentLayout === 'professional' ? cvData.themes.professional?.navy_primary :
-                        cvData.themes.sidebar?.sidebar_bg;
-        const choiceKey = choice.bg || choice.navy;
-        if (choiceKey === current) {
-            choice = list[Math.floor(Math.random() * list.length)];
-        } else break;
+        const p1 = document.getElementById('design-picker-sidebar-bg');
+        const p2 = document.getElementById('design-picker-sidebar-accent');
+        if (p1) p1.value = choice.bg;
+        if (p2) p2.value = choice.accent;
     }
 
-    applySpecificTheme(encodeURIComponent(JSON.stringify(choice)));
+    if (currentLayout === 'designed') {
+        document.documentElement.style.setProperty('--design-bg', cvData.themes.designed.bg_color);
+        document.documentElement.style.setProperty('--design-gold', cvData.themes.designed.gold_primary);
+        document.documentElement.style.setProperty('--design-gold-dark', cvData.themes.designed.gold_dark);
+    } else if (currentLayout === 'professional') {
+        document.documentElement.style.setProperty('--prof-navy', cvData.themes.professional.navy_primary);
+    } else if (currentLayout === 'sidebar') {
+        document.documentElement.style.setProperty('--sidebar-bg', cvData.themes.sidebar.sidebar_bg);
+        document.documentElement.style.setProperty('--sidebar-accent', cvData.themes.sidebar.sidebar_accent);
+    }
+
+    saveAndSync();
 }
 
 // setEditorMode removed in favor of unified tabs
@@ -2399,84 +2261,8 @@ function applyDesignStyles() {
     document.documentElement.style.setProperty('--pfp-opacity', design.pfp_opacity ?? 1);
     document.documentElement.style.setProperty('--pfp-margin-left', `${design.pfp_offset_x ?? 0}px`);
     document.documentElement.style.setProperty('--pfp-margin-top', `${design.pfp_offset_y ?? 0}px`);
-    document.documentElement.style.setProperty('--pfp-margin-top', `${design.pfp_offset_y ?? 0}px`);
 
-    // Global Typography Properties
-    if (design.typography) {
-        Object.entries(design.typography).forEach(([type, props]) => {
-            Object.entries(props).forEach(([prop, val]) => {
-                const kebabProp = prop.replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, '$1-$2').toLowerCase();
-                document.documentElement.style.setProperty(`--${type}-${kebabProp}`, val);
-            });
-        });
-    }
-
-    // Apply specific field overrides
-    let overridesCss = '';
-    if (design.overrides) {
-        Object.entries(design.overrides).forEach(([path, styles]) => {
-            const selector = getSelectorForPath(path);
-            if (!selector) return;
-            
-            let rules = '';
-            
-            const processVal = (val, unit = '') => {
-                if (val === undefined || val === null || val === '') return null;
-                // If the value already contains a unit (like 'px', 'em', '%'), just use it directly.
-                // Otherwise, append the default unit.
-                if (typeof val === 'string' && /[a-zA-Z%]$/.test(val)) return val;
-                return `${val}${unit}`;
-            };
-
-            if (styles.color) rules += `color: ${styles.color} !important;\n`;
-            
-            const fs = processVal(styles.fontSize, 'px');
-            if (fs) rules += `font-size: ${fs} !important;\n`;
-            
-            if (styles.fontFamily) rules += `font-family: ${styles.fontFamily} !important;\n`;
-            if (styles.fontWeight) rules += `font-weight: ${styles.fontWeight} !important;\n`;
-            if (styles.fontStyle) rules += `font-style: ${styles.fontStyle} !important;\n`;
-            if (styles.textDecoration) rules += `text-decoration: ${styles.textDecoration} !important;\n`;
-            
-            const ls = processVal(styles.letterSpacing, 'px'); // The panel inputs use px
-            if (ls) rules += `letter-spacing: ${ls} !important;\n`;
-            
-            if (styles.lineHeight) rules += `line-height: ${styles.lineHeight} !important;\n`;
-            if (styles.textTransform) rules += `text-transform: ${styles.textTransform} !important;\n`;
-            if (styles.textAlign) rules += `text-align: ${styles.textAlign} !important;\n`;
-            
-            const ws = processVal(styles.wordSpacing, 'px');
-            if (ws) rules += `word-spacing: ${ws} !important;\n`;
-            
-            const ti = processVal(styles.textIndent, 'px');
-            if (ti) rules += `text-indent: ${ti} !important;\n`;
-            
-            if (styles.opacity !== undefined) rules += `opacity: ${styles.opacity} !important;\n`;
-            
-            if (rules) {
-                overridesCss += `${selector} {\n${rules}}\n`;
-            }
-        });
-    }
-
-    if (cvData.hidden_fields) {
-        Object.keys(cvData.hidden_fields).forEach(path => {
-            if (cvData.hidden_fields[path]) {
-                const selector = getSelectorForPath(path);
-                if (selector) {
-                    overridesCss += `#screen-preview-container ${selector}, #print-preview-container ${selector} { display: none !important; }\n`;
-                }
-            }
-        });
-    }
-
-    let styleEl = document.getElementById('field-overrides-style');
-    if (!styleEl) {
-        styleEl = document.createElement('style');
-        styleEl.id = 'field-overrides-style';
-        document.head.appendChild(styleEl);
-    }
-    styleEl.innerHTML = overridesCss;
+    syncTextColorPickers();
 }
 
 async function resetToDefaults() {
@@ -2823,13 +2609,13 @@ function attachEditorBindings(container) {
     container.querySelectorAll('.cv-designed-title, .cv-prof-title, .cv-ats-title, .cv-sidebar-title, .cv-mini-title, .cv-euro-title').forEach(el => {
         el.setAttribute('data-design-target', 'title');
     });
-    container.querySelectorAll('h2, h3, h4, .cv-designed-sectitle, .cv-prof-sectitle, .cv-ats-sectitle, .cv-sidebar-right-title, .cv-sidebar-left-title, .cv-mini-sectitle, .cv-euro-sectitle, [data-editor-field="title"], [data-editor-field="degree"], [data-editor-field="school"], [data-editor-field="category"]').forEach(el => {
+    container.querySelectorAll('h2, h3, h4, .cv-designed-sectitle, .cv-prof-sectitle, .cv-ats-sectitle, .cv-sidebar-right-title, .cv-sidebar-left-title, .cv-mini-sectitle, .cv-euro-sectitle').forEach(el => {
         el.setAttribute('data-design-target', 'heading');
     });
-    container.querySelectorAll('.cv-designed-bullets li, .cv-prof-bullets li, .cv-ats-bullets li, .cv-sidebar-bullets li, .cv-mini-bullets li, .cv-euro-bullets li, .cv-designed-profile, .cv-prof-profile, .cv-ats-profile, .cv-mini-profile, .cv-euro-profile, .cv-prof-skillrow, .cv-designed-card p, .cv-ats-item p, [data-editor-field="description"], [data-editor-field="bullets"], [data-editor-field="name"], [data-editor-field="value"], [data-editor-focus="input-profile"]').forEach(el => {
+    container.querySelectorAll('.cv-designed-bullets li, .cv-prof-bullets li, .cv-ats-bullets li, .cv-sidebar-bullets li, .cv-mini-bullets li, .cv-euro-bullets li, .cv-designed-profile, .cv-prof-profile, .cv-ats-profile, .cv-mini-profile, .cv-euro-profile, .cv-prof-skillrow, .cv-designed-card p, .cv-ats-item p').forEach(el => {
         el.setAttribute('data-design-target', 'body');
     });
-    container.querySelectorAll('.cv-designed-contacts, .cv-prof-contacts, .cv-ats-contacts, .cv-sidebar-contacts, .cv-mini-contacts, .cv-euro-contacts, .cv-designed-carddate, .cv-prof-itemdate, .cv-ats-itemdate, .cv-sidebar-itemdate, .cv-mini-itemdate, .cv-euro-itemdate, .cv-prof-cardloc, .cv-designed-cardloc, [data-editor-field="company"], [data-editor-field="location"], [data-editor-field="period"], [data-editor-field="stack"]').forEach(el => {
+    container.querySelectorAll('.cv-designed-contacts, .cv-prof-contacts, .cv-ats-contacts, .cv-sidebar-contacts, .cv-mini-contacts, .cv-euro-contacts, .cv-designed-carddate, .cv-prof-itemdate, .cv-ats-itemdate, .cv-sidebar-itemdate, .cv-mini-itemdate, .cv-euro-itemdate, .cv-prof-cardloc, .cv-designed-cardloc').forEach(el => {
         el.setAttribute('data-design-target', 'muted');
     });
 }
@@ -3117,7 +2903,7 @@ window.onload = async function () {
     } else {
         applyZoom();
     }
-
+    
     if (typeof injectFieldDesignButtons === 'function') {
         injectFieldDesignButtons();
     }
@@ -3127,105 +2913,24 @@ window.onload = async function () {
 // FIELD LEVEL STYLES (DEEP CONFIG)
 // ==========================================
 
-function mapPathToGlobalType(path) {
-    if (!path) return 'body';
-    if (path.startsWith('heading.')) return 'heading';
-    if (path === 'contact.name') return 'name';
-    if (path === 'contact.title_sub') return 'title';
-    if (path.startsWith('contact.')) return 'muted';
-    if (path === 'profile') return 'body';
-
-    const last = path.split('.').pop();
-    if (['title', 'degree', 'school', 'category'].includes(last)) return 'heading';
-    if (['organization', 'date', 'location', 'company', 'period', 'stack'].includes(last)) return 'muted';
-    if (['description', 'bullets', 'name', 'value'].includes(last)) return 'body';
-
-    return 'body';
-}
-
-function getSelectorForPath(path) {
-    if (path.startsWith('heading.')) {
-        const section = path.split('.')[1];
-        return `[data-section-title="${section}"]`;
-    }
-    if (path === 'contact.name') return '[data-editor-focus="input-name"]';
-    if (path === 'contact.title_sub') return '[data-editor-focus="input-title-sub"]';
-    if (path === 'profile') return '[data-editor-focus="input-profile"]';
-    if (path.startsWith('contact.')) {
-        const field = path.split('.')[1];
-        return `[data-editor-focus="input-${field}"]`;
-    }
-    
-    // Lists: experiences.0.title
-    const parts = path.split('.');
-    if (parts.length === 3) {
-        const listName = parts[0];
-        const index = parts[1];
-        const fieldName = parts[2];
-        return `[data-editor-target="${listName}"][data-editor-index="${index}"] [data-editor-field="${fieldName}"]`;
-    }
-    return null;
-}
-
 function updateFieldStyle(path, prop, val) {
-    if (!cvData.design) cvData.design = {};
-    if (!cvData.design.overrides) cvData.design.overrides = {};
-    if (!cvData.design.overrides[path]) cvData.design.overrides[path] = {};
-
-    cvData.design.overrides[path][prop] = val;
-    applyDesignStyles();
+    if (!cvData.field_styles) cvData.field_styles = {};
+    if (!cvData.field_styles[path]) cvData.field_styles[path] = {};
+    cvData.field_styles[path][prop] = val;
     saveAndSync();
 }
 
 function getFieldStyle(path) {
-    const type = mapPathToGlobalType(path);
-    const globalTypo = (cvData.design && cvData.design.typography && cvData.design.typography[type]) || {};
-    const overrides = (cvData.design && cvData.design.overrides && cvData.design.overrides[path]) || {};
-    return { ...globalTypo, ...overrides };
+    return (cvData.field_styles && cvData.field_styles[path]) || {};
 }
 
-window.toggleFieldVisibility = function(path, btn) {
-    if (!cvData.hidden_fields) {
-        cvData.hidden_fields = {};
-    }
-    
-    // Toggle state
-    cvData.hidden_fields[path] = !cvData.hidden_fields[path];
-    
-    // Update button visual state (add/remove "hidden" class or change icon)
-    if (cvData.hidden_fields[path]) {
-        btn.classList.add('field-hidden');
-        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>'; // eye-off icon
-    } else {
-        btn.classList.remove('field-hidden');
-        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>'; // eye icon
-    }
-    
-    // Trigger save and re-render preview
-    saveAndSync();
-};
-
-window.toggleListItemVisibility = function(key, index, btn) {
-    if (!cvData.hidden_fields) {
-        cvData.hidden_fields = {};
-    }
-    const path = `${key}.${index}`;
-    cvData.hidden_fields[path] = !cvData.hidden_fields[path];
-    
-    saveAndSync();
-};
-
-window.isFieldVisible = function(path) {
-    return !(cvData.hidden_fields && cvData.hidden_fields[path]);
-};
-
 function resetFieldStyle(path) {
-    if (cvData.design && cvData.design.overrides && cvData.design.overrides[path]) {
-        delete cvData.design.overrides[path];
+    if (cvData.field_styles && cvData.field_styles[path]) {
+        delete cvData.field_styles[path];
         saveAndSync();
-        applyDesignStyles();
+        // re-render the panel
         const panel = document.getElementById(`field-style-panel-${path.replace(/\./g, '-')}`);
-        if (panel) {
+        if(panel) {
             panel.outerHTML = buildFieldStylePanel(path);
         }
     }
@@ -3243,41 +2948,42 @@ function rgbToHex(rgb) {
 }
 
 function getDefaultFieldStyles(path) {
-    const container = document.getElementById('screen-preview-container');
-    if (!container) return {};
+    const iframe = document.getElementById('preview-iframe');
+    if (!iframe) return {};
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+    if (!iframeDoc || !iframeDoc.body) return {};
 
+    // All layouts embed data-editor-focus directly in template HTML — use those.
+    // For list items, fall back to data-editor-target/index/field.
     const FOCUS_MAP = {
-        'name': 'input-name',
-        'title_sub': 'input-title-sub',
-        'profile': 'input-profile',
-        'contact.email': 'input-email',
-        'contact.phone': 'input-phone',
-        'contact.location': 'input-location',
-        'contact.linkedin': 'input-linkedin',
-        'contact.github': 'input-github',
+        'name':            'input-name',
+        'title_sub':       'input-title-sub',
+        'profile':         'input-profile',
+        'contact.email':   'input-email',
+        'contact.phone':   'input-phone',
+        'contact.location':'input-location',
+        'contact.linkedin':'input-linkedin',
+        'contact.github':  'input-github',
         'contact.website': 'input-website',
-        'contact.driver': 'input-driver',
+        'contact.driver':  'input-driver',
     };
 
+    const parts = path.split('.');
     let el = null;
+
     const focusKey = FOCUS_MAP[path];
-    if (path.startsWith('heading.')) {
-        const section = path.split('.')[1];
-        el = container.querySelector(`[data-section-title="${section}"]`);
-    } else if (focusKey) {
-        el = container.querySelector(`[data-editor-focus="${focusKey}"]`);
-    } else {
-        const parts = path.split('.');
-        if (parts.length === 3) {
-            el = container.querySelector(`[data-editor-target="${parts[0]}"][data-editor-index="${parts[1]}"] [data-editor-field="${parts[2]}"]`);
-        } else if (parts.length === 2) {
-            el = container.querySelector(`[data-editor-target="${parts[0]}"][data-editor-index="${parts[1]}"]`);
-        }
+    if (focusKey) {
+        el = iframeDoc.querySelector(`[data-editor-focus="${focusKey}"]`);
+    } else if (parts.length === 3) {
+        el = iframeDoc.querySelector(`[data-editor-target="${parts[0]}"][data-editor-index="${parts[1]}"] [data-editor-field="${parts[2]}"]`);
+    } else if (parts.length === 2) {
+        el = iframeDoc.querySelector(`[data-editor-target="${parts[0]}"][data-editor-index="${parts[1]}"]`);
     }
 
     if (!el) return {};
 
-    const comp = window.getComputedStyle(el);
+    const win = iframe.contentWindow;
+    const comp = win.getComputedStyle(el);
 
     let fontWeight = comp.fontWeight;
     if (fontWeight === 'bold' || parseInt(fontWeight) >= 600) fontWeight = 'bold';
@@ -3306,18 +3012,18 @@ let figmaPanelZIndex = 9999;
 function toggleFieldStylePanel(path, btn = null) {
     const id = `field-style-panel-${path.replace(/\./g, '-')}`;
     let panel = document.getElementById(id);
-
+    
     // Close all other panels and reset button states
     document.querySelectorAll('.figma-style-panel').forEach(p => {
         if (p.id !== id) p.remove();
     });
-
+    
     const wasActive = btn && btn.classList.contains('active');
-
+    
     document.querySelectorAll('.btn-field-design.active').forEach(b => {
         b.classList.remove('active');
     });
-
+    
     if (panel || wasActive) {
         if (panel) panel.remove();
         return; // It was open, now closed
@@ -3325,7 +3031,7 @@ function toggleFieldStylePanel(path, btn = null) {
 
     if (btn) btn.classList.add('active');
     figmaPanelZIndex++;
-
+    
     let align = 'right';
     let btnRect = { top: 0, left: 0, bottom: 0, right: 0, height: 0 };
     if (btn) {
@@ -3341,10 +3047,10 @@ function toggleFieldStylePanel(path, btn = null) {
     temp.innerHTML = panelHtml;
     panel = temp.firstElementChild;
     document.body.appendChild(panel);
-
+    
     panel.style.position = 'fixed';
     panel.style.display = 'block';
-
+    
     if (btn) {
         // Position it near the button
         if (align === 'left') {
@@ -3354,7 +3060,7 @@ function toggleFieldStylePanel(path, btn = null) {
             panel.style.right = `${window.innerWidth - btnRect.right}px`;
             panel.style.left = 'auto';
         }
-
+        
         // Try to position it above the button, or below if no space
         const panelRect = panel.getBoundingClientRect();
         if (btnRect.top - panelRect.height - 8 > 0) {
@@ -3370,7 +3076,7 @@ function toggleFieldStylePanel(path, btn = null) {
 }
 
 // Close panels when clicking outside
-document.addEventListener('click', function (e) {
+document.addEventListener('click', function(e) {
     if (e.target.closest('.figma-style-panel') || e.target.closest('.btn-field-design')) {
         return;
     }
@@ -3383,12 +3089,10 @@ document.addEventListener('click', function (e) {
 });
 
 // Close panels on any scroll (with capture to catch sidebar scrolling)
-window.addEventListener('scroll', function (e) {
-    if (isRenderingPreview) return;
-    
+window.addEventListener('scroll', function(e) {
     // Don't close if scrolling inside the panel itself
     if (e.target.closest && e.target.closest('.figma-style-panel')) return;
-
+    
     document.querySelectorAll('.figma-style-panel').forEach(panel => panel.remove());
     document.querySelectorAll('.btn-field-design.active').forEach(btn => btn.classList.remove('active'));
 }, true);
@@ -3397,18 +3101,18 @@ function buildFieldStylePanel(path, hidden = true, align = 'right', zIndex = 999
     const overrides = getFieldStyle(path);
     const defaults = getDefaultFieldStyles(path);
     const getVal = (prop, def) => overrides[prop] !== undefined ? overrides[prop] : (defaults[prop] !== undefined ? defaults[prop] : def);
-
+    
     const id = `field-style-panel-${path.replace(/\./g, '-')}`;
     const displayStyle = hidden ? 'none' : 'block';
     const alignStyle = align === 'left' ? 'left: 0px; right: auto; transform-origin: bottom left;' : 'right: 0px; left: auto; transform-origin: bottom right;';
-
+    
     const currentTT = getVal('textTransform', 'none');
     const currentAlign = getVal('textAlign', 'left');
-
+    
     // Determine if this path represents a paragraph/textarea (multi-line content)
-    const isParagraph = path === 'profile' ||
+    const isParagraph = path === 'profile' || 
         (path.includes('.') && (path.endsWith('.bullets') || path.endsWith('.description') || path.endsWith('.profile')));
-
+    
     const paragraphControls = isParagraph ? `
         <div class="f-panel-divider"><span>PARAGRAPHE</span></div>
         
@@ -3450,10 +3154,10 @@ function buildFieldStylePanel(path, hidden = true, align = 'right', zIndex = 999
 
     const justifyBtn = isParagraph ? `
                 <button class="f-segment-btn ${currentAlign === 'justify' ? 'active' : ''}" 
-                        onclick="updateFieldStyle('${path}', 'textAlign', 'justify'); Array.from(this.parentNode.children).forEach(c => c.classList.remove('active')); this.classList.add('active');" title="Justifier">
+                        onclick="updateFieldStyle('${path}', 'textAlign', 'justify'); toggleFieldStylePanel('${path}'); toggleFieldStylePanel('${path}')" title="Justifier">
                     <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                 </button>` : '';
-
+    
     return `
     <div id="${id}" class="figma-style-panel" style="display: ${displayStyle}; ${alignStyle} z-index: ${zIndex};">
         <div class="f-panel-header">
@@ -3470,8 +3174,7 @@ function buildFieldStylePanel(path, hidden = true, align = 'right', zIndex = 999
             <div class="f-color-wrapper">
                 <div class="f-color-swatch" style="background-color: ${getVal('color', '#ffffff')}"></div>
                 <input type="color" value="${getVal('color', '#ffffff')}" 
-                       oninput="this.previousElementSibling.style.backgroundColor = this.value; updateFieldStyle('${path}', 'color', this.value)"
-                       onchange="saveAndSync()">
+                       oninput="this.previousElementSibling.style.backgroundColor = this.value; updateFieldStyle('${path}', 'color', this.value)">
             </div>
         </div>
         
@@ -3511,15 +3214,15 @@ function buildFieldStylePanel(path, hidden = true, align = 'right', zIndex = 999
             <span class="f-panel-label">Casse</span>
             <div class="f-segmented-control" style="grid-template-columns: 1fr 1fr 1fr;">
                 <button class="f-segment-btn ${currentTT === 'none' ? 'active' : ''}" 
-                        onclick="updateFieldStyle('${path}', 'textTransform', 'none'); Array.from(this.parentNode.children).forEach(c => c.classList.remove('active')); this.classList.add('active');" title="Normal">
+                        onclick="updateFieldStyle('${path}', 'textTransform', 'none'); toggleFieldStylePanel('${path}'); toggleFieldStylePanel('${path}')" title="Normal">
                     <span>Aa</span>
                 </button>
                 <button class="f-segment-btn ${currentTT === 'uppercase' ? 'active' : ''}" 
-                        onclick="updateFieldStyle('${path}', 'textTransform', 'uppercase'); Array.from(this.parentNode.children).forEach(c => c.classList.remove('active')); this.classList.add('active');" title="Majuscules">
+                        onclick="updateFieldStyle('${path}', 'textTransform', 'uppercase'); toggleFieldStylePanel('${path}'); toggleFieldStylePanel('${path}')" title="Majuscules">
                     <span>AA</span>
                 </button>
                 <button class="f-segment-btn ${currentTT === 'lowercase' ? 'active' : ''}" 
-                        onclick="updateFieldStyle('${path}', 'textTransform', 'lowercase'); Array.from(this.parentNode.children).forEach(c => c.classList.remove('active')); this.classList.add('active');" title="Minuscules">
+                        onclick="updateFieldStyle('${path}', 'textTransform', 'lowercase'); toggleFieldStylePanel('${path}'); toggleFieldStylePanel('${path}')" title="Minuscules">
                     <span>aa</span>
                 </button>
             </div>
@@ -3529,15 +3232,15 @@ function buildFieldStylePanel(path, hidden = true, align = 'right', zIndex = 999
             <span class="f-panel-label">Align.</span>
             <div class="f-segmented-control" style="grid-template-columns: ${isParagraph ? '1fr 1fr 1fr 1fr' : '1fr 1fr 1fr'};">
                 <button class="f-segment-btn ${currentAlign === 'left' || currentAlign === 'start' ? 'active' : ''}" 
-                        onclick="updateFieldStyle('${path}', 'textAlign', 'left'); Array.from(this.parentNode.children).forEach(c => c.classList.remove('active')); this.classList.add('active');" title="Gauche">
+                        onclick="updateFieldStyle('${path}', 'textAlign', 'left'); toggleFieldStylePanel('${path}'); toggleFieldStylePanel('${path}')" title="Gauche">
                     <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="15" y2="12"></line><line x1="3" y1="18" x2="19" y2="18"></line></svg>
                 </button>
                 <button class="f-segment-btn ${currentAlign === 'center' ? 'active' : ''}" 
-                        onclick="updateFieldStyle('${path}', 'textAlign', 'center'); Array.from(this.parentNode.children).forEach(c => c.classList.remove('active')); this.classList.add('active');" title="Centrer">
+                        onclick="updateFieldStyle('${path}', 'textAlign', 'center'); toggleFieldStylePanel('${path}'); toggleFieldStylePanel('${path}')" title="Centrer">
                     <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="6" y1="12" x2="18" y2="12"></line><line x1="4" y1="18" x2="20" y2="18"></line></svg>
                 </button>
                 <button class="f-segment-btn ${currentAlign === 'right' || currentAlign === 'end' ? 'active' : ''}" 
-                        onclick="updateFieldStyle('${path}', 'textAlign', 'right'); Array.from(this.parentNode.children).forEach(c => c.classList.remove('active')); this.classList.add('active');" title="Droite">
+                        onclick="updateFieldStyle('${path}', 'textAlign', 'right'); toggleFieldStylePanel('${path}'); toggleFieldStylePanel('${path}')" title="Droite">
                     <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="9" y1="12" x2="21" y2="12"></line><line x1="5" y1="18" x2="21" y2="18"></line></svg>
                 </button>
                 ${justifyBtn}
@@ -3552,14 +3255,14 @@ function buildFieldStylePanel(path, hidden = true, align = 'right', zIndex = 999
 function injectFieldDesignButtons() {
     // Inject design buttons next to all inputs that have data-field or updateField
     const inputs = document.querySelectorAll('input[oninput*="updateField"], textarea[oninput*="updateField"], input[oninput*="updateListItem"], textarea[oninput*="updateListItem"], input[oninput*="updateSimpleListItem"], textarea[oninput*="updateSimpleListItem"], textarea[oninput*="updateListBullets"], textarea[oninput*="updateSkillCategory"], input[oninput*="updateSkillCategory"]');
-
+    
     inputs.forEach(input => {
         // Prevent double injection
-        if (input.dataset.hasDesignBtn === 'true') return;
-
+        if (input.parentElement.classList.contains('field-design-wrapper')) return;
+        
         let path = '';
         const oninput = input.getAttribute('oninput');
-
+        
         // Extract path based on the function called
         if (oninput.includes("updateField('")) {
             path = oninput.split("updateField('")[1].split("'")[0];
@@ -3585,124 +3288,100 @@ function injectFieldDesignButtons() {
             const field = parts[1].replace(/'/g, '');
             path = `skills.${index}.${field}`;
         }
-
+        
         if (!path) return;
-
-        input.dataset.hasDesignBtn = 'true';
-
+        
+        // Wrap input and inject button
+        const wrapper = document.createElement('div');
+        wrapper.className = 'field-design-wrapper';
+        wrapper.style.width = '100%';
+        wrapper.style.marginBottom = '0.5rem';
+        wrapper.style.position = 'relative'; // Added to constrain absolute popover
+        
+        const header = document.createElement('div');
+        header.style.display = 'flex';
+        header.style.justifyContent = 'space-between';
+        header.style.alignItems = 'center';
+        header.style.marginBottom = '4px';
+        
+        // Move the label into the header if it exists
+        const prev = input.previousElementSibling;
+        if (prev && prev.tagName === 'LABEL') {
+            header.appendChild(prev);
+            prev.style.marginBottom = '0';
+        } else {
+            const dummyLabel = document.createElement('label');
+            dummyLabel.innerText = "Champ";
+            dummyLabel.style.marginBottom = '0';
+            header.appendChild(dummyLabel);
+        }
+        
         const btn = document.createElement('button');
         btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.38 0 2.5-1.12 2.5-2.5 0-.61-.23-1.17-.6-1.59-.3-.32-.4-.73-.4-1.12 0-1.1.9-2 2-2H19c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"></path></svg>';
         btn.className = 'btn-field-design';
         btn.onclick = (e) => {
             e.preventDefault();
-            e.stopPropagation();
             // Don't toggle 'active' here, let toggleFieldStylePanel handle it
             toggleFieldStylePanel(path, btn);
         };
+        header.appendChild(btn);
         
-        const isListItemInput = path.split('.').length >= 2 && !path.startsWith('contact.') && !path.startsWith('profile');
-
-        const eyeBtn = document.createElement('button');
-        const isHidden = cvData.hidden_fields && cvData.hidden_fields[path];
-        if (isHidden) {
-            eyeBtn.className = 'btn-field-design btn-field-visibility field-hidden';
-            eyeBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
-        } else {
-            eyeBtn.className = 'btn-field-design btn-field-visibility';
-            eyeBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
-        }
-        eyeBtn.onclick = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            toggleFieldVisibility(path, eyeBtn);
-        };
+        wrapper.appendChild(header);
         
-        const btnGroup = document.createElement('div');
-        btnGroup.style.display = 'flex';
-        btnGroup.style.alignItems = 'center';
-        btnGroup.style.gap = '4px';
-        if (!isListItemInput) {
-            btnGroup.appendChild(eyeBtn);
-        }
-        btnGroup.appendChild(btn);
-
-        // Find the associated label
-        let formGroup = input.closest('.form-group');
-        let actionsContainer = formGroup ? formGroup.querySelector('.field-actions-container') : null;
-        let label = formGroup ? formGroup.querySelector('label') : null;
-        
-        if (!label && input.previousElementSibling && input.previousElementSibling.tagName === 'LABEL') {
-            label = input.previousElementSibling;
-        }
-
-        if (actionsContainer) {
-            // Append the injected buttons to the start of the existing actions container
-            actionsContainer.insertBefore(btnGroup, actionsContainer.firstChild);
-        } else if (label) {
-            // Create a wrapper to hold the label and button so the button isn't inside the label
-            const wrapper = document.createElement('div');
-            wrapper.style.display = 'flex';
-            wrapper.style.justifyContent = 'space-between';
-            wrapper.style.alignItems = 'center';
-            wrapper.style.width = '100%';
-            // Preserve margin
-            wrapper.style.marginBottom = label.style.marginBottom || (window.getComputedStyle(label).marginBottom !== '0px' ? window.getComputedStyle(label).marginBottom : '0.5rem');
-            
-            label.parentNode.insertBefore(wrapper, label);
-            
-            label.style.marginBottom = '0';
-            label.style.flex = '1';
-            
-            wrapper.appendChild(label);
-            wrapper.appendChild(btnGroup);
-        } else {
-            // No label (like simple list items), wrap input and inject a header
-            if (input.id === 'input-profile') {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'field-design-wrapper';
-                wrapper.style.width = '100%';
-                wrapper.style.marginBottom = '0.5rem';
-                
-                const header = document.createElement('div');
-                header.style.display = 'flex';
-                header.style.justifyContent = 'space-between';
-                header.style.alignItems = 'center';
-                header.style.marginBottom = '4px';
-                
-                const dummyLabel = document.createElement('label');
-                dummyLabel.innerText = "Design: Profil / Résumé";
-                dummyLabel.style.marginBottom = '0';
-                dummyLabel.style.fontSize = '0.72rem';
-                dummyLabel.style.fontWeight = '600';
-                dummyLabel.style.color = 'var(--text-muted)';
-                dummyLabel.style.textTransform = 'uppercase';
-                
-                header.appendChild(dummyLabel);
-                header.appendChild(btnGroup);
-                wrapper.appendChild(header);
-                
-                input.parentNode.insertBefore(wrapper, input);
-                wrapper.appendChild(input);
-            } else {
-                // List items, just append the design btn inline next to the input
-                // btnGroup contains the palette button
-                // The input is already in a flex container (from renderSimpleList or similar)
-                // We'll wrap the input and btnGroup to keep them grouped nicely
-                const inputGroup = document.createElement('div');
-                inputGroup.style.display = 'flex';
-                inputGroup.style.flex = '1';
-                inputGroup.style.gap = '6px';
-                inputGroup.style.alignItems = 'center';
-                
-                input.parentNode.insertBefore(inputGroup, input);
-                inputGroup.appendChild(input);
-                inputGroup.appendChild(btnGroup);
-            }
-        }
+        // Insert wrapper before input, then move input inside wrapper
+        input.parentNode.insertBefore(wrapper, input);
+        wrapper.appendChild(input);
     });
 }
 
+function applyFieldStyles(container) {
+    if (!cvData.field_styles) return;
 
+    const FOCUS_MAP = {
+        'name':            'input-name',
+        'title_sub':       'input-title-sub',
+        'profile':         'input-profile',
+        'contact.email':   'input-email',
+        'contact.phone':   'input-phone',
+        'contact.location':'input-location',
+        'contact.linkedin':'input-linkedin',
+        'contact.github':  'input-github',
+        'contact.website': 'input-website',
+        'contact.driver':  'input-driver',
+    };
 
+    for (let path in cvData.field_styles) {
+        const styles = cvData.field_styles[path];
+        if (!styles) continue;
 
+        const parts = path.split('.');
+        let els = [];
+
+        const focusKey = FOCUS_MAP[path];
+        if (focusKey) {
+            els = Array.from(container.querySelectorAll(`[data-editor-focus="${focusKey}"]`));
+        } else if (parts.length === 3) {
+            els = Array.from(container.querySelectorAll(`[data-editor-target="${parts[0]}"][data-editor-index="${parts[1]}"] [data-editor-field="${parts[2]}"]`));
+        } else if (parts.length === 2) {
+            els = Array.from(container.querySelectorAll(`[data-editor-target="${parts[0]}"][data-editor-index="${parts[1]}"]`));
+        }
+
+        if (!els.length) continue;
+
+        els.forEach(el => {
+            if (styles.color) el.style.setProperty('color', styles.color, 'important');
+            if (styles.fontSize) el.style.setProperty('font-size', styles.fontSize, 'important');
+            if (styles.fontWeight) el.style.setProperty('font-weight', styles.fontWeight, 'important');
+            if (styles.fontStyle) el.style.setProperty('font-style', styles.fontStyle, 'important');
+            if (styles.letterSpacing !== undefined) el.style.setProperty('letter-spacing', styles.letterSpacing, 'important');
+            if (styles.textTransform) el.style.setProperty('text-transform', styles.textTransform, 'important');
+            if (styles.textAlign) el.style.setProperty('text-align', styles.textAlign, 'important');
+            // Paragraph-level properties
+            if (styles.lineHeight !== undefined) el.style.setProperty('line-height', styles.lineHeight, 'important');
+            if (styles.textIndent !== undefined) el.style.setProperty('text-indent', styles.textIndent, 'important');
+            if (styles.wordSpacing !== undefined) el.style.setProperty('word-spacing', styles.wordSpacing, 'important');
+            if (styles.opacity !== undefined) el.style.setProperty('opacity', styles.opacity, 'important');
+        });
+    }
+}
 

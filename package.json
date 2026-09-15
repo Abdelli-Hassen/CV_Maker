@@ -1,0 +1,27 @@
+{
+  "name": "cv_maker",
+  "version": "1.0.0",
+  "description": "A purely static, client-side web application to build, customize, and export professional A4-optimized CVs. This tool runs entirely in your browser without requiring a backend server, making it fast, private, and easy to use.",
+  "main": "app.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && copy data.js dist\\ && copy app.js dist\\ && node -e \"const fs=require('fs'); fs.writeFileSync('dist/index.html', fs.readFileSync('dist/index.html', 'utf8').replace(/ crossorigin/g, ''))\"",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Abdelli-Hassen/CV_Maker.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/Abdelli-Hassen/CV_Maker/issues"
+  },
+  "homepage": "https://github.com/Abdelli-Hassen/CV_Maker#readme",
+  "devDependencies": {
+    "vite": "^8.3.0",
+    "vite-plugin-html-inject": "^1.1.2"
+  }
+}
