@@ -11,8 +11,22 @@
 
 ## ✨ Feature Overview
 
+### 🚀 Smart Tools (new)
+- **CV Score (0–100)** — live analysis of contact info, summary length, action verbs, quantified results, skills, length & readability, with prioritized tips (*Score* tab and top bar).
+- **Job-offer matcher** — paste a job description, get keyword coverage (ATS-style) with missing/present keywords.
+- **Fit to 1 / 2 pages** — auto-tunes font size, line height, margins and spacing.
+- **Undo / Redo** — `Ctrl+Z` / `Ctrl+Shift+Z` (also covers import, reset, version loading). `Ctrl+S` exports a JSON backup.
+- **My CVs** — keep several named versions (one per target job) in the browser; open, update, duplicate, delete.
+- **Template gallery** — visual picker for the 6 layouts.
+- **Reorder entries** — ▲▼ buttons on experiences, projects, education, languages and skill categories.
+- **Safer & faster** — all user text is HTML-escaped (imports can't inject markup), photos are downscaled, storage-full errors are reported, previews are debounced.
+
+> New code lives in `features.js` / `features.css` (loaded after `app.js`).
+
+---
+
 ### 🗂 Multi-Layout Templates
-Choose from **5 professionally designed CV layouts**, each with its own visual language:
+Choose from **8 professionally designed CV layouts**, each with its own visual language:
 
 | Layout | Style | Best For |
 |---|---|---|
@@ -21,6 +35,11 @@ Choose from **5 professionally designed CV layouts**, each with its own visual l
 | 📑 **Sidebar** | Two-column split, colored left panel | Modern / Tech |
 | 🗃 **Minimalist** | Clean, ultra-light, Swiss-inspired | Academic / Research |
 | 📋 **Europass** | Standard European CV format | EU Job Applications |
+| 🧭 **Timeline** | Vertical career timeline with dots | Career progression |
+| 🏛 **Executive** | Colored header band + tinted side column | Impact / senior profiles |
+| ✨ **Modern** | Project cards, skill tags, bold accent | Tech & startups |
+
+> Timeline, Executive and Modern share the Corporate accent colour and theme presets. Layout code: `layouts.js` / `layouts.css`.
 
 ---
 
@@ -171,9 +190,15 @@ CV_Maker/
 
 ---
 
-## 🔒 Privacy
+## 🔒 Privacy & Multi-user Deployment
 
-All data stays **100% on your machine**. Nothing is sent to any server. Your CV data lives only in your browser's `localStorage` and any `.json` files you choose to export.
+CV Maker is a **static site** (works on Vercel, Netlify, GitHub Pages…). There is no server and no database:
+
+- Every visitor's CV is stored **only in their own browser** (`localStorage`). Two people opening the same URL never see each other's data.
+- Nothing is uploaded. Photos are resized locally; PDF export uses the browser's print engine.
+- On a shared computer, use **Mes CV → Effacer toutes mes données** after exporting your JSON.
+- The public default (`data.json`, `dist/data.js`) is a **fictional sample CV**. Keep your real CVs in the git-ignored `private/` folder and load them with **Importer**.
+- Limits: data does not sync across devices/browsers (use **Exporter**/**Importer** to move it). Clearing site data deletes it.
 
 ---
 

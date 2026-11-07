@@ -1,0 +1,5 @@
+# Real CVs stay on your machine (import them with the "Importer" button)
+private/
+node_modules/
+*.backup.json
+.env

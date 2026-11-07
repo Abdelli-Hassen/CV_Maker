@@ -4,7 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>Hassen Abdelli — CV Dashboard & Builder</title>
+  <title>CV Maker — Dashboard & Builder</title>
+  <meta name="description" content="Créez un CV professionnel : 6 modèles, thèmes, analyse ATS, export PDF A4. 100% local, sans compte.">
+  <meta name="theme-color" content="#0b0f19">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,8 +15,11 @@
     href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,600&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="layouts.css">
+  <link rel="stylesheet" href="features.css">
 </head>
 
+<body>
   <!-- MOBILE VIEW TOGGLE BAR (Visible on screens <= 900px) -->
   <div id="mobile-nav-bar" class="mobile-nav-bar">
     <button class="mobile-nav-btn active" id="btn-view-editor" onclick="switchMobileView('editor')">
@@ -162,7 +167,7 @@
             <div class="form-card">
               <div class="form-group">
                 <label>Nom Complet</label>
-                <input type="text" id="input-name" placeholder="Ex: Hassen Abdelli"
+                <input type="text" id="input-name" placeholder="Ex: Camille Dupont"
                   oninput="updateField('contact.name', this.value)">
               </div>
               <div class="form-group">
@@ -391,6 +396,9 @@
               <option value="sidebar">Sidebar Bicolore (Compact)</option>
               <option value="minimalist">Minimalisme Suisse (Moderne)</option>
               <option value="europass">Norme Europass (Standard)</option>
+              <option value="timeline">Chronologie (Timeline)</option>
+              <option value="executive">Executive (Bandeau + Colonne)</option>
+              <option value="modern">Moderne (Cartes &amp; Tags)</option>
             </select>
           </div>
         </div>
@@ -640,8 +648,10 @@
   <!-- ----------------------------------------------------
        6. JAVASCRIPT STATE ENGINE
        ---------------------------------------------------- -->
-  <script src="data.js"></script>
+  <script src="data.js" onerror="void 0"></script>
   <script src="app.js"></script>
+  <script src="layouts.js"></script>
+  <script src="features.js"></script>
 </body>
 
 </html>

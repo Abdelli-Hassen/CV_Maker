@@ -36,8 +36,16 @@ function sanitizeGlitches(obj) {
     return obj;
 }
 
-let cvDataRaw = JSON.parse(localStorage.getItem('cv_data'));
+const esc = (v) => String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+function safeParse(raw, fallback = null) {
+    try { return raw ? JSON.parse(raw) : fallback; } catch (e) { console.warn('Corrupted stored data ignored:', e); return fallback; }
+}
+
+let cvDataRaw = safeParse(localStorage.getItem('cv_data'));
 let cvData = sanitizeGlitches(cvDataRaw) || (typeof window.defaultCVData !== 'undefined' ? sanitizeGlitches(window.defaultCVData) : JSON.parse(JSON.stringify(emptyCVData)));
+// Layouts that share the Corporate accent colour + theme presets
+const isProfLike = (l) => ['professional', 'timeline', 'executive', 'modern'].includes(l);
 let currentLayout = localStorage.getItem('cv_layout') || 'professional';
 let openCollapseKeys = {}; // Collapsed items status tracking
 
@@ -132,15 +140,29 @@ function toggleCollapse(key, idx) {
     8. IMAGE UPLOAD & SCALING
     ---------------------------------------------------- */
 function uploadProfileImage(input) {
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            cvData.contact.image = e.target.result;
+    if (!(input.files && input.files[0])) return;
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        // Downscale to keep localStorage small and PDFs light (max 640px, JPEG/PNG preserved)
+        const img = new Image();
+        img.onload = () => {
+            const MAX = 640;
+            const ratio = Math.min(1, MAX / Math.max(img.width, img.height));
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.round(img.width * ratio);
+            canvas.height = Math.round(img.height * ratio);
+            canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+            const keepPng = file.type === 'image/png' || file.type === 'image/webp';
+            cvData.contact.image = canvas.toDataURL(keepPng ? 'image/png' : 'image/jpeg', 0.88);
             saveAndSync();
             updatePfpPreview();
         };
-        reader.readAsDataURL(input.files[0]);
-    }
+        img.onerror = () => { if (window.CVX) CVX.toast('Image illisible.', 'error'); };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+    input.value = '';
 }
 
 function removeProfileImage() {
@@ -1323,6 +1345,22 @@ function renderEuropassLayout() {
 
 let isRenderingPreview = false;
 
+// Escape every user string before it is interpolated into template HTML (XSS / broken markup safe)
+function escapeForRender(root) {
+    const SKIP = new Set(['themes', 'design', 'hidden_fields', 'hidden_sections', 'field_styles', 'image']);
+    const walk = (v) => {
+        if (typeof v === 'string') return esc(v);
+        if (Array.isArray(v)) return v.map(walk);
+        if (v && typeof v === 'object') {
+            const o = {};
+            for (const k in v) o[k] = SKIP.has(k) ? v[k] : walk(v[k]);
+            return o;
+        }
+        return v;
+    };
+    return walk(root);
+}
+
 window.getHdg = function(key, def) { return (cvData.headings && cvData.headings[key]) || def; };
 
 function renderPreview() {
@@ -1343,8 +1381,10 @@ function renderPreview() {
     // Store original data and blank out hidden fields to prevent them (and their separators) from being rendered
     const originalCvData = cvData;
     try {
+        {
+            cvData = escapeForRender(JSON.parse(JSON.stringify(originalCvData)));
+        }
         if (cvData.hidden_fields) {
-            cvData = JSON.parse(JSON.stringify(originalCvData));
             Object.keys(cvData.hidden_fields).forEach(path => {
                 if (cvData.hidden_fields[path]) {
                     const parts = path.split('.');
@@ -1382,6 +1422,8 @@ function renderPreview() {
             layoutHTML = renderMinimalistLayout();
         } else if (currentLayout === 'europass') {
             layoutHTML = renderEuropassLayout();
+        } else if (window.CVX_LAYOUTS && CVX_LAYOUTS[currentLayout]) {
+            layoutHTML = CVX_LAYOUTS[currentLayout]();
         } else {
             layoutHTML = renderATSLayout();
         }
@@ -1801,11 +1843,11 @@ function renderSkillsList() {
                     <button class="btn-icon-delete" onclick="deleteSkillCategory(${index})" title="Supprimer cette catégorie"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path></svg></button>
                 </div>
             </div>
-            <input type="text" data-field="category" value="${s.category}" oninput="updateSkillCategory(${index}, 'category', this.value)">
+            <input type="text" data-field="category" value="${esc(s.category)}" oninput="updateSkillCategory(${index}, 'category', this.value)">
         </div>
         <div class="form-group">
         <label>Compétences (Séparez par virgules)</label>
-        <textarea rows="5" data-field="value" placeholder="HTML, CSS, JavaScript, ..." oninput="updateSkillCategory(${index}, 'value', this.value)">${s.value}</textarea>
+        <textarea rows="5" data-field="value" placeholder="HTML, CSS, JavaScript, ..." oninput="updateSkillCategory(${index}, 'value', this.value)">${esc(s.value)}</textarea>
         </div>
     `;
         container.appendChild(card);
@@ -1851,20 +1893,20 @@ function renderList(key) {
             fields = `
         <div class="form-group">
             <label>${key === 'experiences' ? 'Intitulé du Poste' : 'Intitulé du Stage / Formation'}</label>
-            <input type="text" data-field="title" value="${item.title}" oninput="updateListItem('${key}', ${index}, 'title', this.value)">
+            <input type="text" data-field="title" value="${esc(item.title)}" oninput="updateListItem('${key}', ${index}, 'title', this.value)">
         </div>
         <div class="form-group">
             <label>${key === 'experiences' ? 'Entreprise' : 'Organisme / Établissement'}</label>
-            <input type="text" data-field="company" value="${item.company}" oninput="updateListItem('${key}', ${index}, 'company', this.value)">
+            <input type="text" data-field="company" value="${esc(item.company)}" oninput="updateListItem('${key}', ${index}, 'company', this.value)">
         </div>
         <div class="form-row">
             <div class="form-group">
             <label>Période</label>
-            <input type="text" data-field="period" value="${item.period}" oninput="updateListItem('${key}', ${index}, 'period', this.value)">
+            <input type="text" data-field="period" value="${esc(item.period)}" oninput="updateListItem('${key}', ${index}, 'period', this.value)">
             </div>
             <div class="form-group">
             <label>Lieu</label>
-            <input type="text" data-field="location" value="${item.location}" oninput="updateListItem('${key}', ${index}, 'location', this.value)">
+            <input type="text" data-field="location" value="${esc(item.location)}" oninput="updateListItem('${key}', ${index}, 'location', this.value)">
             </div>
         </div>
         <div class="form-group">
@@ -1877,15 +1919,15 @@ function renderList(key) {
             fields = `
         <div class="form-group">
             <label>Titre du Projet</label>
-            <input type="text" data-field="title" value="${item.title}" oninput="updateListItem('${key}', ${index}, 'title', this.value)">
+            <input type="text" data-field="title" value="${esc(item.title)}" oninput="updateListItem('${key}', ${index}, 'title', this.value)">
         </div>
         <div class="form-group">
             <label>Stack Technique</label>
-            <input type="text" data-field="stack" value="${item.stack}" oninput="updateListItem('${key}', ${index}, 'stack', this.value)">
+            <input type="text" data-field="stack" value="${esc(item.stack)}" oninput="updateListItem('${key}', ${index}, 'stack', this.value)">
         </div>
         <div class="form-group">
             <label>Description du projet</label>
-            <textarea rows="6" data-field="description" oninput="updateListItem('${key}', ${index}, 'description', this.value)">${item.description}</textarea>
+            <textarea rows="6" data-field="description" oninput="updateListItem('${key}', ${index}, 'description', this.value)">${esc(item.description)}</textarea>
         </div>`;
         } else if (key === 'education') {
             titleText = item.degree || "Diplôme";
@@ -1893,15 +1935,15 @@ function renderList(key) {
             fields = `
         <div class="form-group">
             <label>Intitulé du Diplôme / Formation</label>
-            <input type="text" data-field="degree" value="${item.degree}" oninput="updateListItem('${key}', ${index}, 'degree', this.value)">
+            <input type="text" data-field="degree" value="${esc(item.degree)}" oninput="updateListItem('${key}', ${index}, 'degree', this.value)">
         </div>
         <div class="form-group">
             <label>Établissement</label>
-            <input type="text" data-field="school" value="${item.school}" oninput="updateListItem('${key}', ${index}, 'school', this.value)">
+            <input type="text" data-field="school" value="${esc(item.school)}" oninput="updateListItem('${key}', ${index}, 'school', this.value)">
         </div>
         <div class="form-group">
             <label>Période</label>
-            <input type="text" data-field="period" value="${item.period}" oninput="updateListItem('${key}', ${index}, 'period', this.value)">
+            <input type="text" data-field="period" value="${esc(item.period)}" oninput="updateListItem('${key}', ${index}, 'period', this.value)">
         </div>`;
         } else if (key === 'languages') {
             titleText = item.name || "Nouvelle langue";
@@ -1910,11 +1952,11 @@ function renderList(key) {
         <div class="form-row">
             <div class="form-group">
             <label>Langue</label>
-            <input type="text" data-field="name" value="${item.name}" oninput="updateListItem('${key}', ${index}, 'name', this.value)">
+            <input type="text" data-field="name" value="${esc(item.name)}" oninput="updateListItem('${key}', ${index}, 'name', this.value)">
             </div>
             <div class="form-group">
             <label>Niveau</label>
-            <input type="text" data-field="level" value="${item.level}" oninput="updateListItem('${key}', ${index}, 'level', this.value)">
+            <input type="text" data-field="level" value="${esc(item.level)}" oninput="updateListItem('${key}', ${index}, 'level', this.value)">
             </div>
         </div>`;
         }
@@ -1926,8 +1968,8 @@ function renderList(key) {
         div.innerHTML = `
         <div class="collapsible-header" onclick="toggleCollapse('${key}', ${index})">
         <div class="collapsible-header-info">
-            <span class="collapsible-header-title">${titleText}</span>
-            <span class="collapsible-header-subtitle">${subtitleText}</span>
+            <span class="collapsible-header-title">${esc(titleText)}</span>
+            <span class="collapsible-header-subtitle">${esc(subtitleText)}</span>
         </div>
         <div class="collapsible-header-actions">
             <button class="btn-icon-eye ${isHidden ? 'field-hidden' : ''}" onclick="event.stopPropagation(); toggleListItemVisibility('${key}', ${index}, this)" title="Afficher/Masquer cet élément">
@@ -1967,7 +2009,7 @@ function renderSimpleList(key) {
         <button class="btn-icon-eye ${isHidden ? 'field-hidden' : ''}" onclick="toggleListItemVisibility('${key}', ${index}, this)" title="Afficher/Masquer">
             ${eyeIcon}
         </button>
-        <input class="simple-list-input" type="text" data-field="value" data-index="${index}" value="${item}" oninput="updateSimpleListItem('${key}', ${index}, this.value)">
+        <input class="simple-list-input" type="text" data-field="value" data-index="${index}" value="${esc(item)}" oninput="updateSimpleListItem('${key}', ${index}, this.value)">
         <button class="btn-icon-delete" onclick="deleteSimpleItem('${key}', ${index})" title="Supprimer">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path></svg>
         </button>
@@ -1993,7 +2035,6 @@ window.updateSectionTitle = function(section, value) {
     if (!cvData.headings) cvData.headings = {};
     cvData.headings[section] = value;
     saveAndSync();
-    renderPreview();
 };
 
 
@@ -2063,9 +2104,9 @@ function changeLayout(layout) {
     const btnRandom = document.getElementById('design-btn-random');
 
     if (designedGrp) designedGrp.style.display = (layout === 'designed') ? 'flex' : 'none';
-    if (profGrp) profGrp.style.display = (layout === 'professional') ? 'flex' : 'none';
+    if (profGrp) profGrp.style.display = isProfLike(layout) ? 'flex' : 'none';
     if (sidebarGrp) sidebarGrp.style.display = (layout === 'sidebar') ? 'flex' : 'none';
-    if (btnRandom) btnRandom.style.display = (layout === 'designed' || layout === 'professional' || layout === 'sidebar') ? 'inline-flex' : 'none';
+    if (btnRandom) btnRandom.style.display = (layout === 'designed' || isProfLike(layout) || layout === 'sidebar') ? 'inline-flex' : 'none';
 
     renderThemeSwatches();
     renderPreview();
@@ -2197,7 +2238,7 @@ function renderThemeSwatches() {
     
     let list = [];
     if (currentLayout === 'designed') list = PRESETS.designed;
-    else if (currentLayout === 'professional') list = PRESETS.professional;
+    else if (isProfLike(currentLayout)) list = PRESETS.professional;
     else if (currentLayout === 'sidebar') list = PRESETS.sidebar;
     
     if (list.length === 0) {
@@ -2209,7 +2250,7 @@ function renderThemeSwatches() {
         let bgStyle = '';
         if (currentLayout === 'designed') {
             bgStyle = `background: linear-gradient(135deg, ${theme.bg} 50%, ${theme.gold} 50%);`;
-        } else if (currentLayout === 'professional') {
+        } else if (isProfLike(currentLayout)) {
             bgStyle = `background: ${theme.navy};`;
         } else if (currentLayout === 'sidebar') {
             bgStyle = `background: linear-gradient(135deg, ${theme.bg} 50%, ${theme.accent} 50%);`;
@@ -2231,7 +2272,7 @@ function applySpecificTheme(encodedTheme) {
         const p2 = document.getElementById('design-picker-gold');
         if (p1) p1.value = theme.bg;
         if (p2) p2.value = theme.gold;
-    } else if (currentLayout === 'professional') {
+    } else if (isProfLike(currentLayout)) {
         cvData.themes.professional.navy_primary = theme.navy;
         const p = document.getElementById('design-picker-navy');
         if (p) p.value = theme.navy;
@@ -2295,7 +2336,7 @@ function applySpecificTheme(encodedTheme) {
 function applyRandomPalette() {
     let list = [];
     if (currentLayout === 'designed') list = PRESETS.designed;
-    else if (currentLayout === 'professional') list = PRESETS.professional;
+    else if (isProfLike(currentLayout)) list = PRESETS.professional;
     else if (currentLayout === 'sidebar') list = PRESETS.sidebar;
 
     if (list.length === 0) return;
@@ -2304,7 +2345,7 @@ function applyRandomPalette() {
     let choice = list[Math.floor(Math.random() * list.length)];
     for (let i = 0; i < 5; i++) {
         const current = currentLayout === 'designed' ? cvData.themes.designed?.bg_color :
-                        currentLayout === 'professional' ? cvData.themes.professional?.navy_primary :
+                        isProfLike(currentLayout) ? cvData.themes.professional?.navy_primary :
                         cvData.themes.sidebar?.sidebar_bg;
         const choiceKey = choice.bg || choice.navy;
         if (choiceKey === current) {
@@ -2355,9 +2396,9 @@ function updateDesignField(field, value) {
     ];
 
     if (nonStructuralFields.includes(field)) {
-        localStorage.setItem('cv_data', JSON.stringify(cvData));
+        persistData();
     } else if (layoutAffectingFields.includes(field)) {
-        localStorage.setItem('cv_data', JSON.stringify(cvData));
+        persistData();
         // Debounce the layout recalculation to prevent slider lag
         clearTimeout(window._designDebounce);
         window._designDebounce = setTimeout(() => {
@@ -2488,7 +2529,7 @@ async function resetToDefaults() {
                 const data = await response.json();
                 cvData = data;
                 runMigrations(cvData);
-                localStorage.setItem('cv_data', JSON.stringify(cvData));
+                persistData();
                 populateFormInputs();
                 renderPreview();
                 return;
@@ -2527,11 +2568,13 @@ function importJSON(input) {
                 alert('❌ Fichier JSON invalide : la clé "contact.name" est manquante.');
                 return;
             }
+            if (window.CVX) CVX.checkpoint();
             cvData = imported;
             runMigrations(cvData);
-            localStorage.setItem('cv_data', JSON.stringify(cvData));
+            persistData();
             populateFormInputs();
             renderPreview();
+            if (window.CVX) { CVX.settle(); CVX.afterRender(); }
             alert('✅ Données importées avec succès pour : ' + cvData.contact.name);
         } catch (err) {
             alert('❌ Erreur de lecture du fichier JSON : ' + err.message);
@@ -2541,12 +2584,27 @@ function importJSON(input) {
     input.value = ''; // Reset so re-importing the same file works
 }
 
-function saveAndSync() {
-    localStorage.setItem('cv_data', JSON.stringify(cvData));
-    renderPreview();
-    if (window.innerWidth <= 900) {
-        autoFitMobileZoom();
+let _renderTimer = null;
+function persistData() {
+    try {
+        localStorage.setItem('cv_data', JSON.stringify(cvData));
+        return true;
+    } catch (e) {
+        console.warn('Autosave failed (storage full?):', e);
+        if (window.CVX && CVX.toast) CVX.toast('Stockage plein : exportez votre CV en JSON pour ne rien perdre.', 'error');
+        return false;
     }
+}
+
+function saveAndSync() {
+    persistData();
+    if (window.CVX && CVX.onChange) CVX.onChange();
+    clearTimeout(_renderTimer);
+    _renderTimer = setTimeout(() => {
+        renderPreview();
+        if (window.innerWidth <= 900) autoFitMobileZoom();
+        if (window.CVX && CVX.afterRender) CVX.afterRender();
+    }, 90);
 }
 
 function attachEditorBindings(container) {
@@ -3105,7 +3163,7 @@ window.onload = async function () {
                 const data = await response.json();
                 cvData = data;
                 runMigrations(cvData);
-                localStorage.setItem('cv_data', JSON.stringify(cvData));
+                persistData();
             }
         } catch (e) {
             console.warn("Could not fetch data.json, falling back to embedded defaults:", e);
