@@ -871,6 +871,6 @@
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 
-    // Safety net: warn before leaving with unsaved-to-disk work is not needed (autosave), but flush pending render
-    window.addEventListener('beforeunload', () => { try { persistData(); } catch (e) { /* ignore */ } });
+    // No save-on-close handler: every edit is already persisted by saveAndSync(), and a blind save at unload
+    // could overwrite stored data with whatever happens to be in memory.
 })();
