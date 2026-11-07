@@ -153,35 +153,80 @@
         else if (v && typeof v === 'object') for (const k in v) if (!SKIP_KEYS.has(k)) collectText(v[k], out);
         return out;
     }
-    const cvPlainText = () => norm(collectText(cvData).join(' \n '));
+    // What the recruiter will actually see: hidden sections, hidden entries and hidden contact fields removed
+    function effectiveData() {
+        const d = clone(cvData), hs = d.hidden_sections || {}, hf = d.hidden_fields || {};
+        if (hs.profile) d.profile = '';
+        ['experiences', 'formations', 'projects', 'skills', 'education', 'certifications', 'activities', 'languages', 'interests'].forEach((k) => {
+            if (hs[k]) d[k] = [];
+            else if (Array.isArray(d[k])) d[k] = d[k].filter((_, i) => !hf[`${k}.${i}`]);
+        });
+        Object.keys(hf).forEach((k) => { if (hf[k] && /^contact\.\w+$/.test(k) && d.contact) d.contact[k.split('.')[1]] = ''; });
+        if (hf.profile) d.profile = '';
+        return d;
+    }
+    const cvPlainText = () => norm(collectText(effectiveData()).join(' \n '));
+
+    // Technical vocabulary (normalised: lowercase, no accents). Multi-word terms are matched as phrases.
+    const TECH = ('javascript typescript python java kotlin swift dart flutter react angular vue svelte node.js nodejs express nestjs django flask fastapi spring laravel symfony php ruby rails golang rust c++ c# .net ' +
+        'sql nosql postgresql postgres mysql mongodb redis oracle supabase firebase graphql api restful docker kubernetes k8s terraform ansible jenkins git github gitlab ci/cd devops aws azure gcp ' +
+        'linux windows bash nginx vpn vlan dhcp dns tcp/ip cisco fortinet siem cybersecurity cybersecurite owasp pentest iot arduino raspberry stm32 agile scrum kanban jira figma tailwind html css sass webpack vite ' +
+        'jest cypress selenium junit llm rag pandas numpy tensorflow pytorch excel sap salesforce itil microservices jwt oauth websocket mqtt rabbitmq kafka elasticsearch prometheus grafana helm android ios ia ai').split(' ')
+        .concat(['github actions', 'machine learning', 'power bi', 'google cloud', 'amazon web services', 'react native', 'spring boot', 'data science', 'deep learning', 'unit testing']);
+    const ALIASES = [['postgresql', 'postgres'], ['node.js', 'nodejs'], ['kubernetes', 'k8s'], ['javascript', 'js'], ['typescript', 'ts'], ['ai', 'ia', 'intelligence artificielle'],
+        ['ci/cd', 'cicd', 'ci cd'], ['cybersecurity', 'cybersecurite', 'securite informatique'], ['golang', 'go lang'], ['restful', 'rest api', 'api rest'], ['tcp/ip', 'tcp ip'],
+        ['machine learning', 'apprentissage automatique'], ['mongodb', 'mongo'], ['aws', 'amazon web services'], ['gcp', 'google cloud'], ['react', 'reactjs'], ['angular', 'angularjs'], ['vue', 'vuejs']];
+    const groupOf = (t) => ALIASES.find((g) => g.includes(t)) || [t];
+    const escRe = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const termRe = (t) => new RegExp('(?<![a-z0-9])' + escRe(t) + 's?(?![a-z0-9+#])', 'i');
 
     const STOP = new Set(('the and for with you your our are will have has from that this who use used using able work working team into more such per all any can may their they them but not out via about over under within across ' +
+        'looking senior strong build own role join years year ability skills knowledge plus experience excellent good great new help including ' +
         'les des une que qui pour dans avec sur par est sont aux nos vos notre votre vous nous elle ils elles ete etre avoir plus tres ainsi entre chez comme cette ces ses son leur leurs fait faire afin dont mais donc sans sous lors ' +
+        'serez serons sera seront etes avez avons mise place charge justifiez minimum connaissance connaissances appreciee apprecie autonome rigoureux rigoureuse travail sens esprit capacite maitrise bonne bonnes bon sein cadre projet projets ' +
         'poste profil mission missions experience experiences entreprise equipe candidat candidature recherche recherchons rejoindre rejoignez offre emploi h/f f/h cdi cdd stage alternance anne annee ans').split(/\s+/));
 
-    function extractKeywords(text, max = 28) {
-        const freq = new Map();
-        (norm(text).match(/[a-z0-9][a-z0-9+#.\-/]{1,}/g) || []).forEach((raw) => {
-            const w = raw.replace(/^[.\-/]+|[.\-/]+$/g, '');
-            if (w.length < 3 || STOP.has(w) || /^\d+$/.test(w)) return;
-            freq.set(w, (freq.get(w) || 0) + 1);
+    // Returns { terms, mode }: technical terms when the offer has enough, otherwise the most frequent meaningful words
+    function extractKeywords(text) {
+        const n = norm(text);
+        let found = TECH.filter((t) => termRe(t).test(n));
+        found = found.filter((t) => !found.some((o) => o !== t && o.includes(' ') && o.split(' ').includes(t)));
+        const seen = new Set(), terms = [];
+        found.forEach((t) => { const g = groupOf(t)[0]; if (!seen.has(g)) { seen.add(g); terms.push(g); } });
+        (n.match(/[a-z0-9][a-z0-9+#./-]*[a-z0-9+#]/g) || []).forEach((w) => {
+            if (/[+#./]/.test(w) && w.length >= 3 && !/^\d/.test(w) && !STOP.has(w) && !terms.some((t) => groupOf(t).includes(w)) && !/^[a-z]\.[a-z]\.?$/.test(w) && !/\.(com|org|net|fr|io)$/.test(w)) terms.push(w);
         });
-        return [...freq.entries()]
-            .sort((a, b) => b[1] - a[1] || b[0].length - a[0].length)
-            .slice(0, max).map((e) => e[0]);
+        if (terms.length >= 3) return { terms: terms.slice(0, 30), mode: 'tech' };
+        const freq = new Map();
+        (n.match(/[a-z0-9][a-z0-9+#.\-/]{3,}/g) || []).forEach((raw) => {
+            const orig = raw.replace(/^[.\-/]+|[.\-/]+$/g, '');
+            const w = orig.replace(/s$/, '');
+            if (w.length < 4 || STOP.has(orig) || STOP.has(w) || /^\d+$/.test(w)) return;
+            const e = freq.get(w) || { n: 0, show: orig.length <= w.length + 1 ? orig : w };
+            e.n++; if (orig === w) e.show = orig; // prefer the singular form for display
+            freq.set(w, e);
+        });
+        return { terms: [...freq.values()].sort((a, b) => b.n - a.n || b.show.length - a.show.length).slice(0, 20).map((e) => e.show), mode: 'words' };
     }
-    function hasKeyword(cvText, kw) {
-        const esc2 = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        if (new RegExp('(?<![a-z0-9])' + esc2, 'i').test(cvText)) return true;
-        return kw.length >= 7 && cvText.includes(kw.slice(0, kw.length - 2));
+    function hasKeyword(cvText, kw, mode) {
+        if (groupOf(kw).some((a) => termRe(a).test(cvText))) return true;
+        return mode === 'words' && kw.length >= 7 && cvText.includes(kw.slice(0, kw.length - 2));
     }
 
     const VERB_RE = new RegExp('^(' + [
-        'conc', 'develop', 'deploy', 'install', 'configur', 'ger', 'gere', 'cre', 'mis', 'optimis', 'administr', 'supervis', 'realis', 'implement', 'automatis', 'migr', 'securis', 'assur', 'dirig', 'pilot', 'integr', 'maintenu', 'maintenance',
-        'analys', 'diagnost', 'deploi', 'cabl', 'assembl', 'etudi', 'constr', 'adminis', 'repar', 'resolu', 'form', 'coordonn', 'redig', 'test', 'livr', 'ameliore', 'reduit', 'augment', 'lanc', 'conduit', 'anim', 'negoci', 'planifi', 'organis', 'elabor', 'constru', 'participe', 'contribu', 'collabor', 'accompagn', 'depann', 'surveill', 'monitor', 'sensibilis', 'standardis', 'documente', 'rationalis', 'modernis', 'concu',
+        'conc', 'develop', 'deploy', 'install', 'configur', 'ger\\b', 'gere', 'cre(?:e|er|ation)', 'mis\\b', 'mise en', 'optimis', 'administr', 'supervis', 'realis', 'implement', 'automatis', 'migr', 'securis', 'assur', 'dirig', 'pilot', 'integr', 'maintenu', 'maintenance',
+        'analys', 'diagnost', 'deploi', 'cabl', 'assembl', 'etudi', 'constr', 'adminis', 'repar', 'resolu', 'encadr', 'amelior', 'redui', 'accel', 'simplifi', 'obtenu', 'remport', 'gagn', 'forme\\b', 'former\\b', 'coordonn', 'redig', 'teste', 'livr', 'ameliore', 'reduit', 'augment', 'lanc', 'conduit', 'anim', 'negoci', 'planifi', 'organis', 'elabor', 'constru', 'participe', 'contribu', 'collabor', 'accompagn', 'depann', 'surveill', 'monitor', 'sensibilis', 'standardis', 'documente', 'rationalis', 'modernis', 'concu',
         'led', 'built', 'design', 'developed', 'managed', 'created', 'implemented', 'deployed', 'improved', 'reduced', 'increased', 'automated', 'optimized', 'launched', 'delivered', 'architect', 'maintained', 'configured', 'installed', 'integrated', 'owned', 'drove', 'mentored'
     ].join('|') + ')', 'i');
-    const LABEL_RE = /^[^:]{2,45}\s*:/; // "Déploiement LAN : …" style is accepted
+    const WEAK_RE = /^(responsable de|charge de|chargee de|en charge|participation|taches?|aide a|aide au|responsible for|worked on|duties|helped|assisted)/i;
+    // Strong = starts with an action verb, or a short "Label : detail" heading (max 4 words) — unless it opens with a weak formula
+    const isStrong = (b) => {
+        const n = norm(b);
+        if (WEAK_RE.test(n)) return false;
+        if (VERB_RE.test(n)) return true;
+        const m = b.match(/^([^:]{2,35})\s*:/);
+        return !!m && m[1].trim().split(/\s+/).length <= 4;
+    };
 
     /* ------------------------------------------------------
        CV SCORE
@@ -189,7 +234,8 @@
     const pageCount = () => document.querySelectorAll('#screen-preview-container .a4-page-sheet').length || 1;
 
     function computeScore() {
-        const d = cvData, c = d.contact || {};
+        const d = effectiveData(), c = d.contact || {};
+        const words = (collectText(d).join(' ').match(/\S+/g) || []).length;
         const checks = [];
         const add = (group, label, pts, max, detail) => checks.push({ group, label, pts: Math.round(pts * 10) / 10, max, detail });
 
@@ -216,9 +262,10 @@
         add('Expérience', 'Au moins une expérience', exps.length ? 8 : 0, 8, exps.length ? `${exps.length} expérience(s)/stage(s).` : 'Ajoutez vos expériences, stages ou projets professionnels.');
         const avg = exps.length ? bullets.length / exps.length : 0;
         add('Expérience', 'Missions par poste (2 à 6)', avg >= 2 && avg <= 6 ? 7 : (avg > 0 ? 3 : 0), 7, exps.length ? `Moyenne : ${avg.toFixed(1)} mission(s) par poste.` : 'Détaillez 2 à 6 missions par poste.');
-        const strong = bullets.filter((b) => VERB_RE.test(norm(b)) || LABEL_RE.test(b)).length;
+        const strong = bullets.filter(isStrong).length;
+        const weak = bullets.filter((b) => WEAK_RE.test(norm(b))).length;
         const sr = bullets.length ? strong / bullets.length : 0;
-        add('Expérience', 'Verbes d\'action en début de ligne', sr * 5, 5, bullets.length ? `${Math.round(sr * 100)} % des missions commencent par un verbe d'action ou un intitulé clair.` : 'Commencez chaque mission par un verbe (conçu, déployé, optimisé…).');
+        add('Expérience', 'Verbes d\'action en début de ligne', sr * 5, 5, bullets.length ? `${Math.round(sr * 100)} % des missions commencent par un verbe d'action ou un intitulé clair.` + (weak ? ` ${weak} commence(nt) par une formule faible (« Responsable de », « Participation à »…) : remplacez-la par un verbe (piloté, conçu, réduit…).` : '') : 'Commencez chaque mission par un verbe (conçu, déployé, optimisé…).');
         const metr = bullets.filter((b) => /\d/.test(b)).length;
         const mr = bullets.length ? metr / bullets.length : 0;
         add('Expérience', 'Résultats chiffrés', Math.min(1, mr / 0.25) * 5, 5, bullets.length ? `${Math.round(mr * 100)} % des missions contiennent un chiffre. Visez 25 % ou plus (%, nombre d'utilisateurs, délais…).` : 'Quantifiez vos résultats : %, volumes, délais, taille d\'équipe.');
@@ -237,9 +284,9 @@
 
         // Format (15)
         const pg = pageCount();
-        add('Format', 'Longueur du CV', pg === 1 ? 10 : (pg === 2 ? 7 : 2), 10, pg === 1 ? '1 page — idéal.' : (pg === 2 ? '2 pages — acceptable pour un profil expérimenté.' : `${pg} pages — trop long. Utilisez « Ajuster à 1 page » ou condensez.`));
+        add('Format', 'Longueur du CV', words < 80 ? 0 : (pg === 1 ? 10 : (pg === 2 ? 7 : 2)), 10, words < 80 ? 'Pas assez de contenu pour évaluer la longueur (moins de 80 mots).' : pg === 1 ? '1 page — idéal.' : (pg === 2 ? '2 pages — acceptable pour un profil expérimenté.' : `${pg} pages — trop long. Utilisez « Ajuster à 1 page » ou condensez.`));
         const longB = bullets.filter((b) => b.length > 220).length;
-        add('Format', 'Lisibilité des missions', longB ? Math.max(0, 5 - longB) : 5, 5, longB ? `${longB} mission(s) dépassent 220 caractères : scindez-les.` : 'Missions concises.');
+        add('Format', 'Lisibilité des missions', !bullets.length ? 0 : (longB ? Math.max(0, 5 - longB) : 5), 5, !bullets.length ? 'Aucune mission à évaluer.' : longB ? `${longB} mission(s) dépassent 220 caractères : scindez-les.` : 'Missions concises.');
 
         const total = checks.reduce((a, x) => a + x.pts, 0);
         const max = checks.reduce((a, x) => a + x.max, 0);
@@ -269,7 +316,7 @@
                     <circle cx="42" cy="42" r="36" fill="none" stroke="${colorFor(vk)}" stroke-width="8" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - r.score / 100)}"/></svg>
                     <div class="cvx-ring-num">${r.score}</div>
                 </div>
-                <div><h3>${vt}</h3><p>${vd}</p><p style="margin-top:4px">${r.pages} page${r.pages > 1 ? 's' : ''} · ${(collectText(cvData).join(' ').match(/\S+/g) || []).length} mots</p></div>
+                <div><h3>${vt}</h3><p>${vd}</p><p style="margin-top:4px">${r.pages} page${r.pages > 1 ? 's' : ''} · ${(collectText(effectiveData()).join(' ').match(/\S+/g) || []).length} mots</p></div>
             </div>
             ${top.length ? `<div class="cvx-card"><h4>Priorités</h4><p>Les 3 améliorations qui feront le plus progresser votre score :</p>
                 <div class="cvx-checks" style="margin-top:0">${top.map(checkHTML).join('')}</div></div>` : ''}
@@ -294,10 +341,15 @@
         const ta = $('#cvx-jd'), out = $('#cvx-jd-result'); if (!ta || !out) return;
         const text = ta.value.trim();
         if (!text) { out.innerHTML = ''; return; }
-        const kws = extractKeywords(text), cv = cvPlainText();
-        const hit = kws.filter((k) => hasKeyword(cv, k)), miss = kws.filter((k) => !hasKeyword(cv, k));
-        const pct = kws.length ? Math.round((hit.length / kws.length) * 100) : 0;
+        const { terms: kws, mode } = extractKeywords(text), cv = cvPlainText();
+        if (!kws.length) { out.innerHTML = '<div class="cvx-empty" style="margin-top:.6rem">Aucun mot-clé exploitable détecté. Collez l\'offre complète.</div>'; return; }
+        const hit = kws.filter((k) => hasKeyword(cv, k, mode)), miss = kws.filter((k) => !hasKeyword(cv, k, mode));
+        const pct = Math.round((hit.length / kws.length) * 100);
+        const note = mode === 'tech'
+            ? 'Technologies et outils détectés dans l\'offre.'
+            : 'Peu de termes techniques détectés : voici les mots les plus répétés de l\'offre (indicatif).';
         out.innerHTML = `
+            <div style="margin-top:.6rem;font-size:.72rem;color:var(--text-muted)">${note}</div>
             <div class="cvx-match"><b>${pct} %</b><div class="cvx-meter"><div style="width:${pct}%;background-position:${pct}% 0"></div></div><span style="color:var(--text-muted)">${hit.length}/${kws.length}</span></div>
             ${miss.length ? `<div style="margin-top:.6rem;font-size:.72rem;color:var(--text-muted)">Absents de votre CV — ajoutez ceux qui correspondent réellement à votre expérience :</div><div class="cvx-chips">${miss.map((k) => `<span class="cvx-chip miss">${esc(k)}</span>`).join('')}</div>` : ''}
             ${hit.length ? `<div style="margin-top:.6rem;font-size:.72rem;color:var(--text-muted)">Déjà présents :</div><div class="cvx-chips">${hit.map((k) => `<span class="cvx-chip hit">${esc(k)}</span>`).join('')}</div>` : ''}`;
