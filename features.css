@@ -208,3 +208,5 @@
 
 .cvx-chip.dom { color: #a78bfa; border-color: rgba(167, 139, 250, 0.45); background: rgba(167, 139, 250, 0.1); }
 .cvx-chip.sugg { color: #60a5fa; border-color: rgba(96, 165, 250, 0.4); background: rgba(96, 165, 250, 0.08); border-style: dashed; }
+
+.cvx-chip.ext { border-style: dotted; }
