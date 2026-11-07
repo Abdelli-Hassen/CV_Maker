@@ -167,16 +167,87 @@
     }
     const cvPlainText = () => norm(collectText(effectiveData()).join(' \n '));
 
-    // Technical vocabulary (normalised: lowercase, no accents). Multi-word terms are matched as phrases.
-    const TECH = ('javascript typescript python java kotlin swift dart flutter react angular vue svelte node.js nodejs express nestjs django flask fastapi spring laravel symfony php ruby rails golang rust c++ c# .net ' +
+    /* ------------------------------------------------------
+       VOCABULARY ENGINE
+       Domains come from vocab/*.js (window.CVX_VOCAB). The job offer's own words are scanned against this
+       index (longest match first, accent/case/plural tolerant) to find skills, detect the field,
+       and suggest commonly expected terms.
+       ------------------------------------------------------ */
+    const EXTRA_TECH = ('javascript typescript python java kotlin swift dart flutter react angular vue svelte node.js nodejs express nestjs django flask fastapi spring laravel symfony php ruby rails golang rust c++ c# .net ' +
         'sql nosql postgresql postgres mysql mongodb redis oracle supabase firebase graphql api restful docker kubernetes k8s terraform ansible jenkins git github gitlab ci/cd devops aws azure gcp ' +
-        'linux windows bash nginx vpn vlan dhcp dns tcp/ip cisco fortinet siem cybersecurity cybersecurite owasp pentest iot arduino raspberry stm32 agile scrum kanban jira figma tailwind html css sass webpack vite ' +
+        'linux windows bash nginx vpn vlan dhcp dns tcp/ip cisco fortinet siem cybersecurity owasp pentest iot arduino raspberry stm32 agile scrum kanban jira figma tailwind html css sass webpack vite ' +
         'jest cypress selenium junit llm rag pandas numpy tensorflow pytorch excel sap salesforce itil microservices jwt oauth websocket mqtt rabbitmq kafka elasticsearch prometheus grafana helm android ios ia ai').split(' ')
         .concat(['github actions', 'machine learning', 'power bi', 'google cloud', 'amazon web services', 'react native', 'spring boot', 'data science', 'deep learning', 'unit testing']);
-    const ALIASES = [['postgresql', 'postgres'], ['node.js', 'nodejs'], ['kubernetes', 'k8s'], ['javascript', 'js'], ['typescript', 'ts'], ['ai', 'ia', 'intelligence artificielle'],
-        ['ci/cd', 'cicd', 'ci cd'], ['cybersecurity', 'cybersecurite', 'securite informatique'], ['golang', 'go lang'], ['restful', 'rest api', 'api rest'], ['tcp/ip', 'tcp ip'],
-        ['machine learning', 'apprentissage automatique'], ['mongodb', 'mongo'], ['aws', 'amazon web services'], ['gcp', 'google cloud'], ['react', 'reactjs'], ['angular', 'angularjs'], ['vue', 'vuejs']];
-    const groupOf = (t) => ALIASES.find((g) => g.includes(t)) || [t];
+    const ALIASES = [['postgresql', 'postgres'], ['node.js', 'nodejs'], ['kubernetes', 'k8s'], ['javascript', 'js'], ['typescript', 'ts'], ['ai', 'ia', 'intelligence artificielle', 'artificial intelligence'],
+        ['ci/cd', 'cicd', 'ci cd'], ['cybersecurity', 'cybersécurité', 'sécurité informatique', 'information security'], ['golang', 'go lang'], ['restful', 'rest api', 'api rest'], ['tcp/ip', 'tcp ip'],
+        ['machine learning', 'apprentissage automatique'], ['deep learning', 'apprentissage profond'], ['mongodb', 'mongo'], ['aws', 'amazon web services'], ['gcp', 'google cloud'], ['react', 'reactjs'],
+        ['angular', 'angularjs'], ['vue', 'vuejs'], ['rgpd', 'gdpr'], ['ressources humaines', 'human resources', 'rh'], ['service client', 'customer service'], ['gestion de projet', 'project management'],
+        ['comptabilité', 'accounting'], ['recrutement', 'recruitment'], ['marketing digital', 'digital marketing'], ['référencement naturel', 'seo'], ['réseaux sociaux', 'social media'],
+        ['supply chain', 'chaîne logistique'], ['audit interne', 'internal audit'], ['business intelligence', 'bi'], ['développement commercial', 'business development'], ['intégration continue', 'ci']];
+    // Single words too generic to prove a skill (they appear in every offer)
+    const GENERIC = new Set(('notion notions communication management qualite formation conseil organisation planning reporting budget strategie gestion vente ventes production maintenance installation configuration support equipe rigueur autonomie polyvalence ' +
+        'creativite patience empathie accueil service services client clients projet projets recherche developpement analyse etude etudes suivi controle procedures procedure documentation normes reglementation securite ' +
+        'travail terrain contact relation relations presentation animation coordination direction responsable entreprise commerce business team leadership innovation performance objectifs resultats technique technologie ' +
+        'systeme systemes reseau reseaux outil outils logiciel logiciels application applications donnees information informatique digital numerique transformation evaluation education enseignement culture sante soins ' +
+        'programme programmes plan plans mission missions poste profil experience competences competence stage emploi offre candidat contrat droit loi').split(' '));
+
+    const tokenize = (str) => (norm(str).match(/[a-z0-9+#./]+/g) || []).map((t) => t.replace(/^\/+|[./]+$/g, '')).filter(Boolean);
+    const keyOf = (toks) => {
+        const t = toks.slice();
+        const last = t[t.length - 1];
+        if (last && last.length > 3 && last.endsWith('s') && !last.endsWith('ss')) t[t.length - 1] = last.slice(0, -1);
+        return t.join(' ');
+    };
+
+    const INDEX = new Map();   // key -> { display, domains:Set }
+    const DOMAINS = {};        // name -> [display terms in priority order]
+    let MAXN = 3;
+    (function buildIndex() {
+        const vocab = window.CVX_VOCAB || {};
+        const add = (display, domain) => {
+            const toks = tokenize(display);
+            if (!toks.length || (toks.length === 1 && (toks[0].length < 2 || GENERIC.has(toks[0])))) return;
+            MAXN = Math.max(MAXN, toks.length);
+            const key = keyOf(toks);
+            let e = INDEX.get(key);
+            if (!e) { e = { display: display.trim(), key, domains: new Set() }; INDEX.set(key, e); }
+            if (domain) e.domains.add(domain);
+            return e;
+        };
+        Object.keys(vocab).forEach((name) => {
+            const list = String(vocab[name]).split(',').map((x) => x.trim()).filter(Boolean);
+            DOMAINS[name] = list;
+            list.forEach((t) => add(t, name));
+        });
+        EXTRA_TECH.forEach((t) => add(t, null));
+        // Fold aliases onto one canonical entry
+        ALIASES.forEach((g) => {
+            const canon = add(g[0], null) || INDEX.get(keyOf(tokenize(g[0])));
+            if (!canon) return;
+            g.slice(1).forEach((al) => {
+                const toks = tokenize(al); if (!toks.length) return;
+                const k = keyOf(toks), old = INDEX.get(k);
+                if (old && old !== canon) old.domains.forEach((d) => canon.domains.add(d));
+                INDEX.set(k, canon);
+            });
+        });
+        MAXN = Math.min(MAXN, 5);
+    })();
+
+    // Longest-match scan: returns Map(entry -> occurrences)
+    function scan(text) {
+        const toks = tokenize(text), found = new Map();
+        for (let i = 0; i < toks.length;) {
+            let hit = null, len = 1;
+            for (let n = Math.min(MAXN, toks.length - i); n >= 1; n--) {
+                const e = INDEX.get(keyOf(toks.slice(i, i + n)));
+                if (e) { hit = e; len = n; break; }
+            }
+            if (hit) { found.set(hit, (found.get(hit) || 0) + 1); i += len; } else i++;
+        }
+        return found;
+    }
+
     const escRe = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const termRe = (t) => new RegExp('(?<![a-z0-9])' + escRe(t) + 's?(?![a-z0-9+#])', 'i');
 
@@ -186,31 +257,48 @@
         'serez serons sera seront etes avez avons mise place charge justifiez minimum connaissance connaissances appreciee apprecie autonome rigoureux rigoureuse travail sens esprit capacite maitrise bonne bonnes bon sein cadre projet projets ' +
         'poste profil mission missions experience experiences entreprise equipe candidat candidature recherche recherchons rejoindre rejoignez offre emploi h/f f/h cdi cdd stage alternance anne annee ans').split(/\s+/));
 
-    // Returns { terms, mode }: technical terms when the offer has enough, otherwise the most frequent meaningful words
+    // Returns { terms:[{display, entry|null}], mode, domains:[{name, score}], top } — vocabulary terms when the offer has enough, else frequent words
     function extractKeywords(text) {
-        const n = norm(text);
-        let found = TECH.filter((t) => termRe(t).test(n));
-        found = found.filter((t) => !found.some((o) => o !== t && o.includes(' ') && o.split(' ').includes(t)));
-        const seen = new Set(), terms = [];
-        found.forEach((t) => { const g = groupOf(t)[0]; if (!seen.has(g)) { seen.add(g); terms.push(g); } });
-        (n.match(/[a-z0-9][a-z0-9+#./-]*[a-z0-9+#]/g) || []).forEach((w) => {
-            if (/[+#./]/.test(w) && w.length >= 3 && !/^\d/.test(w) && !STOP.has(w) && !terms.some((t) => groupOf(t).includes(w)) && !/^[a-z]\.[a-z]\.?$/.test(w) && !/\.(com|org|net|fr|io)$/.test(w)) terms.push(w);
-        });
-        if (terms.length >= 3) return { terms: terms.slice(0, 30), mode: 'tech' };
-        const freq = new Map();
+        const found = scan(text);
+        const terms = [...found.entries()].sort((a, b) => b[1] - a[1] || b[0].display.length - a[0].display.length)
+            .slice(0, 40).map(([entry]) => ({ display: entry.display, entry }));
+        if (terms.length >= 3) {
+            const score = {};
+            found.forEach((_, e) => { const w = 1 / Math.max(1, e.domains.size); e.domains.forEach((d) => { score[d] = (score[d] || 0) + w; }); });
+            const domains = Object.keys(score).map((name) => ({ name, score: score[name] })).filter((d) => d.score >= 1.5).sort((x, y) => y.score - x.score).slice(0, 3);
+            return { terms, mode: 'vocab', domains };
+        }
+        const n = norm(text), freq = new Map();
         (n.match(/[a-z0-9][a-z0-9+#.\-/]{3,}/g) || []).forEach((raw) => {
             const orig = raw.replace(/^[.\-/]+|[.\-/]+$/g, '');
             const w = orig.replace(/s$/, '');
             if (w.length < 4 || STOP.has(orig) || STOP.has(w) || /^\d+$/.test(w)) return;
             const e = freq.get(w) || { n: 0, show: orig.length <= w.length + 1 ? orig : w };
-            e.n++; if (orig === w) e.show = orig; // prefer the singular form for display
+            e.n++; if (orig === w) e.show = orig;
             freq.set(w, e);
         });
-        return { terms: [...freq.values()].sort((a, b) => b.n - a.n || b.show.length - a.show.length).slice(0, 20).map((e) => e.show), mode: 'words' };
+        const words = [...freq.values()].sort((a, b) => b.n - a.n || b.show.length - a.show.length).slice(0, 20).map((e) => ({ display: e.show, entry: null }));
+        return { terms: words, mode: 'words', domains: [] };
     }
-    function hasKeyword(cvText, kw, mode) {
-        if (groupOf(kw).some((a) => termRe(a).test(cvText))) return true;
-        return mode === 'words' && kw.length >= 7 && cvText.includes(kw.slice(0, kw.length - 2));
+    function hasKeyword(cvText, cvEntries, term, mode) {
+        if (term.entry) return cvEntries.has(term.entry);
+        return termRe(term.display).test(cvText) || (mode === 'words' && term.display.length >= 7 && cvText.includes(term.display.slice(0, term.display.length - 2)));
+    }
+    // Commonly expected terms of the detected field that neither the offer nor the CV mention
+    function suggestFor(domain, cvEntries, jdTerms) {
+        const used = new Set(jdTerms.map((t) => t.entry).filter(Boolean));
+        const out = [], stems = new Set();
+        const domWords = new Set(tokenize(domain).map((w) => w.slice(0, 4)));
+        for (const d of (DOMAINS[domain] || []).slice(0, 60)) {
+            const toks = tokenize(d), e = INDEX.get(keyOf(toks));
+            if (!e || cvEntries.has(e) || used.has(e) || out.some((o) => o.entry === e)) continue;
+            const stem = (toks[0] || '').slice(0, 4);
+            if (domWords.has(stem) || stems.has(stem)) continue; // skip the field's own name and near-duplicates (médecin / médecine)
+            stems.add(stem);
+            out.push({ display: e.display, entry: e });
+            if (out.length >= 10) break;
+        }
+        return out;
     }
 
     const VERB_RE = new RegExp('^(' + [
@@ -341,18 +429,22 @@
         const ta = $('#cvx-jd'), out = $('#cvx-jd-result'); if (!ta || !out) return;
         const text = ta.value.trim();
         if (!text) { out.innerHTML = ''; return; }
-        const { terms: kws, mode } = extractKeywords(text), cv = cvPlainText();
-        if (!kws.length) { out.innerHTML = '<div class="cvx-empty" style="margin-top:.6rem">Aucun mot-clé exploitable détecté. Collez l\'offre complète.</div>'; return; }
-        const hit = kws.filter((k) => hasKeyword(cv, k, mode)), miss = kws.filter((k) => !hasKeyword(cv, k, mode));
-        const pct = Math.round((hit.length / kws.length) * 100);
-        const note = mode === 'tech'
-            ? 'Technologies et outils détectés dans l\'offre.'
-            : 'Peu de termes techniques détectés : voici les mots les plus répétés de l\'offre (indicatif).';
+        const { terms, mode, domains } = extractKeywords(text), cvText = cvPlainText(), cvEntries = new Set(scan(cvText).keys());
+        if (!terms.length) { out.innerHTML = '<div class="cvx-empty" style="margin-top:.6rem">Aucun mot-clé exploitable détecté. Collez l\'offre complète.</div>'; return; }
+        const hit = terms.filter((t) => hasKeyword(cvText, cvEntries, t, mode)), miss = terms.filter((t) => !hasKeyword(cvText, cvEntries, t, mode));
+        const pct = Math.round((hit.length / terms.length) * 100);
+        const note = mode === 'vocab'
+            ? 'Compétences et termes métier reconnus dans l\'offre.'
+            : 'Peu de termes métier reconnus : voici les mots les plus répétés de l\'offre (indicatif).';
+        const dom = domains.length ? `<div style="margin-top:.6rem;font-size:.72rem;color:var(--text-muted)">Domaine détecté :</div><div class="cvx-chips">${domains.map((x) => `<span class="cvx-chip dom">${esc(x.name)}</span>`).join('')}</div>` : '';
+        const sugg = domains.length ? suggestFor(domains[0].name, cvEntries, terms) : [];
         out.innerHTML = `
+            ${dom}
             <div style="margin-top:.6rem;font-size:.72rem;color:var(--text-muted)">${note}</div>
-            <div class="cvx-match"><b>${pct} %</b><div class="cvx-meter"><div style="width:${pct}%;background-position:${pct}% 0"></div></div><span style="color:var(--text-muted)">${hit.length}/${kws.length}</span></div>
-            ${miss.length ? `<div style="margin-top:.6rem;font-size:.72rem;color:var(--text-muted)">Absents de votre CV — ajoutez ceux qui correspondent réellement à votre expérience :</div><div class="cvx-chips">${miss.map((k) => `<span class="cvx-chip miss">${esc(k)}</span>`).join('')}</div>` : ''}
-            ${hit.length ? `<div style="margin-top:.6rem;font-size:.72rem;color:var(--text-muted)">Déjà présents :</div><div class="cvx-chips">${hit.map((k) => `<span class="cvx-chip hit">${esc(k)}</span>`).join('')}</div>` : ''}`;
+            <div class="cvx-match"><b>${pct} %</b><div class="cvx-meter"><div style="width:${pct}%;background-position:${pct}% 0"></div></div><span style="color:var(--text-muted)">${hit.length}/${terms.length}</span></div>
+            ${miss.length ? `<div style="margin-top:.6rem;font-size:.72rem;color:var(--text-muted)">Absents de votre CV — ajoutez ceux qui correspondent réellement à votre expérience :</div><div class="cvx-chips">${miss.map((k) => `<span class="cvx-chip miss">${esc(k.display)}</span>`).join('')}</div>` : ''}
+            ${hit.length ? `<div style="margin-top:.6rem;font-size:.72rem;color:var(--text-muted)">Déjà présents :</div><div class="cvx-chips">${hit.map((k) => `<span class="cvx-chip hit">${esc(k.display)}</span>`).join('')}</div>` : ''}
+            ${sugg.length ? `<div style="margin-top:.6rem;font-size:.72rem;color:var(--text-muted)">Souvent attendus dans ce domaine, non cités dans l'offre (à ajouter seulement si vous les maîtrisez) :</div><div class="cvx-chips">${sugg.map((k) => `<span class="cvx-chip sugg">${esc(k.display)}</span>`).join('')}</div>` : ''}`;
     }
 
     /* ------------------------------------------------------

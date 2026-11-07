@@ -13,7 +13,7 @@
 
 ### 🚀 Smart Tools (new)
 - **CV Score (0–100)** — live analysis of contact info, summary length, action verbs, quantified results, skills, length & readability, with prioritized tips (*Score* tab and top bar).
-- **Job-offer matcher** — paste a job description, get keyword coverage (ATS-style) with missing/present keywords.
+- **Job-offer matcher** — paste a job description: skills are recognised from a vocabulary of 61 job domains / ~6,000 terms (`vocab/*.js`, FR + EN: tech, health, finance, trades, education, creative, hospitality…), the field is detected, coverage is shown, and commonly expected terms are suggested. Add your own terms by editing the `vocab/` files (comma-separated, most important first).
 - **Fit to 1 / 2 pages** — auto-tunes font size, line height, margins and spacing.
 - **Undo / Redo** — `Ctrl+Z` / `Ctrl+Shift+Z` (also covers import, reset, version loading). `Ctrl+S` exports a JSON backup.
 - **My CVs** — keep several named versions (one per target job) in the browser; open, update, duplicate, delete.
