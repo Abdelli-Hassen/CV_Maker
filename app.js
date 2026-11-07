@@ -1604,11 +1604,11 @@ function renderPreview() {
         }
     });
 
-    const effectiveHeight = Math.max(
-        maxContentBottom > 0 ? (maxContentBottom - 5) : 0,
-        printContainer.offsetHeight,
-        printContainer.scrollHeight
-    );
+    // Page count follows the real content. The layout containers have a 297mm min-height (full-page background),
+    // which is taller than one page's usable area (297mm minus margins) and used to force a 2nd empty page.
+    const effectiveHeight = maxContentBottom > 0
+        ? (maxContentBottom - 5)
+        : Math.min(printContainer.offsetHeight, pageContentHeightPx);
     const totalPages = Math.max(1, Math.ceil(effectiveHeight / pageContentHeightPx));
 
     // 6. Clear screen container and populate A4 sliced pages
