@@ -472,6 +472,7 @@
             'Formation / diplômes': { loc: { tab: 'tab-education' } }, 'Langues': { loc: { tab: 'tab-education' } },
             'Longueur du CV': { loc: { scrollFit: true } }
         };
+        let c_hint = '';
         const itemsFor = {
             'Missions par poste (2 à 6)': () => {
                 const hs = cvData.hidden_sections || {}, hf = cvData.hidden_fields || {}, out = [];
@@ -486,13 +487,13 @@
                 return out;
             },
             "Verbes d'action en début de ligne": () => refs.filter((r) => !isStrong(r.text)).map(bulletItem),
-            'Résultats chiffrés': () => refs.filter((r) => !/\d/.test(r.text)).map(bulletItem),
+            'Résultats chiffrés': () => { c_hint = 'Ces missions n'ont pas de chiffre. Choisissez-en une et ajoutez un résultat mesurable :'; return refs.filter((r) => !/\d/.test(r.text)).map(bulletItem); },
             'Lisibilité des missions': () => refs.filter((r) => r.text.length > 220).map(bulletItem)
         };
         checks.forEach((c) => {
             if (c.pts >= c.max) return;
             if (map[c.label]) c.loc = map[c.label].loc;
-            if (itemsFor[c.label]) { c.items = itemsFor[c.label](); c.loc = c.items[0] || { tab: 'tab-experiences' }; }
+            if (itemsFor[c.label]) { c_hint = ''; c.items = itemsFor[c.label](); if (c_hint) c.hint = c_hint; c.loc = c.items[0] || { tab: 'tab-experiences' }; }
         });
     }
 
@@ -531,7 +532,7 @@
         add('Expérience', 'Verbes d\'action en début de ligne', sr * 5, 5, bullets.length ? `${Math.round(sr * 100)} % des missions commencent par un verbe d'action ou un intitulé clair.` + (weak ? ` ${weak} commence(nt) par une formule faible (« Responsable de », « Participation à »…) : remplacez-la par un verbe (piloté, conçu, réduit…).` : '') : 'Commencez chaque mission par un verbe (conçu, déployé, optimisé…).');
         const metr = bullets.filter((b) => /\d/.test(b)).length;
         const mr = bullets.length ? metr / bullets.length : 0;
-        add('Expérience', 'Résultats chiffrés', Math.min(1, mr / 0.25) * 5, 5, bullets.length ? `${Math.round(mr * 100)} % des missions contiennent un chiffre. Visez 25 % ou plus (%, nombre d'utilisateurs, délais…).` : 'Quantifiez vos résultats : %, volumes, délais, taille d\'équipe.');
+        add('Expérience', 'Résultats chiffrés', Math.min(1, mr / 0.25) * 5, 5, bullets.length ? (metr >= Math.ceil(bullets.length * 0.25) ? `${metr} missions sur ${bullets.length} contiennent un chiffre.` : `${metr} mission(s) sur ${bullets.length} contiennent un chiffre (${Math.round(mr * 100)} %). Il en faut au moins ${Math.ceil(bullets.length * 0.25)} (25 %) : ajoutez un chiffre à ${Math.ceil(bullets.length * 0.25) - metr} mission(s) de plus (%, utilisateurs, délais, taille d'équipe…).`) : 'Quantifiez vos résultats : %, volumes, délais, taille d\'équipe.');
 
         // Skills (15)
         const skills = d.skills || [];
@@ -608,7 +609,7 @@
         const SHOW = 12;
         return `<div class="cvx-check-wrap"><div class="cvx-check ${k}${link ? ' is-link' : ''}" ${link ? `data-loc="${id}" role="button" tabindex="0" title="Cliquer pour voir où corriger"` : ''}><div class="ic">${k === 'ok' ? '✓' : (k === 'warn' ? '!' : '✕')}</div>
             <div><b>${esc(c.label)}</b><span class="d">${esc(c.detail)}</span>${link ? `<span class="go">${items.length > 1 ? 'Voir les ' + items.length + ' endroits ↓' : 'Aller corriger →'}</span>` : ''}</div><div class="pts">${c.pts}/${c.max}</div></div>
-            ${items.length ? `<div class="cvx-check-items">${items.slice(0, SHOW).map((it, n) => `<button class="cvx-loc-item" data-loc="${id}.${n}"><span>${esc(it.label)}</span>${it.sub ? `<small>${esc(it.sub)}</small>` : ''}</button>`).join('')}${items.length > SHOW ? `<div class="cvx-more">+ ${items.length - SHOW} autre(s)</div>` : ''}</div>` : ''}</div>`;
+            ${items.length ? `<div class="cvx-check-items">${c.hint ? `<div class="cvx-more" style="padding-left:0">${esc(c.hint)}</div>` : ''}${items.slice(0, SHOW).map((it, n) => `<button class="cvx-loc-item" data-loc="${id}.${n}"><span>${esc(it.label)}</span>${it.sub ? `<small>${esc(it.sub)}</small>` : ''}</button>`).join('')}${items.length > SHOW ? `<div class="cvx-more">+ ${items.length - SHOW} autre(s)</div>` : ''}</div>` : ''}</div>`;
     }
 
     function flash(el) { if (!el) return; el.classList.remove('cvx-flash'); void el.offsetWidth; el.classList.add('cvx-flash'); setTimeout(() => el.classList.remove('cvx-flash'), 2200); }
