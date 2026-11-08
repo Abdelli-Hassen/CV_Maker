@@ -413,10 +413,27 @@
     ].join('|') + ')', 'i');
     const WEAK_RE = /^(responsable de|charge de|chargee de|en charge|participation|taches?|aide a|aide au|responsible for|worked on|duties|helped|assisted)/i;
     // Strong = starts with an action verb, or a short "Label : detail" heading (max 4 words) — unless it opens with a weak formula
+    // English action verbs in any form (build / builds / built / building): an English CV scores like its French twin
+    const EN_V = new Set('accelerate access achieve acquire act adapt add address administer adopt advise advocate analyze analyse announce apply appoint approve architect arrange assemble assess assign assist assure attain audit authorize automate award balance benchmark boost brief budget build calculate capture centralize chair clarify coach code collaborate collect combine communicate compile complete compose conceive conduct configure connect consolidate construct consult contribute control convert coordinate create cultivate customize cut debug decrease define deliver demonstrate deploy derive design detect determine develop devise diagnose direct document draft drive earn edit educate eliminate emphasize enable encourage engineer enhance ensure establish estimate evaluate examine execute expand expedite explain extend extract facilitate finalize fix forecast formulate foster found generate guide handle head help identify illustrate implement improve increase influence inform initiate innovate inspect install instruct integrate interpret interview introduce invent investigate launch lead learn leverage maintain manage map market master maximize measure mediate mentor merge migrate minimize model modernize monitor motivate navigate negotiate normalize observe obtain onboard operate optimize optimise orchestrate organize organise oversee participate partner perform pilot pioneer plan present prevent prioritize process procure produce program promote propose protect prototype provide publish purchase qualify quantify raise rebuild recommend reconcile record recruit redesign reduce refactor refine reinforce release remediate renew repair replace report represent research reshape resolve restructure retrieve review revise revamp run safeguard save schedule secure select serve setup simplify simulate solve source spearhead specify standardize steer streamline strengthen structure study submit supervise support surpass sustain synchronize synthesize tailor target teach test track train transform translate troubleshoot tune update upgrade validate verify visualize win wire write supply containerize virtualize provision render ship rollout'.split(' '));
+    const EN_IRR = new Set('ran took made gave got wrote won drove built led spent taught sold held kept brought oversaw undertook set put began chose grew hired sought thought'.split(' '));
+    function enVerb(w) {
+        if (!/^[a-z]{2,}$/.test(w)) return false;
+        if (EN_V.has(w) || EN_IRR.has(w)) return true;
+        const c = [];
+        if (w.endsWith('ies')) c.push(w.slice(0, -3) + 'y');
+        if (w.endsWith('es')) c.push(w.slice(0, -2));
+        if (w.endsWith('s')) c.push(w.slice(0, -1));
+        if (w.endsWith('ied')) c.push(w.slice(0, -3) + 'y');
+        if (w.endsWith('ed')) { c.push(w.slice(0, -2)); c.push(w.slice(0, -1)); if (/(.)\1ed$/.test(w)) c.push(w.slice(0, -3)); }
+        if (w.endsWith('ing')) { c.push(w.slice(0, -3)); c.push(w.slice(0, -3) + 'e'); if (/(.)\1ing$/.test(w)) c.push(w.slice(0, -4)); }
+        return c.some((x) => EN_V.has(x));
+    }
     const isStrong = (b) => {
         const n = norm(b);
         if (WEAK_RE.test(n)) return false;
         if (VERB_RE.test(n)) return true;
+        const fw = (n.match(/^[a-z]+/) || [''])[0];
+        if (fw && enVerb(fw)) return true;
         const m = b.match(/^([^:]{2,35})\s*:/);
         return !!m && m[1].trim().split(/\s+/).length <= 4;
     };
@@ -425,6 +442,59 @@
        CV SCORE
        ------------------------------------------------------ */
     const pageCount = () => document.querySelectorAll('#screen-preview-container .a4-page-sheet').length || 1;
+
+    /* ------------------------------------------------------
+       WHERE IS THE PROBLEM? every non-green check knows the field / line to jump to
+       ------------------------------------------------------ */
+    const clip = (t, n = 70) => { t = String(t).replace(/\s+/g, ' ').trim(); return t.length > n ? t.slice(0, n - 1) + '…' : t; };
+    // Visible bullets with their real position in the editor (list, entry, line)
+    function bulletRefs() {
+        const hs = cvData.hidden_sections || {}, hf = cvData.hidden_fields || {}, out = [];
+        ['experiences', 'formations'].forEach((k) => {
+            if (hs[k]) return;
+            (cvData[k] || []).forEach((e, i) => {
+                if (hf[`${k}.${i}`]) return;
+                (e.bullets || []).forEach((b, j) => { const t = String(b).trim(); if (t) out.push({ list: k, i, j, text: t, entry: e.title || e.company || '' }); });
+            });
+        });
+        return out;
+    }
+    const bulletItem = (r) => ({ label: clip(r.text), tab: 'tab-experiences', list: r.list, i: r.i, field: 'bullets', line: r.j, sub: r.entry });
+    function attachLocs(checks) {
+        const refs = bulletRefs();
+        const F = (tab, focus) => ({ loc: { tab, focus } });
+        const map = {
+            'Nom complet': F('tab-profile', 'input-name'), 'E-mail valide': F('tab-profile', 'input-email'),
+            'Téléphone': F('tab-profile', 'input-phone'), 'Localisation': F('tab-profile', 'input-location'),
+            'Liens en ligne': F('tab-profile', 'input-linkedin'), 'Résumé professionnel': F('tab-profile', 'input-profile'),
+            'Au moins une expérience': { loc: { tab: 'tab-experiences' } },
+            'Catégories de compétences': { loc: { tab: 'tab-skills' } }, 'Nombre de compétences (8+)': { loc: { tab: 'tab-skills' } },
+            'Formation / diplômes': { loc: { tab: 'tab-education' } }, 'Langues': { loc: { tab: 'tab-education' } },
+            'Longueur du CV': { loc: { scrollFit: true } }
+        };
+        const itemsFor = {
+            'Missions par poste (2 à 6)': () => {
+                const hs = cvData.hidden_sections || {}, hf = cvData.hidden_fields || {}, out = [];
+                ['experiences', 'formations'].forEach((k) => {
+                    if (hs[k]) return;
+                    (cvData[k] || []).forEach((e, i) => {
+                        if (hf[`${k}.${i}`]) return;
+                        const n = (e.bullets || []).filter((b) => String(b).trim()).length;
+                        if (n < 2 || n > 6) out.push({ label: clip(e.title || e.company || 'Poste ' + (i + 1)), sub: n + ' mission(s)', tab: 'tab-experiences', list: k, i, field: 'bullets', line: 0 });
+                    });
+                });
+                return out;
+            },
+            "Verbes d'action en début de ligne": () => refs.filter((r) => !isStrong(r.text)).map(bulletItem),
+            'Résultats chiffrés': () => refs.filter((r) => !/\d/.test(r.text)).map(bulletItem),
+            'Lisibilité des missions': () => refs.filter((r) => r.text.length > 220).map(bulletItem)
+        };
+        checks.forEach((c) => {
+            if (c.pts >= c.max) return;
+            if (map[c.label]) c.loc = map[c.label].loc;
+            if (itemsFor[c.label]) { c.items = itemsFor[c.label](); c.loc = c.items[0] || { tab: 'tab-experiences' }; }
+        });
+    }
 
     function computeScore() {
         const d = effectiveData(), c = d.contact || {};
@@ -481,6 +551,7 @@
         const longB = bullets.filter((b) => b.length > 220).length;
         add('Format', 'Lisibilité des missions', !bullets.length ? 0 : (longB ? Math.max(0, 5 - longB) : 5), 5, !bullets.length ? 'Aucune mission à évaluer.' : longB ? `${longB} mission(s) dépassent 220 caractères : scindez-les.` : 'Missions concises.');
 
+        attachLocs(checks);
         const total = checks.reduce((a, x) => a + x.pts, 0);
         const max = checks.reduce((a, x) => a + x.max, 0);
         return { score: Math.round((total / max) * 100), checks, pages: pg };
@@ -494,6 +565,7 @@
 
     function renderAnalyse() {
         const host = $('#cvx-analyse-body'); if (!host) return;
+        LOCS = [];
         const r = computeScore();
         const [vt, vd, vk] = verdict(r.score);
         const C = 2 * Math.PI * 36;
@@ -527,10 +599,51 @@
                 <div class="cvx-checks" style="margin-top:.35rem">${groups[g].map(checkHTML).join('')}</div>`).join('')}</div>`;
         runMatch();
     }
+    let LOCS = [];
     function checkHTML(c) {
         const k = c.pts >= c.max ? 'ok' : (c.pts > 0 ? 'warn' : 'bad');
-        return `<div class="cvx-check ${k}"><div class="ic">${k === 'ok' ? '✓' : (k === 'warn' ? '!' : '✕')}</div>
-            <div><b>${esc(c.label)}</b><span class="d">${esc(c.detail)}</span></div><div class="pts">${c.pts}/${c.max}</div></div>`;
+        const link = k !== 'ok' && c.loc;
+        const id = link ? LOCS.push(c) - 1 : -1;
+        const items = link && c.items ? c.items : [];
+        const SHOW = 12;
+        return `<div class="cvx-check-wrap"><div class="cvx-check ${k}${link ? ' is-link' : ''}" ${link ? `data-loc="${id}" role="button" tabindex="0" title="Cliquer pour voir où corriger"` : ''}><div class="ic">${k === 'ok' ? '✓' : (k === 'warn' ? '!' : '✕')}</div>
+            <div><b>${esc(c.label)}</b><span class="d">${esc(c.detail)}</span>${link ? `<span class="go">${items.length > 1 ? 'Voir les ' + items.length + ' endroits ↓' : 'Aller corriger →'}</span>` : ''}</div><div class="pts">${c.pts}/${c.max}</div></div>
+            ${items.length ? `<div class="cvx-check-items">${items.slice(0, SHOW).map((it, n) => `<button class="cvx-loc-item" data-loc="${id}.${n}"><span>${esc(it.label)}</span>${it.sub ? `<small>${esc(it.sub)}</small>` : ''}</button>`).join('')}${items.length > SHOW ? `<div class="cvx-more">+ ${items.length - SHOW} autre(s)</div>` : ''}</div>` : ''}</div>`;
+    }
+
+    function flash(el) { if (!el) return; el.classList.remove('cvx-flash'); void el.offsetWidth; el.classList.add('cvx-flash'); setTimeout(() => el.classList.remove('cvx-flash'), 2200); }
+    function goTo(t) {
+        if (!t) return;
+        if (window.innerWidth <= 900 && typeof switchMobileView === 'function') switchMobileView('editor');
+        if (t.scrollFit) { const b = $('[data-fit]'); const card = b && b.closest('.cvx-card'); if (card) { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); flash(card); } return; }
+        if (t.tab) switchTab(t.tab);
+        setTimeout(() => {
+            if (t.list != null) {
+                openCollapseKeys[t.list] = t.i; renderList(t.list);
+                const card = document.getElementById('list-' + t.list)?.children[t.i];
+                if (!card) return;
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' }); flash(card);
+                const f = t.field && card.querySelector(`[data-field="${t.field}"]`);
+                if (f) {
+                    f.focus({ preventScroll: true });
+                    if (t.field === 'bullets' && t.line != null) {
+                        const lines = f.value.split('\n'); let st = 0; for (let x = 0; x < t.line; x++) st += lines[x].length + 1;
+                        f.setSelectionRange(st, st + (lines[t.line] || '').length);
+                        const lh = parseFloat(getComputedStyle(f).lineHeight) || 18; f.scrollTop = Math.max(0, (t.line - 1) * lh);
+                    }
+                    flash(f);
+                }
+            } else if (t.focus) {
+                const el = document.getElementById(t.focus);
+                if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.focus({ preventScroll: true }); flash(el); }
+            } else if (t.tab) {
+                const p = document.getElementById(t.tab); flash(p && (p.querySelector('.section-header') || p));
+            }
+        }, 160);
+    }
+    function locate(ref) {
+        const [a, b] = String(ref).split('.'); const c = LOCS[+a]; if (!c) return;
+        goTo(b != null && c.items ? c.items[+b] : c.loc);
     }
 
     function runMatch() {
@@ -785,7 +898,12 @@
                 if (e.target.id === 'cvx-custom-vocab') { store.set('cv_custom_vocab', e.target.value); clearTimeout(rebuildIndex._t); rebuildIndex._t = setTimeout(() => { rebuildIndex(); runMatch(); }, 300); }
             });
             panel.addEventListener('click', (e) => {
-                const f = e.target.closest('[data-fit]'); if (f) fitToPages(+f.dataset.fit);
+                const f = e.target.closest('[data-fit]'); if (f) return fitToPages(+f.dataset.fit);
+                const l = e.target.closest('[data-loc]'); if (l) locate(l.dataset.loc);
+            });
+            panel.addEventListener('keydown', (e) => {
+                if (e.key !== 'Enter' && e.key !== ' ') return;
+                const l = e.target.closest('.cvx-check[data-loc]'); if (l) { e.preventDefault(); locate(l.dataset.loc); }
             });
         }
 

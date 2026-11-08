@@ -226,3 +226,16 @@
 .cvx-tr-item .cvx-field { width: 100%; resize: vertical; }
 .cvx-tr-item.done { opacity: .65; border-color: rgba(52,211,153,.5); }
 .cvx-tr-st { font-size: .7rem; color: var(--text-muted); font-style: normal; }
+
+/* ---------- Score: click a problem to jump to it ---------- */
+.cvx-check-wrap { display: flex; flex-direction: column; gap: 4px; }
+.cvx-check.is-link { cursor: pointer; transition: background .15s, border-color .15s; }
+.cvx-check.is-link:hover, .cvx-check.is-link:focus-visible { background: rgba(255,255,255,.06); outline: none; border-color: var(--accent); }
+.cvx-check .go { color: var(--accent); font-weight: 700; margin-top: 3px; font-size: .68rem; }
+.cvx-check-items { display: flex; flex-direction: column; gap: 3px; margin: 0 0 2px 28px; }
+.cvx-loc-item { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; text-align: left; padding: 6px 9px; border: 1px solid var(--border-color); border-left: 3px solid #fbbf24; border-radius: 8px; background: transparent; color: var(--text-main); font: 500 .7rem 'Inter', sans-serif; cursor: pointer; }
+.cvx-loc-item:hover { background: rgba(251,191,36,.1); }
+.cvx-loc-item small { color: var(--text-muted); font-size: .62rem; }
+.cvx-more { font-size: .66rem; color: var(--text-muted); padding: 2px 9px; }
+@keyframes cvxFlash { 0%, 100% { box-shadow: 0 0 0 0 rgba(251,191,36,0); } 25%, 60% { box-shadow: 0 0 0 3px #fbbf24; } }
+.cvx-flash { animation: cvxFlash 2s ease-out; border-radius: 10px; }
