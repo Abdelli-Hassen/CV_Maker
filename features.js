@@ -408,7 +408,7 @@
 
     const VERB_RE = new RegExp('^(' + [
         'conc', 'develop', 'deploy', 'install', 'configur', 'ger\\b', 'gere', 'cre(?:e|er|ation)', 'mis\\b', 'mise en', 'optimis', 'administr', 'supervis', 'realis', 'implement', 'automatis', 'migr', 'securis', 'assur', 'dirig', 'pilot', 'integr', 'maintenu', 'maintenance',
-        'analys', 'diagnost', 'deploi', 'cabl', 'assembl', 'etudi', 'constr', 'adminis', 'repar', 'resolu', 'encadr', 'amelior', 'redui', 'accel', 'simplifi', 'obtenu', 'remport', 'gagn', 'forme\\b', 'former\\b', 'coordonn', 'redig', 'teste', 'livr', 'ameliore', 'reduit', 'augment', 'lanc', 'conduit', 'anim', 'negoci', 'planifi', 'organis', 'elabor', 'constru', 'participe', 'contribu', 'collabor', 'accompagn', 'depann', 'surveill', 'monitor', 'sensibilis', 'standardis', 'documente', 'rationalis', 'modernis', 'concu',
+        'analys', 'diagnost', 'deploi', 'cabl', 'assembl', 'etudi', 'constr', 'adminis', 'repar', 'resolu', 'encadr', 'amelior', 'redui', 'accel', 'simplifi', 'obtenu', 'remport', 'gagn', 'forme\\b', 'former\\b', 'coordonn', 'redig', 'teste', 'livr', 'ameliore', 'reduit', 'augment', 'lanc', 'conduit', 'anim', 'negoci', 'planifi', 'organis', 'elabor', 'constru', 'participe', 'contribu', 'collabor', 'accompagn', 'depann', 'surveill', 'monitor', 'sensibilis', 'standardis', 'documente', 'rationalis', 'modernis', 'concu', 'renov', 'rehabilit',
         'led', 'built', 'design', 'developed', 'managed', 'created', 'implemented', 'deployed', 'improved', 'reduced', 'increased', 'automated', 'optimized', 'launched', 'delivered', 'architect', 'maintained', 'configured', 'installed', 'integrated', 'owned', 'drove', 'mentored'
     ].join('|') + ')', 'i');
     const WEAK_RE = /^(responsable de|charge de|chargee de|en charge|participation|taches?|aide a|aide au|responsible for|worked on|duties|helped|assisted)/i;
@@ -487,7 +487,7 @@
                 return out;
             },
             "Verbes d'action en début de ligne": () => refs.filter((r) => !isStrong(r.text)).map(bulletItem),
-            'Résultats chiffrés': () => { c_hint = 'Ces missions n'ont pas de chiffre. Choisissez-en une et ajoutez un résultat mesurable :'; return refs.filter((r) => !/\d/.test(r.text)).map(bulletItem); },
+            'Résultats chiffrés': () => { c_hint = "Ces missions n'ont pas de chiffre. Choisissez-en une et ajoutez un résultat mesurable :"; return refs.filter((r) => !/\d/.test(r.text)).map(bulletItem); },
             'Lisibilité des missions': () => refs.filter((r) => r.text.length > 220).map(bulletItem)
         };
         checks.forEach((c) => {
