@@ -423,6 +423,8 @@ body {
     #app-container.show-editor .editor-sidebar {
         display: flex !important;
     }
+    .preview-container { padding-left: 8px !important; padding-right: 8px !important; box-sizing: border-box; }
+
     /* Keep the hidden preview laid out (off-screen) so page count / score / "fit to N pages" can be measured */
     #app-container.show-editor .preview-container {
         display: flex !important;

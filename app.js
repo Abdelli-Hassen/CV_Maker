@@ -2928,7 +2928,10 @@ function switchMobileView(view) {
 function autoFitMobileZoom() {
     if (window.innerWidth <= 900) {
         const targetWidth = 794; // 210mm at 96dpi
-        const calculatedScale = Math.min(1.0, Math.max(0.3, window.innerWidth / targetWidth));
+        // Fit to the real preview area (excludes the scrollbar), leaving a small margin so the sheet reads as a page
+        const pc = document.querySelector('.preview-container');
+        const avail = (pc && pc.clientWidth > 0 ? pc.clientWidth : window.innerWidth) - 16;
+        const calculatedScale = Math.min(1.0, Math.max(0.3, avail / targetWidth));
         previewZoom = parseFloat(calculatedScale.toFixed(2));
         applyZoom();
 
