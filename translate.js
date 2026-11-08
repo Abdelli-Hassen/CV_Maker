@@ -143,6 +143,20 @@
         return out.join(' ').replace(/\s+/g, ' ').trim();
     }
 
+    /* ---------- translation memory: translating back restores the exact original text ---------- */
+    const MEM = 'cv_tr_memory';
+    const memGet = () => { try { return JSON.parse(localStorage.getItem(MEM) || '{}'); } catch (e) { return {}; } };
+    const memKey = (path) => path.join('.');
+    function remember(from, to, jobs, results) {
+        const m = memGet(); const bucket = m[from + '>' + to] = m[from + '>' + to] || {};
+        jobs.forEach((j, i) => { const r = results[i]; if (r && r.ok && !r.skipped && !r.kept && !r.def) bucket[memKey(j.path)] = { s: j.src, o: r.out }; });
+        try { localStorage.setItem(MEM, JSON.stringify(m)); } catch (e) { /* full: just no memory */ }
+    }
+    function recall(from, to, job) {
+        const e = (memGet()[to + '>' + from] || {})[memKey(job.path)];
+        return e && e.o === job.src ? e.s : null;   // only if the text is exactly what we produced (not edited since)
+    }
+
     // Returns { ok, out, why }
     async function translateOne(src, from, to) {
         const text = cleanText(src);
@@ -212,7 +226,13 @@
         if (!todo.length) { return finish(); }
         S.results = new Array(jobs.length);
         const idxOf = new Map(jobs.map((j, i) => [j, i]));
-        await pool(todo, 4, async (job) => { S.results[idxOf.get(job)] = await translateOne(job.src, from, to); },
+        await pool(todo, 4, async (job) => {
+            const back = recall(from, to, job);
+            const isDefHead = job.path[0] === 'headings' && job.src === HEAD_EN[job.path[1]];   // our own English default title
+            S.results[idxOf.get(job)] = back != null ? { ok: true, out: back, restored: true }
+                : isDefHead ? { ok: true, out: job.src, def: true }
+                : await translateOne(job.src, from, to);
+        },
             (d) => {
                 const f = $('#cvx-tr-fill'), m = $('#cvx-tr-msg');
                 if (f) f.style.width = Math.round(d / todo.length * 100) + '%';
@@ -223,13 +243,13 @@
 
     function finish() {
         const { host, jobs } = S;
-        const bad = []; let okN = 0, skipN = 0;
+        const bad = []; let okN = 0, skipN = 0, backN = 0;
         jobs.forEach((j, i) => {
             if (j.kind !== 'text') return;
             const r = S.results[i];
-            if (r && r.ok) { r.skipped ? skipN++ : okN++; } else bad.push(i);
+            if (r && r.ok) { if (r.def) return; r.restored ? backN++ : r.skipped ? skipN++ : okN++; } else bad.push(i);
         });
-        drawReport(bad, okN, skipN);
+        S.backN = backN; drawReport(bad, okN, skipN);
     }
 
     function drawReport(bad, okN, skipN) {
@@ -237,7 +257,7 @@
         host.innerHTML = `
             <div class="cvx-tr-sum ${bad.length ? 'warn' : 'ok'}">
                 <b>${bad.length ? '⚠ ' + bad.length + ' champ' + (bad.length > 1 ? 's' : '') + ' à vérifier' : '✓ Tout est traduit'}</b>
-                <span>${okN} traduit${okN > 1 ? 's' : ''}${skipN ? ' · ' + skipN + ' déjà dans la langue cible' : ''}</span>
+                <span>${okN} traduit${okN > 1 ? 's' : ''}${S.backN ? ' · ' + S.backN + ' texte' + (S.backN > 1 ? 's' : '') + ' d’origine restauré' + (S.backN > 1 ? 's' : '') : ''}${skipN ? ' · ' + skipN + ' déjà dans la langue cible' : ''}</span>
             </div>
             ${bad.length ? `<p class="cvx-tr-note">Ces textes n'ont pas pu être traduits (faute de frappe, phrase incomplète ou service indisponible). Corrigez le texte puis cliquez sur « Retraduire », ou gardez-le tel quel.</p>` : ''}
             <div id="cvx-tr-bad">${bad.map((i) => `
@@ -282,13 +302,18 @@
         const next = clone(cvData);
         const untouched = [];
         jobs.forEach((j, i) => {
-            if (j.kind === 'period') setPath(next, j.path, translatePeriod(j.src, to));
-            else { const r = S.results[i]; if (r && r.ok) setPath(next, j.path, r.out); else untouched.push(j.label); }
+            if (j.kind === 'period') { const back = recall(S.from, to, j); const out = back != null ? back : translatePeriod(j.src, to); S.results[i] = { ok: true, out }; setPath(next, j.path, out); }
+            else {
+                const r = S.results[i];
+                if (r && r.ok && r.def) { if (to === 'fr') delete next.headings[j.path[1]]; }   // back to the layout's French default
+                else if (r && r.ok) setPath(next, j.path, r.out);
+                else untouched.push(j.label);
+            }
         });
         // default section titles follow the language (custom titles were translated above)
         next.headings = next.headings || {};
         if (to === 'en') Object.keys(HEAD_EN).forEach((k) => { if (!next.headings[k]) next.headings[k] = HEAD_EN[k]; });
-        else Object.keys(HEAD_EN).forEach((k) => { if (next.headings[k] === HEAD_EN[k]) delete next.headings[k]; });
+        remember(S.from, to, jobs, S.results);
         cvData = next;
         runMigrations(cvData); persistData(); populateFormInputs(); renderPreview(); CVX.afterRender(); CVX.settle();
         window.CVX_closeModal();
