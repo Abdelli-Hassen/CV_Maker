@@ -1623,6 +1623,8 @@ function renderPreview() {
     const pxPerMm = pageHeightPx / 297;
     const pageContentHeightMm = pageContentHeightPx / pxPerMm;
 
+    const shadowBlur = (cvData.design && cvData.design.pfp_shadow != null) ? cvData.design.pfp_shadow : 15;
+    const shadowRoomPx = Math.max(0, Math.min(Math.floor(marginMm * 3.78), Math.ceil(shadowBlur) + 6));
     for (let i = 0; i < totalPages; i++) {
         const pageSheet = document.createElement('div');
         pageSheet.className = 'a4-page-sheet';
@@ -1647,10 +1649,14 @@ function renderPreview() {
 
         const pageContentWrapper = document.createElement('div');
         pageContentWrapper.className = 'a4-page-content-wrapper';
-        pageContentWrapper.style.marginTop = `${marginMm}mm`;
-        pageContentWrapper.style.marginLeft = `${marginMm}mm`;
-        pageContentWrapper.style.width = `calc(210mm - ${2 * marginMm}mm)`;
-        pageContentWrapper.style.height = `calc(297mm - ${2 * marginMm}mm)`;
+        // The wrapper clips overflow (pagination). Give it a little room on the sides (and on top of page 1),
+        // taken out of the white page margin, so the profile photo's soft shadow is not cut into a flat edge.
+        const topPad = (i === 0) ? shadowRoomPx : 0;
+        pageContentWrapper.style.padding = `${topPad}px ${shadowRoomPx}px 0 ${shadowRoomPx}px`;
+        pageContentWrapper.style.marginTop = `calc(${marginMm}mm - ${topPad}px)`;
+        pageContentWrapper.style.marginLeft = `calc(${marginMm}mm - ${shadowRoomPx}px)`;
+        pageContentWrapper.style.width = `calc(210mm - ${2 * marginMm}mm + ${2 * shadowRoomPx}px)`;
+        pageContentWrapper.style.height = `calc(297mm - ${2 * marginMm}mm + ${topPad}px)`;
 
         const pageClone = document.createElement('div');
         pageClone.className = 'a4-page-clone';
