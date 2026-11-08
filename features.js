@@ -725,7 +725,7 @@
         host.innerHTML = `
             <div class="cvx-row"><input class="cvx-field" id="cvx-ver-name" maxlength="60" placeholder="Nom de la version, ex. Développeur Full-Stack" value="${esc(cur)}" style="flex:3">
                 <button class="cvx-btn" id="cvx-ver-save" style="justify-content:center;flex:1">Enregistrer</button></div>
-            <div class="cvx-row" style="margin-top:.5rem"><button class="cvx-btn" id="cvx-ver-new" style="justify-content:center">+ Nouveau CV vierge</button></div>
+            <div class="cvx-row" style="margin-top:.5rem"><button class="cvx-btn" id="cvx-ver-new" style="justify-content:center">+ Nouveau CV vierge</button><button class="cvx-btn" id="cvx-ver-example" style="justify-content:center" title="Voir un CV exemple complet (Score 100)">★ Voir un exemple</button></div>
             <div class="cvx-ver-list">${list.length ? list.map((v) => `
                 <div class="cvx-ver" data-id="${esc(v.id)}"><div class="cvx-ver-info"><b>${esc(v.name)}</b><small>${esc(v.layout)} · ${fmtDate(v.updated)}</small></div>
                     <button class="cvx-btn" data-act="load">Ouvrir</button><button class="cvx-btn" data-act="update" title="Remplacer par le CV actuel">Màj</button>
@@ -749,6 +749,15 @@
             const name = ($('#cvx-ver-name', host).value || '').trim() || 'Sans titre';
             const arr = getVersions();
             if (save([{ id: 'v' + Date.now().toString(36), name, layout: currentLayout, updated: Date.now(), data: clone(cvData) }, ...arr])) { toast('Version enregistrée.', 'success'); drawVersions(m); }
+        };
+        $('#cvx-ver-example', host).onclick = async () => {
+            if (!confirm("Charger le CV exemple ? Le CV actuel sera remplacé (annulable avec Ctrl+Z, pensez à l'enregistrer avant).")) return;
+            let ex = null;
+            try { ex = typeof window.defaultCVData !== 'undefined' ? clone(window.defaultCVData) : await (await fetch('data.json', { cache: 'no-cache' })).json(); } catch (e) { ex = null; }
+            if (!ex) return toast("Impossible de charger l'exemple.", 'error');
+            checkpoint();
+            cvData = ex; runMigrations(cvData); persistData(); populateFormInputs(); renderPreview(); afterRender(); settle(); closeModal();
+            toast('CV exemple chargé (Ctrl+Z pour revenir à votre CV).', 'success');
         };
         $('#cvx-ver-new', host).onclick = () => {
             if (!confirm('Créer un CV vierge ? Le CV actuel sera remplacé (annulable avec Ctrl+Z, pensez à l\'enregistrer avant).')) return;

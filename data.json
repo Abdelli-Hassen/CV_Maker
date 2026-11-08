@@ -1,7 +1,7 @@
 {
   "contact": {
     "name": "Camille Dupont",
-    "title_sub": "Développeur Web Full-Stack | React · Node.js · PostgreSQL",
+    "title_sub": "Développeuse Web Full-Stack | React · Node.js · PostgreSQL",
     "email": "camille.dupont@exemple.com",
     "phone": "+33 6 00 00 00 00",
     "location": "Lyon, France",
@@ -12,28 +12,39 @@
     "image": "",
     "image_size": 110
   },
-  "profile": "Développeuse web full-stack avec 3 ans d'expérience dans la conception d'applications React et Node.js. Habituée aux environnements agiles, j'ai livré des produits utilisés par plus de 10 000 personnes et réduit de 40 % les temps de chargement d'une plateforme e-commerce. Je recherche un poste où allier qualité de code, performance et impact produit. (Exemple : remplacez ce texte par le vôtre.)",
+  "profile": "Développeuse web full-stack avec 5 ans d'expérience dans la conception de plateformes SaaS à fort trafic (React, Node.js, PostgreSQL). J'ai livré des produits utilisés par plus de 120 000 personnes, réduit de 45 % les temps de chargement d'une marketplace et industrialisé les déploiements d'une équipe de 8 développeurs. Je recherche un poste où allier qualité de code, performance et impact produit. (Exemple : remplacez ce texte par le vôtre.)",
   "experiences": [
     {
-      "title": "Développeuse Full-Stack",
-      "company": "Entreprise Exemple",
+      "title": "Développeuse Full-Stack Senior",
+      "company": "Studio Lumen",
       "location": "Lyon, France",
       "period": "Janv. 2023 – Présent",
       "bullets": [
-        "Conçu et déployé une API REST Node.js/PostgreSQL servant 10 000+ utilisateurs actifs.",
-        "Réduit de 40 % le temps de chargement des pages grâce au cache et au découpage du code React.",
-        "Mis en place la CI/CD (GitHub Actions) : déploiements passés de 1 heure à 8 minutes.",
-        "Encadré 2 développeurs juniors et animé les revues de code hebdomadaires."
+        "Conçu et déployé une API REST Node.js/PostgreSQL servant 120 000+ utilisateurs actifs, avec 99,95 % de disponibilité.",
+        "Réduit de 45 % le temps de chargement des pages (cache Redis, découpage du code React, images optimisées) ; taux de rebond passé de 38 % à 24 %.",
+        "Mis en place la CI/CD (GitHub Actions, Docker) : déploiements passés de 1 heure à 8 minutes, 15 mises en production par semaine.",
+        "Encadré 3 développeurs juniors et animé les revues de code hebdomadaires ; temps d'intégration d'une recrue divisé par 2."
       ]
     },
     {
-      "title": "Développeuse Web (Alternance)",
-      "company": "Agence Démo",
+      "title": "Développeuse Web",
+      "company": "Atelier Pixel",
       "location": "Villeurbanne, France",
-      "period": "Sept. 2021 – Déc. 2022",
+      "period": "Sept. 2020 – Déc. 2022",
       "bullets": [
-        "Développé 12 sites vitrines et 2 applications métier en React et Symfony.",
-        "Intégré des paiements en ligne et automatisé l'envoi de 500+ e-mails transactionnels par mois."
+        "Développé 12 sites vitrines et 4 applications métier en React et Symfony pour des clients de 6 secteurs.",
+        "Intégré le paiement en ligne (Stripe) et automatisé l'envoi de 2 000+ e-mails transactionnels par mois, réduisant les demandes au support de 30 %.",
+        "Amélioré l'accessibilité (WCAG AA) de 8 sites ; score Lighthouse moyen passé de 62 à 94."
+      ]
+    },
+    {
+      "title": "Développeuse Web (Stage)",
+      "company": "Agence Démo",
+      "location": "Lyon, France",
+      "period": "Mars 2020 – Août 2020",
+      "bullets": [
+        "Prototypé une application de réservation en Vue.js, livrée en 10 semaines et adoptée par 3 clients pilotes.",
+        "Rédigé 60 tests automatisés (Jest) : couverture du code passée de 20 % à 70 %."
       ]
     }
   ],
@@ -42,46 +53,50 @@
     {
       "title": "TaskFlow — Gestionnaire de tâches collaboratif",
       "stack": "React | Node.js | WebSocket",
-      "description": "Application de gestion de projet en temps réel avec tableaux Kanban, rôles et notifications ; 300 utilisateurs en bêta."
+      "description": "Application de gestion de projet en temps réel (tableaux Kanban, rôles, notifications) ; 300 utilisateurs en bêta et 4,6/5 de satisfaction."
     },
     {
       "title": "OpenStats — Tableau de bord open data",
       "stack": "Python | FastAPI | Chart.js",
-      "description": "Visualisation interactive de données publiques avec API documentée et exports CSV."
+      "description": "Visualisation interactive de 40+ jeux de données publiques, avec API documentée et exports CSV."
     }
   ],
   "skills": [
     {
-      "category": "Développement",
-      "value": "JavaScript, TypeScript, React, Node.js, Express, Python, HTML5, CSS3"
+      "category": "Front-end",
+      "value": "React, TypeScript, Next.js, HTML5, CSS3, Tailwind CSS, Accessibilité (WCAG)"
     },
     {
-      "category": "Données & Backend",
-      "value": "PostgreSQL, MongoDB, API REST, JWT, Docker"
+      "category": "Back-end & données",
+      "value": "Node.js, Express, Python, FastAPI, PostgreSQL, Redis, MongoDB, API REST, GraphQL"
     },
     {
-      "category": "Outils",
-      "value": "Git, GitHub Actions, Linux, Figma, Jira"
+      "category": "DevOps & qualité",
+      "value": "Docker, GitHub Actions, AWS, Linux, Jest, Cypress, Git"
+    },
+    {
+      "category": "Méthodes",
+      "value": "Scrum, TDD, revue de code, mentorat"
     }
   ],
   "education": [
     {
       "degree": "Master en Informatique — Génie Logiciel",
       "school": "Université Exemple",
-      "period": "2019 – 2021"
+      "period": "2018 – 2020"
     },
     {
       "degree": "Licence en Informatique",
       "school": "Université Exemple",
-      "period": "2016 – 2019"
+      "period": "2015 – 2018"
     }
   ],
   "certifications": [
-    "AWS Cloud Practitioner (exemple)",
-    "Scrum Fundamentals (exemple)"
+    "AWS Certified Developer – Associate (exemple)",
+    "Professional Scrum Master I (exemple)"
   ],
   "activities": [
-    "Mentore bénévole dans une association de formation au code."
+    "Mentore bénévole dans une association de formation au code (2 h par semaine)."
   ],
   "languages": [
     {

@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node -e \"const fs=require('fs'); fs.mkdirSync('dist/vocab',{recursive:true}); for (const f of ['vocab/it.js','vocab/business.js','vocab/industry-health.js','vocab/creative-services.js','app.js','layouts.js','layouts.css','features.js','translate.js','features.css','data.json']) fs.copyFileSync(f, 'dist/' + f); fs.writeFileSync('dist/index.html', fs.readFileSync('dist/index.html', 'utf8').replace(/ crossorigin/g, ''))\"",
+    "build": "vite build && node -e \"const fs=require('fs'); fs.mkdirSync('dist/vocab',{recursive:true}); for (const f of ['vocab/it.js','vocab/business.js','vocab/industry-health.js','vocab/creative-services.js','app.js','data.js','layouts.js','layouts.css','features.js','translate.js','features.css','data.json']) fs.copyFileSync(f, 'dist/' + f); fs.writeFileSync('dist/index.html', fs.readFileSync('dist/index.html', 'utf8').replace(/ crossorigin/g, ''))\"",
     "preview": "vite preview"
   },
   "repository": {
