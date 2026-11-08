@@ -488,7 +488,7 @@
             },
             "Verbes d'action en début de ligne": () => refs.filter((r) => !isStrong(r.text)).map(bulletItem),
             'Résultats chiffrés': () => { c_hint = "Ces missions n'ont pas de chiffre. Choisissez-en une et ajoutez un résultat mesurable :"; return refs.filter((r) => !/\d/.test(r.text)).map(bulletItem); },
-            'Lisibilité des missions': () => refs.filter((r) => r.text.length > 220).map(bulletItem)
+            'Lisibilité des missions': () => refs.filter((r) => r.text.length > 300).map(bulletItem)
         };
         checks.forEach((c) => {
             if (c.pts >= c.max) return;
@@ -549,8 +549,14 @@
         // Format (15)
         const pg = pageCount();
         add('Format', 'Longueur du CV', words < 80 ? 0 : (pg === 1 ? 10 : (pg === 2 ? 7 : 2)), 10, words < 80 ? 'Pas assez de contenu pour évaluer la longueur (moins de 80 mots).' : pg === 1 ? '1 page — idéal.' : (pg === 2 ? '2 pages — acceptable pour un profil expérimenté.' : `${pg} pages — trop long. Utilisez « Ajuster à 1 page » ou condensez.`));
-        const longB = bullets.filter((b) => b.length > 220).length;
-        add('Format', 'Lisibilité des missions', !bullets.length ? 0 : (longB ? Math.max(0, 5 - longB) : 5), 5, !bullets.length ? 'Aucune mission à évaluer.' : longB ? `${longB} mission(s) dépassent 220 caractères : scindez-les.` : 'Missions concises.');
+        // Soft guidance, not a hard limit: ideal <= 250 characters; only bullets beyond 300 cost points.
+        const longB = bullets.filter((b) => b.length > 300).length;
+        const aboveIdeal = bullets.filter((b) => b.length > 250 && b.length <= 300).length;
+        add('Format', 'Lisibilité des missions', !bullets.length ? 0 : (longB ? Math.max(0, 5 - longB) : 5), 5,
+            !bullets.length ? 'Aucune mission à évaluer.'
+                : longB ? `${longB} mission(s) dépassent 300 caractères : raccourcissez-les ou scindez-les en deux. (Idéal : 250 maximum.)`
+                    : aboveIdeal ? `Aucune mission au-delà de 300 caractères. Conseil (sans pénalité) : ${aboveIdeal} mission(s) dépassent l'idéal de 250.`
+                        : 'Missions concises (idéal : 250 caractères maximum, limite conseillée : 300).');
 
         attachLocs(checks);
         const total = checks.reduce((a, x) => a + x.pts, 0);
