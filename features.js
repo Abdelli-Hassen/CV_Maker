@@ -615,7 +615,7 @@
         host.insertAdjacentHTML('beforeend', `
             <div class="cvx-card" style="margin-top:1rem">
                 <h4>🔒 Vos données restent chez vous</h4>
-                <p>Vos CV sont enregistrés uniquement dans <b>ce navigateur</b> (stockage local). Ils ne sont envoyés à aucun serveur et personne d'autre ne peut les voir. Sur un ordinateur partagé, exportez votre CV en JSON puis effacez vos données.</p>
+                <p>Vos CV sont enregistrés uniquement dans <b>ce navigateur</b> (stockage local). Ils ne sont envoyés à aucun serveur et personne d'autre ne peut les voir (seule exception : si vous utilisez « Traduire », les textes à traduire transitent par un service de traduction). Sur un ordinateur partagé, exportez votre CV en JSON puis effacez vos données.</p>
                 <button class="cvx-btn" id="cvx-wipe" style="justify-content:center;width:100%;color:#f87171;border-color:rgba(248,113,113,.4)">Effacer toutes mes données de ce navigateur</button>
             </div>`);
         $('#cvx-wipe', host).onclick = () => {
@@ -862,6 +862,7 @@
     /* ------------------------------------------------------
        BOOT
        ------------------------------------------------------ */
+    window.CVX_openModal = openModal; window.CVX_closeModal = closeModal;
     window.CVX = { toast, onChange, afterRender, checkpoint, settle, undo, redo, refreshAnalyse, fitToPages, computeScore, openGallery, openVersions };
 
     function boot() {
