@@ -423,8 +423,16 @@ body {
     #app-container.show-editor .editor-sidebar {
         display: flex !important;
     }
+    /* Keep the hidden preview laid out (off-screen) so page count / score / "fit to N pages" can be measured */
     #app-container.show-editor .preview-container {
-        display: none !important;
+        display: flex !important;
+        position: fixed !important;
+        left: -10000px;
+        top: 0;
+        width: 100vw;
+        height: auto;
+        visibility: hidden;
+        pointer-events: none;
     }
 
     #app-container.show-preview .editor-sidebar {
