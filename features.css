@@ -190,7 +190,17 @@
 
 /* ---------- Responsive / print ---------- */
 @media (max-width: 900px) {
-    .cvx-bar { display: none; }
+    /* Phone: keep every tool, as one swipeable row under the nav bar */
+    .cvx-bar {
+        flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; width: calc(100% - 16px); margin: 8px 8px 4px; border-radius: 14px; position: relative; top: auto;
+    }
+    .cvx-bar::-webkit-scrollbar { display: none; }
+    .cvx-bar > * { flex: none; white-space: nowrap; }
+    .cvx-btn { height: 34px; }
+    .cvx-dialog, .cvx-dialog--sm { width: 100%; max-height: 92dvh; }
+    .cvx-dialog-body { padding: 1rem; }
+    .cvx-tpl-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .7rem; }
     .cvx-toasts { right: 10px; left: 10px; bottom: 74px; }
     .cvx-toast { max-width: none; }
 }
