@@ -548,7 +548,7 @@
 
         // Format (15)
         const pg = pageCount();
-        add('Format', 'Longueur du CV', words < 80 ? 0 : (pg === 1 ? 10 : (pg === 2 ? 7 : 2)), 10, words < 80 ? 'Pas assez de contenu pour évaluer la longueur (moins de 80 mots).' : pg === 1 ? '1 page — idéal.' : (pg === 2 ? '2 pages — acceptable pour un profil expérimenté.' : `${pg} pages — trop long. Utilisez « Ajuster à 1 page » ou condensez.`));
+        add('Format', 'Longueur du CV', words < 80 ? 0 : (pg <= 3 ? 10 : 3), 10, words < 80 ? 'Pas assez de contenu pour évaluer la longueur (moins de 80 mots).' : pg <= 3 ? `${pg} page${pg > 1 ? 's' : ''} — dans la limite (maximum conseillé : 3 pages).` : `${pg} pages — le maximum conseillé est de 3. Utilisez « Ajuster à 3 pages » ou condensez.`);
         // Soft guidance, not a hard limit: ideal <= 250 characters; only bullets beyond 300 cost points.
         const longB = bullets.filter((b) => b.length > 300).length;
         const aboveIdeal = bullets.filter((b) => b.length > 250 && b.length <= 300).length;
@@ -593,7 +593,7 @@
             ${top.length ? `<div class="cvx-card"><h4>Priorités</h4><p>Les 3 améliorations qui feront le plus progresser votre score :</p>
                 <div class="cvx-checks" style="margin-top:0">${top.map(checkHTML).join('')}</div></div>` : ''}
             <div class="cvx-card"><h4>Mise en page</h4><p>Ajuste automatiquement la taille du texte, l'interligne et les marges pour tenir sur le nombre de pages voulu.</p>
-                <div class="cvx-row"><button class="cvx-btn" data-fit="1" style="justify-content:center">Ajuster à 1 page</button><button class="cvx-btn" data-fit="2" style="justify-content:center">Ajuster à 2 pages</button></div></div>
+                <div class="cvx-row"><button class="cvx-btn" data-fit="1" style="justify-content:center">Ajuster à 1 page</button><button class="cvx-btn" data-fit="2" style="justify-content:center">Ajuster à 2 pages</button><button class="cvx-btn" data-fit="3" style="justify-content:center">Ajuster à 3 pages</button></div></div>
             <div class="cvx-card"><h4>Compatibilité avec une offre</h4>
                 <p>Collez le texte d'une offre d'emploi : l'analyseur extrait les mots-clés et vérifie lesquels figurent dans votre CV (utile pour les logiciels ATS).</p>
                 <textarea id="cvx-jd" rows="5" placeholder="Collez ici la description du poste…">${esc(store.get('cv_jd', ''))}</textarea>
@@ -946,7 +946,7 @@
             const r = computeScore();
             const s = $('#cvx-score'), p = $('#cvx-pages');
             if (s) { s.innerHTML = `Score <b>${r.score}</b>`; s.className = 'cvx-pill is-' + verdict(r.score)[2]; }
-            if (p) { p.textContent = `${r.pages} page${r.pages > 1 ? 's' : ''}`; p.className = 'cvx-pill ' + (r.pages === 1 ? 'is-ok' : r.pages === 2 ? 'is-warn' : 'is-bad'); }
+            if (p) { p.textContent = `${r.pages} page${r.pages > 1 ? 's' : ''}`; p.className = 'cvx-pill ' + (r.pages <= 3 ? 'is-ok' : 'is-bad'); }
             refreshAnalyse();
         }, 120);
     }
